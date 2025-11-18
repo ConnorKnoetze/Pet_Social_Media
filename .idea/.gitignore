@@ -6,3 +6,15 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+.coverage
+.idea
+.pytest_cache
+.vscode
+__pycache__
+htmlcov
+coverage.xml
+venv
+*.db
+*.egg-info
+.DS_Store
