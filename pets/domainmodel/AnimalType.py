@@ -1,0 +1,2 @@
+class AnimalType:
+    pass

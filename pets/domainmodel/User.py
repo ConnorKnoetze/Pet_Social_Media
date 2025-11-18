@@ -4,7 +4,8 @@ from typing import List, Optional
 from pathlib import Path
 from datetime import datetime
 
-from pets.domainmodel import Post, Comment
+from pets.domainmodel.Post import Post
+from pets.domainmodel.Comment import Comment
 
 
 class User:
