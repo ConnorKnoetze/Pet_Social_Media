@@ -1,42 +1,43 @@
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from typing_extensions import Tuple
 
-from pets.domainmodel.Comment import Comment
-from pets.domainmodel.User import User
-from pets.domainmodel.Like import Like
+if TYPE_CHECKING:
+    from pets.domainmodel.Comment import Comment
+    from pets.domainmodel.Like import Like
+    from pets.domainmodel.User import User
 
 
 class Post:
     __id: int
-    __user: User
-    __likes: List[Like]
-    __comments: List[Comment]
+    __user: "User"
+    __likes: List["Like"]
+    __comments: List["Comment"]
     __caption: str
     __views: int
     __created_at: datetime
     __size: Tuple[int, int]
     __tags: List[str]
-    __users_tagged: List[User]
+    __users_tagged: List["User"]
     __media_path: Path
     __media_type: str
 
     def __init__(
         self,
         id: int,
-        user: User,
+        user: "User",
         caption: str,
         views: int,
         created_at: datetime,
         size: Tuple[int, int],
         tags: List[str],
-        users_tagged: List[User],
+        users_tagged: List["User"],
         media_path: Path,
         media_type: str,
-        comments: List[Comment] = None,
-        likes: List[Like] = None,
+        comments: List["Comment"] = None,
+        likes: List["Like"] = None,
     ):
         self.__id = id
         self.__user = user
@@ -56,15 +57,15 @@ class Post:
         return self.__id
 
     @property
-    def user(self) -> User:
+    def user(self) -> "User":
         return self.__user
 
     @property
-    def likes(self) -> List[Like]:
+    def likes(self) -> List["Like"]:
         return self.__likes
 
     @property
-    def comments(self) -> List[Comment]:
+    def comments(self) -> List["Comment"]:
         return self.__comments
 
     @property
@@ -88,7 +89,7 @@ class Post:
         return self.__tags
 
     @property
-    def users_tagged(self) -> List[User]:
+    def users_tagged(self) -> List["User"]:
         return self.__users_tagged
 
     @property
@@ -99,19 +100,19 @@ class Post:
     def media_type(self) -> str:
         return self.__media_type
 
-    def add_like(self, like: Like):
+    def add_like(self, like: "Like"):
         if like not in self.__likes:
             self.__likes.append(like)
 
-    def remove_like(self, like: Like):
+    def remove_like(self, like: "Like"):
         if like in self.__likes:
             self.__likes.remove(like)
 
-    def add_comment(self, comment: Comment):
+    def add_comment(self, comment: "Comment"):
         if comment not in self.__comments:
             self.__comments.append(comment)
 
-    def remove_comment(self, comment: Comment):
+    def remove_comment(self, comment: "Comment"):
         if comment in self.__comments:
             self.__comments.remove(comment)
 
@@ -126,10 +127,10 @@ class Post:
         if tag in self.__tags:
             self.__tags.remove(tag)
 
-    def tag_user(self, user: User):
+    def tag_user(self, user: "User"):
         if user not in self.__users_tagged:
             self.__users_tagged.append(user)
 
-    def untag_user(self, user: User):
+    def untag_user(self, user: "User"):
         if user in self.__users_tagged:
             self.__users_tagged.remove(user)
