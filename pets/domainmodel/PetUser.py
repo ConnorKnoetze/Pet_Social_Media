@@ -15,7 +15,7 @@ class PetUser(User):
 
     def __init__(
         self,
-        id : int,
+        id: int,
         username: str,
         email: str,
         password_hash: str,

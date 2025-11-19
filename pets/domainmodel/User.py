@@ -9,8 +9,9 @@ if TYPE_CHECKING:
     from pets.domainmodel.Comment import Comment
     from pets.domainmodel.Post import Post
 
+
 class User:
-    __id : int
+    __id: int
     __username: str
     __email: str
     __password_hash: str
@@ -23,7 +24,7 @@ class User:
 
     def __init__(
         self,
-        id : int,
+        id: int,
         username: str,
         email: str,
         password_hash: str,

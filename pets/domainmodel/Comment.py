@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 from pets.domainmodel.Like import Like
 
+
 class Comment:
     __id: int
     __user_id: int
@@ -10,13 +11,19 @@ class Comment:
     __comment_string: str
     __likes: List[Like]
 
-    def __init__(self, id: int, user_id: int, created_at: datetime, comment_string: str, likes: List[Like]):
+    def __init__(
+        self,
+        id: int,
+        user_id: int,
+        created_at: datetime,
+        comment_string: str,
+        likes: List[Like],
+    ):
         self.__id = id
         self.__user_id = user_id
         self.__created_at = created_at
         self.__comment_string = comment_string
         self.__likes = likes
-
 
     @property
     def id(self) -> int:
@@ -44,7 +51,3 @@ class Comment:
 
     def add_like(self, like: Like):
         self.__likes.append(like)
-
-
-
-

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class Like:
     __id: int
     __user_id: int
@@ -11,6 +12,15 @@ class Like:
         self.__user_id = user_id
         self.__post_id = post_id
         self.__created_at = created_at
+
+    def __eq__(self, other):
+        if not isinstance(other, Like):
+            return False
+        return (
+            self.id == other.id
+            and self.user_id == other.user_id
+            and self.post_id == other.post_id
+        )
 
     @property
     def id(self) -> int:
@@ -27,4 +37,3 @@ class Like:
     @property
     def created_at(self) -> datetime:
         return self.__created_at
-
