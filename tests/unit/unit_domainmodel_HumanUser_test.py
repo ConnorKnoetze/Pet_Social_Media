@@ -57,6 +57,7 @@ def test_friends_property(test_human_user: HumanUser):
     from datetime import datetime
 
     friend = User(
+        1,
         "friend_user",
         "friend_user.example.com",
         "hashed_password",
@@ -73,6 +74,7 @@ def test_add_friend(test_human_user: HumanUser):
     from datetime import datetime
 
     friend = User(
+        1,
         "new_friend",
         "new_friend.example.com",
         "hashed_password",
@@ -89,6 +91,7 @@ def test_add_existing_friend(test_human_user: HumanUser):
     from datetime import datetime
 
     friend = User(
+        1,
         "existing_friend",
         "existing_friend.example.com",
         "hashed_password",
@@ -113,6 +116,7 @@ def test_remove_friend(test_human_user: HumanUser):
     from datetime import datetime
 
     friend = User(
+        1,
         "removable_friend",
         "removable_friend.example.com",
         "hashed_password",
@@ -130,6 +134,7 @@ def test_remove_nonexistent_friend(test_human_user: HumanUser):
     from datetime import datetime
 
     non_friend = User(
+        1,
         "non_friend",
         "non_friend.example.com",
         "hashed_password",
@@ -150,6 +155,7 @@ def test_remove_invalid_friend(test_human_user: HumanUser):
     from datetime import datetime
 
     friend = User(
+        1,
         "test_friend",
         "test_friend.example.com",
         "hashed_password",

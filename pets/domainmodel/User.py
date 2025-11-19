@@ -1,36 +1,40 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from datetime import datetime
 
-from pets.domainmodel.Post import Post
-from pets.domainmodel.Comment import Comment
 
+if TYPE_CHECKING:
+    from pets.domainmodel.Comment import Comment
+    from pets.domainmodel.Post import Post
 
 class User:
+    __id : int
     __username: str
     __email: str
     __password_hash: str
     __profile_picture_path: Path
     __created_at: datetime
-    __liked_posts: List[Post]
-    __following: List[User]
-    __comments: List[Comment]
+    __liked_posts: List["Post"]
+    __following: List["User"]
+    __comments: List["Comment"]
     __bio: str
 
     def __init__(
         self,
+        id : int,
         username: str,
         email: str,
         password_hash: str,
         profile_picture_path: Path,
         created_at: datetime,
-        liked_posts: List[Post] = None,
-        following: List[User] = None,
-        comments: List[Comment] = None,
+        liked_posts: List["Post"] = None,
+        following: List["User"] = None,
+        comments: List["Comment"] = None,
         bio: str = "",
     ):
+        self.__id = id
         self.__username: str = username
         self.__email: str = email
         self.__password_hash: str = password_hash
@@ -42,6 +46,10 @@ class User:
         self.__following: List[User] = following if following is not None else []
         self.__comments: List[Comment] = comments if comments is not None else []
         self.__bio: str = bio
+
+    @property
+    def id(self) -> int:
+        return self.__id
 
     @property
     def username(self) -> str:

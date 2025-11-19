@@ -15,6 +15,7 @@ class PetUser(User):
 
     def __init__(
         self,
+        id : int,
         username: str,
         email: str,
         password_hash: str,
@@ -29,6 +30,7 @@ class PetUser(User):
         followers: List[User] = None,
     ):
         super().__init__(
+            id,
             username,
             email,
             password_hash,

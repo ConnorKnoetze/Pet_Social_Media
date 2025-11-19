@@ -19,6 +19,7 @@ class TestUser:
         from pets.domainmodel.User import User
 
         user_to_follow = User(
+            1,
             "followed_user",
             "followed_user.example.com",
             "hashed_password",
