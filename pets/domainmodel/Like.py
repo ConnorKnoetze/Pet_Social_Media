@@ -27,3 +27,4 @@ class Like:
     @property
     def created_at(self) -> datetime:
         return self.__created_at
+
