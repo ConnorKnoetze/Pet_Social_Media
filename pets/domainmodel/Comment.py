@@ -9,18 +9,20 @@ class Comment:
     __post_id: int
     __created_at: datetime
     __comment_string: str
-    __likes: List[Like]
+    __likes: int
 
     def __init__(
         self,
         id: int,
         user_id: int,
+        post_id: int,
         created_at: datetime,
         comment_string: str,
-        likes: List[Like],
+        likes: int,
     ):
         self.__id = id
         self.__user_id = user_id
+        self.__post_id = post_id
         self.__created_at = created_at
         self.__comment_string = comment_string
         self.__likes = likes
@@ -31,6 +33,7 @@ class Comment:
         return (
             self.id == other.id
             and self.user_id == other.user_id
+            and self.__post_id == other.__post_id
             and self.comment_string == other.comment_string
         )
 
@@ -58,8 +61,8 @@ class Comment:
         self.__comment_string = value
 
     @property
-    def likes(self) -> List[Like]:
+    def likes(self) -> int:
         return self.__likes
 
-    def add_like(self, like: Like):
-        self.__likes.append(like)
+    def add_like(self):
+        self.__likes += 1
