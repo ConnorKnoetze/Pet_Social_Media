@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class AnimalType(Enum):
     DOG = "Dog"
     CAT = "Cat"
