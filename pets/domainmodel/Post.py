@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Post:
     __id: int
-    __user: "User"
+    __user_id: int
     __likes: List["Like"]
     __comments: List["Comment"]
     __caption: str
@@ -27,7 +27,7 @@ class Post:
     def __init__(
         self,
         id: int,
-        user: "User",
+        user_id: int,
         caption: str,
         views: int,
         created_at: datetime,
@@ -40,7 +40,7 @@ class Post:
         likes: List["Like"] = None,
     ):
         self.__id = id
-        self.__user = user
+        self.__user_id = user_id
         self.__likes = likes if likes is not None else []
         self.__comments = comments if comments is not None else []
         self.__caption = caption
@@ -57,8 +57,8 @@ class Post:
         return self.__id
 
     @property
-    def user(self) -> "User":
-        return self.__user
+    def user_id(self) -> int:
+        return self.__user_id
 
     @property
     def likes(self) -> List["Like"]:

@@ -49,11 +49,11 @@ def test_pet_user():
 
 
 @pytest.fixture(scope="function", autouse=True)
-def test_comment(test_user):
+def test_comment(test_user, test_post):
     from pets.domainmodel.Comment import Comment
 
     comment: Comment = Comment(
-        1, test_user.id, datetime.now(), "This is a test comment", []
+        1, test_user.id, test_post.id,datetime.now(), "This is a test comment", 0
     )
     return comment
 
@@ -62,7 +62,7 @@ def test_comment(test_user):
 def test_post(test_pet_user):
     post: Post = Post(
         1,
-        test_pet_user,
+        test_pet_user.id,
         "this is a test post",
         1,
         datetime.now(),

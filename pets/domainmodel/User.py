@@ -48,6 +48,14 @@ class User:
         self.__comments: List[Comment] = comments if comments is not None else []
         self.__bio: str = bio
 
+    def __eq__(self, other):
+        if not isinstance(other, User):
+            return False
+        return self.id == other.id and self.username == other.username and self.email == other.email
+
+    def __str__(self) -> str:
+        return f"User(id={self.id}, username='{self.username}', email='{self.email}')"
+
     @property
     def id(self) -> int:
         return self.__id

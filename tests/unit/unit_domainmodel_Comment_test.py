@@ -9,32 +9,35 @@ class TestComment:
         assert test_comment.user_id == test_user.id
         assert test_comment.comment_string == "This is a test comment"
         assert isinstance(datetime.now(), type(test_comment.created_at))
-        assert isinstance(test_comment.likes, list)
+        assert isinstance(test_comment.likes, int)
 
     def test_comment_str(self, test_comment):
         assert str(test_comment) == "This is a test comment"
 
-    def test_comment_equality(self, test_comment, test_user):
+    def test_comment_equality(self, test_comment, test_user, test_post):
         comment1 = Comment(
             1,
             user_id=test_user.id,
+            post_id=test_post.id,
             created_at=datetime.now(),
             comment_string="This is a test comment",
-            likes=[],
+            likes=0,
         )
         comment2 = Comment(
             1,
             user_id=test_user.id,
+            post_id=test_post.id,
             created_at=datetime.now(),
             comment_string="This is a test comment",
-            likes=[],
+            likes=0,
         )
         comment3 = Comment(
             2,
             user_id=test_user.id,
+            post_id=test_post.id,
             created_at=datetime.now(),
             comment_string="Different comment",
-            likes=[],
+            likes=0,
         )
         assert comment1 == comment2
         assert comment1 != comment3
@@ -42,30 +45,33 @@ class TestComment:
     def test_comment_inequality_different_type(self, test_comment):
         assert test_comment != "not a comment object"
 
-    def test_comment_inequality_different_id(self, test_comment, test_user):
+    def test_comment_inequality_different_id(self, test_comment, test_user, test_post):
         different_comment = Comment(
             2,
             user_id=test_comment.user_id,
+            post_id=test_post.id,
             created_at=test_comment.created_at,
             comment_string=test_comment.comment_string,
             likes=test_comment.likes,
         )
         assert test_comment != different_comment
 
-    def test_comment_inequality_different_user_id(self, test_comment, test_user):
+    def test_comment_inequality_different_user_id(self, test_comment, test_user, test_post):
         different_comment = Comment(
             test_comment.id,
             user_id=test_comment.user_id + 1,
+            post_id=test_post.id,
             created_at=test_comment.created_at,
             comment_string=test_comment.comment_string,
             likes=test_comment.likes,
         )
         assert test_comment != different_comment
 
-    def test_comment_inequality_different_comment_string(self, test_comment, test_user):
+    def test_comment_inequality_different_comment_string(self, test_comment, test_user, test_post):
         different_comment = Comment(
             test_comment.id,
             user_id=test_comment.user_id,
+            post_id=test_post.id,
             created_at=test_comment.created_at,
             comment_string="A different comment string",
             likes=test_comment.likes,
