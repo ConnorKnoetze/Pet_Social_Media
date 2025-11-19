@@ -47,18 +47,16 @@ def test_pet_user():
     )
     return pet_user
 
+
 @pytest.fixture(scope="function", autouse=True)
 def test_comment(test_user):
     from pets.domainmodel.Comment import Comment
 
     comment: Comment = Comment(
-        1,
-        test_user.id,
-        datetime.now(),
-        "This is a test comment",
-        []
+        1, test_user.id, datetime.now(), "This is a test comment", []
     )
     return comment
+
 
 @pytest.fixture(scope="function", autouse=True)
 def test_post(test_pet_user):
@@ -75,6 +73,7 @@ def test_post(test_pet_user):
         "image",
     )
     return post
+
 
 @pytest.fixture(scope="function", autouse=True)
 def test_like(test_user, test_post):
