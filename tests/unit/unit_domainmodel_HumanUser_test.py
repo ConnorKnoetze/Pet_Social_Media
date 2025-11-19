@@ -160,4 +160,3 @@ def test_remove_invalid_friend(test_human_user: HumanUser):
     assert friend in test_human_user.friends
     test_human_user.remove_friend(friend)
     assert friend not in test_human_user.friends
-
