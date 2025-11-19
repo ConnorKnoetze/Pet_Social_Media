@@ -1,3 +1,6 @@
+from pets.domainmodel.AnimalType import AnimalType
+
+
 class TestPetUser:
     def test_pet_user_creation(self, test_pet_user):
         assert test_pet_user.username == "pet_user"
@@ -21,9 +24,9 @@ class TestPetUser:
         test_pet_user.remove_follower(test_user)
         assert test_user not in test_pet_user.followers
 
-    def test_animal_type_property(self, test_pet_user, test_animal_type):
-        test_pet_user._PetUser__animal_type = test_animal_type
-        assert test_pet_user.animal_type == test_animal_type
+    def test_animal_type_property(self, test_pet_user):
+        test_pet_user._PetUser__animal_type = AnimalType.CAT
+        assert test_pet_user.animal_type == AnimalType.CAT
 
     def test_posts_initialization(self, test_pet_user):
         assert isinstance(test_pet_user.posts, list)
