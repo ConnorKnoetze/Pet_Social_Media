@@ -25,6 +25,18 @@ class Comment:
         self.__comment_string = comment_string
         self.__likes = likes
 
+    def __eq__(self, other):
+        if not isinstance(other, Comment):
+            return False
+        return (
+            self.id == other.id
+            and self.user_id == other.user_id
+            and self.comment_string == other.comment_string
+        )
+
+    def __str__(self) -> str:
+        return self.__comment_string
+
     @property
     def id(self) -> int:
         return self.__id
