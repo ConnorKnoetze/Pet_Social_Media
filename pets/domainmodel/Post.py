@@ -1,8 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import List, TYPE_CHECKING
-
-from typing_extensions import Tuple
+from typing import List, TYPE_CHECKING, Tuple
 
 if TYPE_CHECKING:
     from pets.domainmodel.Comment import Comment
