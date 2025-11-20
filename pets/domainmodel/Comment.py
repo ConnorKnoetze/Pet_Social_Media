@@ -49,6 +49,10 @@ class Comment:
         return self.__user_id
 
     @property
+    def post_id(self) -> int:
+        return self.__post_id
+
+    @property
     def created_at(self) -> datetime:
         return self.__created_at
 

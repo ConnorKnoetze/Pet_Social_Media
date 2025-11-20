@@ -8,6 +8,11 @@ from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.HumanUser import HumanUser
 from pets.domainmodel.Post import Post
 
+from pets.adapters.datareaders.pet_user_reader import PetUserReader
+from pets.adapters.datareaders.posts_reader import PostsReader
+from pets.adapters.datareaders.likes_reader import LikesReader
+from pets.adapters.datareaders.comments_reader import CommentsReader
+
 
 @pytest.fixture(scope="session", autouse=True)
 def test_user():
@@ -53,7 +58,7 @@ def test_comment(test_user, test_post):
     from pets.domainmodel.Comment import Comment
 
     comment: Comment = Comment(
-        1, test_user.id, test_post.id,datetime.now(), "This is a test comment", 0
+        1, test_user.id, test_post.id, datetime.now(), "This is a test comment", 0
     )
     return comment
 
@@ -86,3 +91,27 @@ def test_like(test_user, test_post):
         datetime.now(),
     )
     return like
+
+
+@pytest.fixture(scope="function", autouse=True)
+def test_pet_user_reader():
+    pet_user_reader = PetUserReader()
+    return pet_user_reader
+
+
+@pytest.fixture(scope="function", autouse=True)
+def test_posts_reader():
+    posts_reader = PostsReader()
+    return posts_reader
+
+
+@pytest.fixture(scope="function", autouse=True)
+def test_likes_reader():
+    likes_reader = LikesReader()
+    return likes_reader
+
+
+@pytest.fixture(scope="function", autouse=True)
+def test_comments_reader():
+    comments_reader = CommentsReader()
+    return comments_reader
