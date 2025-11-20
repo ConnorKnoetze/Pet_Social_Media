@@ -51,7 +51,11 @@ class User:
     def __eq__(self, other):
         if not isinstance(other, User):
             return False
-        return self.id == other.id and self.username == other.username and self.email == other.email
+        return (
+            self.id == other.id
+            and self.username == other.username
+            and self.email == other.email
+        )
 
     def __str__(self) -> str:
         return f"User(id={self.id}, username='{self.username}', email='{self.email}')"

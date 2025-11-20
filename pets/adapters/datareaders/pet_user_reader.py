@@ -5,13 +5,14 @@ import csv
 from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.Post import Post
 
-DATA_PATH = Path(__file__).resolve().parent.parent/"data"/"pet_user_table.csv"
+DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "pet_user_table.csv"
+
 
 class PetUserReader:
     def __init__(self):
-        self.__users : List[PetUser] = []
+        self.__users: List[PetUser] = []
 
-    def read_users(self):
+    def read_pet_users(self):
         with DATA_PATH.open(newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
@@ -22,7 +23,7 @@ class PetUserReader:
                     password_hash=row["password_hash"],
                     profile_picture_path=Path(row["profile_image_path"]),
                     created_at=row["created_at"],
-                    bio=row["bio"]
+                    bio=row["bio"],
                 )
                 self.__users.append(user)
         return self.__users
@@ -32,6 +33,11 @@ class PetUserReader:
         for post in posts:
             if post.user_id in user_dict:
                 user_dict[post.user_id].add_post(post)
+
+    @property
+    def users(self) -> List[PetUser]:
+        return self.__users
+
 
 if __name__ == "__main__":
     reader = PetUserReader()

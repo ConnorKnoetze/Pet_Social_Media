@@ -56,7 +56,9 @@ class TestComment:
         )
         assert test_comment != different_comment
 
-    def test_comment_inequality_different_user_id(self, test_comment, test_user, test_post):
+    def test_comment_inequality_different_user_id(
+        self, test_comment, test_user, test_post
+    ):
         different_comment = Comment(
             test_comment.id,
             user_id=test_comment.user_id + 1,
@@ -67,7 +69,9 @@ class TestComment:
         )
         assert test_comment != different_comment
 
-    def test_comment_inequality_different_comment_string(self, test_comment, test_user, test_post):
+    def test_comment_inequality_different_comment_string(
+        self, test_comment, test_user, test_post
+    ):
         different_comment = Comment(
             test_comment.id,
             user_id=test_comment.user_id,

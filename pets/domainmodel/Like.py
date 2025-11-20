@@ -21,6 +21,7 @@ class Like:
             and self.user_id == other.user_id
             and self.post_id == other.post_id
         )
+
     def __str__(self) -> str:
         return f"Like(id={self.id}, user_id={self.user_id}, post_id={self.post_id}, created_at={self.created_at})"
 
