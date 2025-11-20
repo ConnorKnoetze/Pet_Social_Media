@@ -1,10 +1,11 @@
+from pets.blueprints.feed.feed import feed, feed_bp
+
+
 def create_app():
     from flask import Flask
 
     app = Flask(__name__)
 
-    @app.route("/")
-    def home():
-        return "Hello, Flask!"
+    app.register_blueprint(feed_bp)
 
     return app

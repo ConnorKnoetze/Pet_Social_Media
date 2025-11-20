@@ -1,0 +1,40 @@
+.comments {
+  font-family: system-ui, Arial, sans-serif;
+  padding: 0.75rem 1rem;
+  line-height: 1.4;
+}
+
+.comments h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: black;
+}
+
+.comments ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.comments li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #e2e2e2;
+  font-size: 0.9rem;
+}
+
+.comments li strong {
+  color: #222;
+}
+
+.comments li small {
+  display: block;
+  color: #777;
+  font-size: 0.65rem;
+  margin-top: 0.15rem;
+}
+
+.comments .empty {
+  opacity: 0.6;
+  font-style: italic;
+}
