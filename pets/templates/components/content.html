@@ -8,6 +8,7 @@
       </article>
     {% endfor %}
   {% else %}
-    <img src="{{ url_for('static', filename='images/img.png') }}" alt="No posts available" class="empty-image">
+<!--    <img src="{{ url_for('static', filename='images/img.png') }}" alt="No posts available" class="empty-image">-->
+  <video class="video" autoplay="true" loop="true" muted="true"><source src="{{ url_for('static', filename='images/dog.mp4') }}" type="video/mp4"></video>
   {% endif %}
 </section>
