@@ -21,12 +21,12 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_animal_user(self, user: User):
+    def add_pet_user(self, user: User):
         # Adds a User to the repository.
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_animal_users(self, users: List[User]):
+    def add_multiple_pet_users(self, users: List[User]):
         # Adds multiple Users to the repository.
         raise NotImplementedError
 
@@ -46,7 +46,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_animal_user_by_name(self, username) -> User:
+    def get_pet_user_by_name(self, username) -> User:
         # Retrieves a User by their username.
         raise NotImplementedError
 
@@ -56,13 +56,13 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_animal_user_by_id(self, id: int) -> User:
+    def get_pet_user_by_id(self, id: int) -> User:
         # Retrieves a User by their ID.
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_animal_users(self) -> List[User]:
-        # Retrieves all animal users.
+    def get_pet_users(self) -> List[User]:
+        # Retrieves all pet users.
         raise NotImplementedError
 
     @abc.abstractmethod

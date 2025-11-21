@@ -1,3 +1,20 @@
+/* Hide all scrollbars while keeping scroll functionality */
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent accidental horizontal scroll */
+html, body {
+  overflow-x: hidden;
+}
+
 :root {
   --color-bg: #f5f5f7;
   --color-panel-bg: #ffffff;

@@ -90,6 +90,31 @@ html,body {
 
 .button_image { width:70%; height:60%; }
 
+.shortfeed {
+  height:100vh;
+  width:100%;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+}
+.shortfeed::-webkit-scrollbar { width:0; }
+.short-card {
+  position:relative;
+  min-height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  box-sizing:border-box;
+}
+.short-card video,
+.short-card img {
+  max-height:80vh;
+  max-width:100%;
+  border-radius:14px;
+  object-fit:cover;
+}
+
 @media (max-width:1300px) {
   .feed-grid { display:flex; justify-content:center; position:relative; }
 
