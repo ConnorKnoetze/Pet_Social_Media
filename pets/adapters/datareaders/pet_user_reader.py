@@ -41,6 +41,6 @@ class PetUserReader:
 
 if __name__ == "__main__":
     reader = PetUserReader()
-    users = reader.read_users()
+    users = reader.read_pet_users()
     for user in users:
         print(user)

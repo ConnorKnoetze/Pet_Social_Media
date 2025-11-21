@@ -47,3 +47,7 @@ class PostsReader:
         for comment in comments:
             if comment.post_id in post_dict:
                 post_dict[comment.post_id].add_comment(comment)
+
+    @property
+    def posts(self) -> List[Post]:
+        return self.__posts

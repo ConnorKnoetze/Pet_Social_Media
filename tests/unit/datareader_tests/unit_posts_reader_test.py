@@ -14,7 +14,6 @@ def test_posts_reader(test_posts_reader):
     assert all(hasattr(post, "media_path") for post in posts)
     assert all(hasattr(post, "media_type") for post in posts)
 
-
 def test_posts_reader_post_attributes(test_posts_reader):
     posts = test_posts_reader.read_posts()
     for post in posts:
