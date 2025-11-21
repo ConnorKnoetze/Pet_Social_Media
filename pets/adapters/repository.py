@@ -2,6 +2,9 @@ import abc
 from typing import List
 from datetime import date
 
+
+from pets.domainmodel import PetUser, HumanUser, User, Like, Comment, Post
+
 repo_instance = None
 
 
