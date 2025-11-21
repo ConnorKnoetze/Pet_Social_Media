@@ -37,6 +37,7 @@ class CommentsReader:
     def comments(self) -> List[Comment]:
         return self.__comments
 
+
 if __name__ == "__main__":
     reader = CommentsReader()
     comments = reader.read_comments()

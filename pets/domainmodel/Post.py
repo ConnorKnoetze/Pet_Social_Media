@@ -50,6 +50,11 @@ class Post:
         self.__media_path = media_path
         self.__media_type = media_type
 
+    def __eq__(self, other):
+        if not isinstance(other, Post):
+            return False
+        return self.id == other.id and self.user_id == other.user_id
+
     @property
     def id(self) -> int:
         return self.__id
