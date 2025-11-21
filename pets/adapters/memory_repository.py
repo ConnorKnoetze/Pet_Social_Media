@@ -4,27 +4,23 @@ from pets.adapters.repository import AbstractRepository, RepositoryException
 from pets.domainmodel import User, PetUser, Post, Comment
 
 
-from pets.adapters.populate_repository import populate
-from pets.domainmodel.Like import Like
-
-
 class MemoryRepository(AbstractRepository):
     def __init__(self):
         self.__human_users = list()
-        self.__animal_users = list()
+        self.__pet_users = list()
         self.__posts = list()
         self.__comments = list()  # might not need this but it could come in userful
 
     def populate(self, users:List[User]) -> None:
-        self.__animal_users = users
+        self.__pet_users = users
         self.__posts = [user.posts for user in users]
         self.__comments = [user.comments for user in users]
 
-    def add_animal_user(self, user: User):
-        self.__animal_users.append(user)
+    def add_pet_user(self, user: User):
+        self.__pet_users.append(user)
 
-    def add_multiple_animal_users(self, users: List[User]):
-        self.__animal_users.extend(users)
+    def add_multiple_pet_users(self, users: List[User]):
+        self.__pet_users.extend(users)
 
     def add_human_user(self, user: User):
         self.__human_users.append(user)
@@ -38,8 +34,16 @@ class MemoryRepository(AbstractRepository):
                 return user
         return None
 
-    def get_animal_user_by_name(self, username) -> User:
-        for user in self.__animal_users:
+    def get_photo_posts(self) -> List[Post]:
+        image_posts = []
+        for user_posts in self.__posts:
+            for post in user_posts:
+                if post.media_type == 'photo':
+                    image_posts.append(post)
+        return image_posts
+
+    def get_pet_user_by_name(self, username) -> User:
+        for user in self.__pet_users:
             if user.username == username:
                 return user
         return None
@@ -50,14 +54,14 @@ class MemoryRepository(AbstractRepository):
                 return user
         return None
 
-    def get_animal_user_by_id(self, id: int) -> User:
-        for user in self.__animal_users:
+    def get_pet_user_by_id(self, id: int) -> User:
+        for user in self.__pet_users:
             if user.id == id:
                 return user
         return None
 
-    def get_animal_users(self) -> List[User]:
-        return self.__animal_users
+    def get_pet_users(self) -> List[User]:
+        return self.__pet_users
 
     def get_human_users(self) -> List[User]:
         return self.__human_users
