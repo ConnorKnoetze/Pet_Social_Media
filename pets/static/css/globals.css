@@ -1,0 +1,59 @@
+:root {
+  --color-bg: #f5f5f7;
+  --color-panel-bg: #ffffff;
+  --color-panel-border: #dddddd;
+  --color-text: #1b1b1b;
+  --color-muted: #777777;
+  --color-accent: #2684ff;
+  color-scheme: light dark;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #121212;
+  --color-panel-bg: #1e1e1e;
+  --color-panel-border: #2c2c2c;
+  --color-text: #e6e6e6;
+  --color-muted: #a3a3a3;
+  --color-accent: #4d9dff;
+  color-scheme: dark;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.panel {
+  background: var(--color-panel-bg);
+  border-color: var(--color-panel-border);
+  color: var(--color-text);
+}
+
+.side-btn {
+  background: var(--color-panel-bg);
+  color: var(--color-text);
+  border-color: var(--color-panel-border);
+}
+
+.side-btn:focus-visible {
+  outline-color: var(--color-accent);
+}
+
+.comments h2,
+.user h2,
+.post h2 {
+  color: var(--color-text);
+}
+
+.comments li small,
+.user li small {
+  color: var(--color-muted);
+}
+
+.video.paused {
+  filter: brightness(0.85);
+}
+
+:root[data-theme='dark'] .video.paused {
+  filter: brightness(0.95);
+}

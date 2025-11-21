@@ -1,0 +1,15 @@
+<div class="comments">
+  <h2>Comments</h2>
+  {% if comments %}
+    <ul>
+      {% for c in comments %}
+        <li>
+          <strong>{{ c.author }}</strong>: {{ c.text }}
+          <small>{{ c.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No comments.</p>
+  {% endif %}
+</div>

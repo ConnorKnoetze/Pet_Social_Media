@@ -1,0 +1,24 @@
+<section class="content">
+  {% if posts %}
+    {% for post in posts %}
+      <article class="post">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.body }}</p>
+        <small>{{ post.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+      </article>
+    {% endfor %}
+  {% else %}
+<!--    <img src="{{ url_for('static', filename='images/img.png') }}" alt="No posts available" class="empty-image">-->
+      <video
+      class="video"
+      autoplay
+      loop
+      muted
+      playsinline
+      controlslist="nodownload nofullscreen noplaybackrate"
+      disablepictureinpicture
+      >
+      <source src="{{ url_for('static', filename='images/dog.mp4') }}" type="video/mp4">
+    </video>
+  {% endif %}
+</section>

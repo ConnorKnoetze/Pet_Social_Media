@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pets.adapters.memory_repository import MemoryRepository
 from pets.adapters.populate_repository import populate
+from pets.blueprints.feed.feed import feed, feed_bp
 
 
 def create_app():
@@ -20,8 +21,6 @@ def create_app():
         database_mode = False  # (dont need this yet) but ill set is up to use later
         populate(repository.repo_instance)
 
-    @app.route("/")
-    def home():
-        return "Hello, Flask!"
+    app.register_blueprint(feed_bp)
 
     return app
