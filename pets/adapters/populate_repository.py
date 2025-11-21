@@ -1,13 +1,7 @@
-import os
-from pathlib import Path
-
 from pets.adapters.repository import AbstractRepository
-from pets.adapters.datareader.csvdatareader import CSVDataReader
+from pets.adapters.datareaders.data_reader import DataReader
 
 
-def populate(repo: AbstractRepository, database_mode: bool):
-
-
-    repo.add_multiple_authors(authors)
-    repo.add_multiple_recipes(recipes)
-    repo.add_multiple_categories(categories)
+def populate(repo: AbstractRepository):
+    data_reader = DataReader()
+    repo.populate(data_reader.users)

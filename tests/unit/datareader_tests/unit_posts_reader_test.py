@@ -14,6 +14,7 @@ def test_posts_reader(test_posts_reader):
     assert all(hasattr(post, "media_path") for post in posts)
     assert all(hasattr(post, "media_type") for post in posts)
 
+
 def test_posts_reader_post_attributes(test_posts_reader):
     posts = test_posts_reader.read_posts()
     for post in posts:
@@ -65,7 +66,10 @@ def test_posts_reader_reads_all_posts(test_posts_reader):
     posts = test_posts_reader.read_posts()
     assert len(posts) == 89  # There are 89 posts in the CSV file
 
-def test_posts_reader_assign_likes_and_comments(test_posts_reader, test_likes_reader, test_comments_reader):
+
+def test_posts_reader_assign_likes_and_comments(
+    test_posts_reader, test_likes_reader, test_comments_reader
+):
     posts = test_posts_reader.read_posts()
     likes = test_likes_reader.read_likes()
     comments = test_comments_reader.read_comments()

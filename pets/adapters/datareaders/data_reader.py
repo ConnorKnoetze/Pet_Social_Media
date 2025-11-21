@@ -8,6 +8,7 @@ from pets.domainmodel.Like import Like
 from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.Post import Post
 
+
 class DataReader:
     def __init__(self):
         pet_user_reader = PetUserReader()
@@ -44,6 +45,7 @@ class DataReader:
     @property
     def comments(self) -> List[Comment]:
         return self.__comments
+
 
 if __name__ == "__main__":
     data_reader = DataReader()
