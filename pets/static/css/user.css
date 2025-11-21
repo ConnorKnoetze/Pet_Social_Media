@@ -2,13 +2,14 @@
   font-family: system-ui, Arial, sans-serif;
   padding: 0.75rem 1rem;
   line-height: 1.4;
+  color: var(--color-text);
 }
 
 .user h2 {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: black;
+  color: var(--color-text);
 }
 
 .user ul {
@@ -19,17 +20,18 @@
 
 .user li {
   padding: 0.4rem 0;
-  border-bottom: 1px solid #e2e2e2;
+  border-bottom: 1px solid var(--color-panel-border);
   font-size: 0.9rem;
+  color: var(--color-text);
 }
 
 .user li strong {
-  color: #222;
+  color: var(--color-text);
 }
 
 .user li small {
   display: block;
-  color: #777;
+  color: var(--color-muted);
   font-size: 0.65rem;
   margin-top: 0.15rem;
 }
