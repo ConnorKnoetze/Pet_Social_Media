@@ -143,7 +143,52 @@ html,body {
   .content-wrapper { position:relative; }
 }
 
-@media (max-width:520px) {
-  .content-card { width:min(22rem,100%); }
-  .content-wrapper .right-buttons { display:none; }
-}
+
+/* hidden by default on all sizes */
+  #mobileCloseBtn {
+    display: none;
+    position: fixed;
+    right: 0.75rem;
+    top: 1rem;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 35%;
+    background: var(--color-panel-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-panel-border);
+    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  /* only show the X on small screens when a panel is active */
+  @media (max-width:520px) {
+    /* keep small-screen positioning/appearance */
+    #mobileCloseBtn { display: none; }
+
+    /* modern browsers: show when panel becomes active */
+    body:has(#userPanel.active) #mobileCloseBtn,
+    body:has(#commentsPanel.active) #mobileCloseBtn {
+      display: flex;
+    }
+
+    .content-wrapper{
+      padding:0;
+    }
+
+    .feed-grid{
+        max-width:100%;
+    }
+
+    /* fallback for browsers without :has(): show when JS toggles body.close-visible */
+    body.close-visible #mobileCloseBtn {
+      display: flex;
+    }
+
+    /* keep the other small-screen adjustments */
+    .content-card { width: min(22rem,100%); }
+    .content-wrapper .right-buttons { display: none; }
+  }
