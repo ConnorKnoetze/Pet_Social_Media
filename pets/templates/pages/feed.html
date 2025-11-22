@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
 <script src="{{ url_for('static', filename='js/content.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/comments.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/shortfeed.js') }}" defer></script>
 {% endblock %}
 {% block body %}
@@ -55,12 +56,6 @@
         </button>
       </div>
     </section>
-
-
-
-
-
-
     <aside id="commentsPanel" class="panel hidden" role="region" aria-hidden="true">
       {% include 'components/comments.html' %}
     </aside>

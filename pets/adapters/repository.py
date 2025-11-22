@@ -14,9 +14,8 @@ class RepositoryException(Exception):
 
 
 class AbstractRepository(abc.ABC):
-
     @abc.abstractmethod
-    def populate(self, users:List[User]) -> None:
+    def populate(self, users: List[User]) -> None:
         # Populates the repository with a list of Users.
         raise NotImplementedError
 
@@ -76,6 +75,11 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_photo_posts(self) -> List[Post]:
+        # Retrieves all photo Posts.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_multiple_posts(self, user: User, posts: List[Post]):
         # Adds multiple Posts to the repository.
         raise NotImplementedError
@@ -98,6 +102,11 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def get_comments_by_post(self, post: Post) -> List[Comment]:
         # Retrieves Comments for a given Post.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_comments_for_post(self, post_id: int) -> List[Comment]:
+        # Retrieves Comments for a given Post by post ID.
         raise NotImplementedError
 
     @abc.abstractmethod

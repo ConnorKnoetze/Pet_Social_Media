@@ -1,12 +1,13 @@
-// javascript
-// Cleaned version with ONE mobile close handler
-
 (function() {
   const MOBILE_QUERY = '(max-width:520px)';
+  const OVERLAY_QUERY = '(max-width:1300px)'; // panels overlay at this width in CSS
   let mobileCloseBtn = null;
 
   function isMobileView() {
     return window.matchMedia(MOBILE_QUERY).matches;
+  }
+  function isOverlayView() {
+    return window.matchMedia(OVERLAY_QUERY).matches;
   }
 
   function showContentPanel() {
@@ -25,11 +26,24 @@
     p.setAttribute('aria-hidden', 'true');
   }
 
+  // Only used when we want exclusivity
+  function hideOtherOverlays(exceptId) {
+    ['userPanel', 'commentsPanel'].forEach(id => {
+      if (id !== exceptId) hideOverlay(id);
+    });
+  }
+
   function showOverlay(id) {
     const p = document.getElementById(id);
     if (!p) return;
 
+    // Close the other panel only on smaller/overlay screens
+    if (isOverlayView()) {
+      hideOtherOverlays(id);
+    }
+
     if (isMobileView()) {
+      // Mobile: show panel and hide content
       p.classList.remove('hidden');
       p.classList.add('active');
       p.setAttribute('aria-hidden', 'false');
@@ -42,15 +56,13 @@
 
       toggleMobileClose(true);
     } else {
+      // Tablet/desktop: do not force-hide content; just show this panel
       p.classList.remove('hidden');
       p.classList.add('active');
       p.setAttribute('aria-hidden', 'false');
     }
   }
 
-  // -----------------------------
-  // ONE unified mobile close handler
-  // -----------------------------
   function mobileCloseHandler() {
     hideOverlay('userPanel');
     hideOverlay('commentsPanel');
@@ -69,8 +81,6 @@
     mobileCloseBtn.type = 'button';
     mobileCloseBtn.setAttribute('aria-label', 'Close overlays');
     mobileCloseBtn.innerText = '×';
-
-    // ❗ All close logic here only
     mobileCloseBtn.addEventListener('click', mobileCloseHandler);
 
     leftButtons.insertBefore(mobileCloseBtn, leftButtons.firstChild);
@@ -83,34 +93,20 @@
     btn.classList.toggle('show', show);
   }
 
-  // -----------------------------
-  // Unified mobileActivate
-  // -----------------------------
+  // Toggle handler
   window.mobileActivate = function(id) {
     const panel = document.getElementById(id);
     if (!panel) return;
 
-    // If it's already open → close
     if (panel.classList.contains('active')) {
       hideOverlay(id);
       if (isMobileView()) mobileCloseHandler();
       return;
     }
 
-    // Otherwise open
-    if (isMobileView()) {
-      showOverlay(id);
-    } else {
-      panel.classList.toggle('active');
-      panel.classList.toggle('hidden');
-      panel.setAttribute(
-        'aria-hidden',
-        panel.classList.contains('hidden') ? 'true' : 'false'
-      );
-    }
+    showOverlay(id);
   };
 
-  // Attach generic [data-panel] listener
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-panel]');
     if (!btn) return;
@@ -126,7 +122,6 @@
     }
   }, { passive: true });
 
-  // Resize cleanup
   window.addEventListener('resize', () => {
     if (!isMobileView()) toggleMobileClose(false);
   });
@@ -136,7 +131,7 @@
 
 (function themeInit() {
   const root = document.documentElement;
-  const KEY = 'themePreference'; // values: 'light' | 'dark' | 'system'
+  const KEY = 'themePreference';
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
 
   function systemTheme() {
@@ -152,9 +147,7 @@
     return localStorage.getItem(KEY) || 'system';
   }
 
-
   function cyclePref(current) {
-    // Order: system -> dark -> light -> system
     if (current === 'system') return 'dark';
     if (current === 'dark') return 'light';
     return 'system';
@@ -164,7 +157,6 @@
     apply(loadPref());
   }
 
-  // React to OS theme changes while in system mode
   mq.addEventListener('change', () => {
     if (loadPref() === 'system') apply('system');
   });
