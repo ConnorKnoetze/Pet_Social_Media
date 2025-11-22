@@ -1,130 +1,135 @@
-(function () {
-  const BREAKPOINT = 1300;
-  const content = document.getElementById('contentPanel');
-  const panels = {
-    userPanel: document.getElementById('userPanel'),
-    commentsPanel: document.getElementById('commentsPanel'),
-    contentPanel: content
-  };
-  let lastMobile = null;
+// javascript
+// Cleaned version with ONE mobile close handler
 
-  function isMobile() { return window.innerWidth <= BREAKPOINT; }
-  function isActive(id) { return panels[id] && panels[id].classList.contains('active'); }
-  function isHidden(id) { return panels[id].classList.contains('hidden'); }
+(function() {
+  const MOBILE_QUERY = '(max-width:520px)';
+  let mobileCloseBtn = null;
 
-  function mobileActivate(id) {
-    Object.keys(panels).forEach(pid => {
-      const p = panels[pid];
-      if (pid === id) {
-        p.classList.add('active');
-        p.classList.remove('hidden');
-        p.setAttribute('aria-hidden','false');
-      } else if (pid !== 'contentPanel') {
-        p.classList.remove('active');
-        p.classList.add('hidden');
-        p.setAttribute('aria-hidden','true');
+  function isMobileView() {
+    return window.matchMedia(MOBILE_QUERY).matches;
+  }
+
+  function showContentPanel() {
+    const cp = document.getElementById('contentPanel');
+    if (!cp) return;
+    cp.classList.remove('hidden');
+    cp.classList.add('active');
+    cp.setAttribute('aria-hidden', 'false');
+  }
+
+  function hideOverlay(id) {
+    const p = document.getElementById(id);
+    if (!p) return;
+    p.classList.remove('active');
+    p.classList.add('hidden');
+    p.setAttribute('aria-hidden', 'true');
+  }
+
+  function showOverlay(id) {
+    const p = document.getElementById(id);
+    if (!p) return;
+
+    if (isMobileView()) {
+      p.classList.remove('hidden');
+      p.classList.add('active');
+      p.setAttribute('aria-hidden', 'false');
+
+      const cp = document.getElementById('contentPanel');
+      if (cp) {
+        cp.classList.add('hidden');
+        cp.setAttribute('aria-hidden', 'true');
       }
-    });
-    // Blur removed: no class toggling
-  }
 
-  function wideSet(id, show) {
-    const p = panels[id];
-    if (!p || id === 'contentPanel') return;
-    p.classList.toggle('hidden', !show);
-    p.setAttribute('aria-hidden', String(!show));
-    document.querySelectorAll('[data-panel="'+id+'"]').forEach(b => {
-      b.setAttribute('aria-expanded', String(show));
-    });
-  }
-
-  function init() {
-    const mobile = isMobile();
-    if (mobile === lastMobile) return;
-    lastMobile = mobile;
-    if (mobile) {
-      Object.keys(panels).forEach(pid => {
-        panels[pid].classList.remove('hidden','active');
-        panels[pid].setAttribute('aria-hidden', pid === 'contentPanel' ? 'false' : 'true');
-      });
-      mobileActivate('contentPanel');
+      toggleMobileClose(true);
     } else {
-      content.classList.remove('active','hidden');
-      content.setAttribute('aria-hidden','false');
-      ['userPanel','commentsPanel'].forEach(pid => {
-        panels[pid].classList.remove('active');
-        panels[pid].classList.add('hidden');
-        panels[pid].setAttribute('aria-hidden','true');
-      });
+      p.classList.remove('hidden');
+      p.classList.add('active');
+      p.setAttribute('aria-hidden', 'false');
     }
   }
 
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('button[data-panel]');
-    if (!btn) return;
-    const panelId = btn.dataset.panel;
-    const action = btn.dataset.action || 'toggle';
+  // -----------------------------
+  // ONE unified mobile close handler
+  // -----------------------------
+  function mobileCloseHandler() {
+    hideOverlay('userPanel');
+    hideOverlay('commentsPanel');
+    showContentPanel();
+    toggleMobileClose(false);
+  }
 
-    if (isMobile()) {
-      if (panelId === 'contentPanel') { mobileActivate('contentPanel'); return; }
-      if ((action === 'toggle' || action === 'hide') && isActive(panelId)) {
-        mobileActivate('contentPanel');
-      } else if (action === 'hide') {
-        mobileActivate('contentPanel');
-      } else {
-        mobileActivate(panelId);
-      }
+  function ensureMobileCloseBtn() {
+    if (mobileCloseBtn) return mobileCloseBtn;
+    const leftButtons = document.querySelector('.left-buttons');
+    if (!leftButtons) return null;
+
+    mobileCloseBtn = document.createElement('button');
+    mobileCloseBtn.id = 'mobileCloseBtn';
+    mobileCloseBtn.className = 'side-btn';
+    mobileCloseBtn.type = 'button';
+    mobileCloseBtn.setAttribute('aria-label', 'Close overlays');
+    mobileCloseBtn.innerText = '×';
+
+    // ❗ All close logic here only
+    mobileCloseBtn.addEventListener('click', mobileCloseHandler);
+
+    leftButtons.insertBefore(mobileCloseBtn, leftButtons.firstChild);
+    return mobileCloseBtn;
+  }
+
+  function toggleMobileClose(show) {
+    const btn = ensureMobileCloseBtn();
+    if (!btn) return;
+    btn.classList.toggle('show', show);
+  }
+
+  // -----------------------------
+  // Unified mobileActivate
+  // -----------------------------
+  window.mobileActivate = function(id) {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+
+    // If it's already open → close
+    if (panel.classList.contains('active')) {
+      hideOverlay(id);
+      if (isMobileView()) mobileCloseHandler();
       return;
     }
 
-    if (panelId === 'contentPanel') return;
-    if (action === 'toggle') {
-      wideSet(panelId, isHidden(panelId));
-    } else if (action === 'show') {
-      wideSet(panelId, true);
-    } else if (action === 'hide') {
-      wideSet(panelId, false);
+    // Otherwise open
+    if (isMobileView()) {
+      showOverlay(id);
+    } else {
+      panel.classList.toggle('active');
+      panel.classList.toggle('hidden');
+      panel.setAttribute(
+        'aria-hidden',
+        panel.classList.contains('hidden') ? 'true' : 'false'
+      );
     }
+  };
+
+  // Attach generic [data-panel] listener
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-panel]');
+    if (!btn) return;
+
+    const panelId = btn.getAttribute('data-panel');
+    const action = btn.getAttribute('data-action') || 'toggle';
+
+    if (action === 'toggle') return mobileActivate(panelId);
+    if (action === 'show') return showOverlay(panelId);
+    if (action === 'hide') {
+      hideOverlay(panelId);
+      if (isMobileView()) mobileCloseHandler();
+    }
+  }, { passive: true });
+
+  // Resize cleanup
+  window.addEventListener('resize', () => {
+    if (!isMobileView()) toggleMobileClose(false);
   });
 
-  window.addEventListener('resize', init);
-  init();
-})();
-
-(function themeInit() {
-  const root = document.documentElement;
-  const KEY = 'themePreference'; // values: 'light' | 'dark' | 'system'
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-  function systemTheme() {
-    return mq.matches ? 'dark' : 'light';
-  }
-
-  function apply(theme) {
-    const finalTheme = theme === 'system' ? systemTheme() : theme;
-    root.setAttribute('data-theme', finalTheme);
-  }
-
-  function loadPref() {
-    return localStorage.getItem(KEY) || 'system';
-  }
-
-
-  function cyclePref(current) {
-    // Order: system -> dark -> light -> system
-    if (current === 'system') return 'dark';
-    if (current === 'dark') return 'light';
-    return 'system';
-  }
-
-  function init() {
-    apply(loadPref());
-  }
-
-  // React to OS theme changes while in system mode
-  mq.addEventListener('change', () => {
-    if (loadPref() === 'system') apply('system');
-  });
-
-  init();
+  document.addEventListener('DOMContentLoaded', ensureMobileCloseBtn);
 })();
