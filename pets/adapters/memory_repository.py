@@ -15,6 +15,7 @@ class MemoryRepository(AbstractRepository):
         self.__pet_users = users
         self.__posts = [user.posts for user in users]
         self.__comments = [user.comments for user in users]
+        #self.__human_users = [user.human_user for user in users]
 
     def add_pet_user(self, user: User):
         self.__pet_users.append(user)
@@ -47,6 +48,9 @@ class MemoryRepository(AbstractRepository):
             if user.username == username:
                 return user
         return None
+
+    #def get_user_by_id(self, id: int) -> User:
+
 
     def get_human_user_by_id(self, id: int) -> User:
         for user in self.__human_users:
