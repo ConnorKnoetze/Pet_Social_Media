@@ -133,3 +133,41 @@
 
   document.addEventListener('DOMContentLoaded', ensureMobileCloseBtn);
 })();
+
+(function themeInit() {
+  const root = document.documentElement;
+  const KEY = 'themePreference'; // values: 'light' | 'dark' | 'system'
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function systemTheme() {
+    return mq.matches ? 'dark' : 'light';
+  }
+
+  function apply(theme) {
+    const finalTheme = theme === 'system' ? systemTheme() : theme;
+    root.setAttribute('data-theme', finalTheme);
+  }
+
+  function loadPref() {
+    return localStorage.getItem(KEY) || 'system';
+  }
+
+
+  function cyclePref(current) {
+    // Order: system -> dark -> light -> system
+    if (current === 'system') return 'dark';
+    if (current === 'dark') return 'light';
+    return 'system';
+  }
+
+  function init() {
+    apply(loadPref());
+  }
+
+  // React to OS theme changes while in system mode
+  mq.addEventListener('change', () => {
+    if (loadPref() === 'system') apply('system');
+  });
+
+  init();
+})();

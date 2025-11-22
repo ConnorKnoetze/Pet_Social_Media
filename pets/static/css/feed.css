@@ -148,7 +148,7 @@ html,body {
   #mobileCloseBtn {
     display: none;
     position: fixed;
-    left: 0.75rem;
+    right: 0.75rem;
     top: 1rem;
     z-index: 60;
     align-items: center;
@@ -173,6 +173,14 @@ html,body {
     body:has(#userPanel.active) #mobileCloseBtn,
     body:has(#commentsPanel.active) #mobileCloseBtn {
       display: flex;
+    }
+
+    .content-wrapper{
+      padding:0;
+    }
+
+    .feed-grid{
+        max-width:100%;
     }
 
     /* fallback for browsers without :has(): show when JS toggles body.close-visible */
