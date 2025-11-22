@@ -176,6 +176,7 @@ html,body {
     }
 
     .content-wrapper{
+      gap: 0.5rem;
       padding:0;
     }
 
