@@ -16,6 +16,8 @@ class PetUserReader:
         with DATA_PATH.open(newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
+                follower_ids = row["follower_ids"].split(',')
+                int_ids = [int(id) for id in follower_ids]
                 user = PetUser(
                     id=int(row["id"]),
                     username=row["username"],
@@ -24,7 +26,9 @@ class PetUserReader:
                     profile_picture_path=Path(row["profile_image_path"]),
                     created_at=row["created_at"],
                     bio=row["bio"],
+                    follower_ids=int_ids,
                 )
+                print(user.follower_ids)
                 self.__users.append(user)
         return self.__users
 

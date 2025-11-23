@@ -28,6 +28,7 @@ class PetUser(User):
         posts: List[Post] = None,
         animal_type: AnimalType = None,
         followers: List[User] = None,
+        follower_ids: List[int] = None,
     ):
         super().__init__(
             id,
@@ -44,6 +45,7 @@ class PetUser(User):
         self.__posts: List[Post] = posts if posts is not None else []
         self.__animal_type: AnimalType = animal_type
         self.__followers: List[User] = followers if followers is not None else []
+        self.__follower_ids = follower_ids if follower_ids is not None else []
 
     @property
     def posts(self) -> List[Post]:
@@ -57,6 +59,10 @@ class PetUser(User):
     def followers(self) -> List[User]:
         return self.__followers
 
+    @property
+    def follower_ids(self) -> List[int]:
+        return self.__follower_ids
+
     def add_post(self, post: Post):
         if post not in self.__posts and isinstance(post, Post):
             self.__posts.append(post)
@@ -67,8 +73,10 @@ class PetUser(User):
 
     def add_follower(self, user: User):
         if user not in self.__followers and isinstance(user, User):
+            self.__follower_ids.append(user.id)
             self.__followers.append(user)
 
     def remove_follower(self, user: User):
         if user in self.__followers and isinstance(user, User):
+            self.__follower_ids.remove(user.id)
             self.__followers.remove(user)

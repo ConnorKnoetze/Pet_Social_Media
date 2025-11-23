@@ -97,7 +97,7 @@ def user(user_id: int):
       "bio": str(getattr(u, "bio", "")),
       "profile_picture_path": str(getattr(u, "profile_picture_path", "")),
       "posts_count": len(getattr(u, "posts", [])),
-      "followers_count": len(getattr(u, "followers", [])),
+      "followers_count": len(getattr(u, "follower_ids", [])),
       "posts_thumbnails": repo.get_posts_thumbnails(user_id),
     }
   return jsonify(serialize(user))
