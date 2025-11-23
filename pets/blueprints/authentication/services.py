@@ -3,6 +3,7 @@ from pets.adapters import repository
 from pets.adapters.repository import AbstractRepository
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 from pets.domainmodel.User import User
 
 
@@ -19,23 +20,23 @@ class AuthenticationException(Exception):
 
 
 def add_user(
-    first_name: str,
-    last_name: str,
     user_name: str,
+    email: str,
     password: str,
 ):
     repo = repository.repo_instance
-    user = repo.get_user(user_name)
+    user = repo.get_pet_user_by_name(user_name)
+    id = repo.get_total_user_size()
     if user is not None:
         raise NameNotUniqueException
 
     password_hash = generate_password_hash(password)
-    user = User(user_name, password_hash, first_name, last_name)
-    repo.add_user(user)
+    user = User(id, user_name, email, password_hash)
+    repo.add_pet_user(user)
 
 
 def get_user(user_name: str, repo: AbstractRepository):
-    user = repo.get_user(
+    user = repo.get_pet_user_by_name(
         user_name
     )  # this is returning none? Meaning the database get_user function is not workign
 
@@ -63,8 +64,7 @@ def get_user_by_id(user_id, repo: AbstractRepository):
 def user_to_dict(user: User) -> dict:
     user_dict = {
         "user_id": str(user.id),
-        #"first_name": user.first_name,
-        #"last_name": user.last_name,
+        "email": user.email,
         "user_name": user.username,
         "password": user.password,
     }

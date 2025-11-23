@@ -20,6 +20,9 @@ class MemoryRepository(AbstractRepository):
     def add_pet_user(self, user: User):
         self.__pet_users.append(user)
 
+    def get_total_user_size(self):
+        return len(self.__pet_users) + len(self.__human_users)
+
     def add_multiple_pet_users(self, users: List[User]):
         self.__pet_users.extend(users)
 

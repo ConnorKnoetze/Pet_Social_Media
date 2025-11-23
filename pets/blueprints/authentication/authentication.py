@@ -7,6 +7,9 @@ import pets.blueprints.authentication.services as services
 from password_validator import PasswordValidator
 from functools import wraps
 
+
+from pets.blueprints.feed.feed import feed, feed_bp
+
 #from pets.utilities import is_logged_in
 
 
@@ -21,13 +24,12 @@ def register():
     if form.validate_on_submit():
         try:
             services.add_user(
-                form.first_name.data,
-                form.last_name.data,
                 form.user_name.data,
+                form.email.data,
                 form.password.data,
             )
 
-            return redirect(url_for("profile_bp.profile"))
+            return redirect(url_for("feed.feed"))
 
         except services.NameNotUniqueException:
             user_name_not_unique = (
@@ -112,25 +114,18 @@ class PasswordValid:
 
 
 class RegistrationForm(FlaskForm):
-    first_name = StringField(
-        "First Name",
-        [
-            DataRequired(message="Your first name is required"),
-            Length(min=1, message="First name cannot be empty"),
-        ],
-    )
-    last_name = StringField(
-        "Last Name",
-        [
-            DataRequired(message="Your last name is required"),
-            Length(min=1, message="Last name cannot be empty"),
-        ],
-    )
     user_name = StringField(
         "Username",
         [
             DataRequired(message="Your user name is required"),
             Length(min=3, message="Your user name is too short"),
+        ],
+    )
+    email = StringField(
+        "Email",
+        [
+            DataRequired(message="Your email is required"),
+            Length(min=9, message="Your email is too short"),
         ],
     )
     password = PasswordField(
