@@ -49,7 +49,7 @@ def authenticate_user(user_name: str, password: str, repo: AbstractRepository):
     authenticated = False
     user = repo.get_pet_user_by_name(user_name)
     if user is not None:
-        authenticated = check_password_hash(user.password, password)
+        authenticated = check_password_hash(user.password_hash, password)
     if not authenticated:
         raise AuthenticationException
 
@@ -66,6 +66,6 @@ def user_to_dict(user: User) -> dict:
         "user_id": str(user.id),
         "email": user.email,
         "user_name": user.username,
-        "password": user.password,
+        "password": user.password_hash,
     }
     return user_dict

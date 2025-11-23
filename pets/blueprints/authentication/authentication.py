@@ -29,7 +29,7 @@ def register():
                 form.password.data,
             )
 
-            return redirect(url_for("feed.feed"))
+            return redirect(url_for("authentication_bp.login"))
 
         except services.NameNotUniqueException:
             user_name_not_unique = (
@@ -61,7 +61,7 @@ def login():
             # Initialise session and redirect the user to the home page
             session.clear()
             session["user_name"] = user["user_name"]
-            return redirect(url_for("profile_bp.profile"))
+            return redirect(url_for("feed.feed"))
 
         except services.UnknownUserException:
             user_name_not_recognised = (

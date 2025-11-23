@@ -68,7 +68,9 @@
 
         <button type="submit" class="auth-submit">{{ form.submit.label.text }}</button>
         <div class="register">
-            <p>Already have an account? <a href="#">Login</a></p>
+            <p>Already have an account?
+  <a href="{{ url_for('authentication_bp.login') }}">Login</a>
+</p>
         </div>
     </form>
 </div>
