@@ -4,6 +4,8 @@ html,body {
   height:100%; margin:0; overflow:hidden;
   font-family:system-ui, Arial, sans-serif;
   background: var(--color-bg);
+  background-image: var(--background-image);
+    background-size:cover;
   color: var(--color-text);
 }
 
@@ -20,13 +22,15 @@ html,body {
 }
 
 .panel {
-  background: var(--color-panel-bg);
-  border:1px solid var(--color-panel-border);
+  background: var(--color-panel-bg-glass); /* semi-transparent for blur */
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid var(--color-panel-border);
+  border-radius: 8px;
   color: var(--color-text);
-  border-radius:8px;
-  box-shadow:0 1px 3px rgba(0,0,0,.06);
-  position:relative;
-  overflow:auto;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  position: relative;
+  overflow: auto;
 }
 
 .panel.hidden {
@@ -74,13 +78,53 @@ html,body {
 .side-btn {
   display:flex; align-items:center; justify-content:center;
   width:2.5rem; height:2.5rem;
-  border-radius:35%;
+  border-radius:15px;
   border:1px solid var(--color-panel-border);
-  background: var(--color-panel-bg);
   color: var(--color-text);
   font-size:22px;
   cursor:pointer;
   box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+
+  #mobileCloseBtn {
+    display: none;
+    position: fixed;
+    right: 0.75rem;
+    top: 1.5rem;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 35%;
+    color: var(--color-text);
+    border: 1px solid var(--color-panel-border);
+    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+@media (hover: hover) and (pointer: fine) {
+  .side-btn, #mobileCloseBtn {
+    transition:
+      transform .15s ease,
+      box-shadow .15s ease,
+      background-color .15s ease,
+      border-color .15s ease,
+      color .15s ease;
+  }
+  .side-btn .button_image {
+    transition: filter .15s ease, transform .15s ease;
+  }
+  .side-btn:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    /* background/color on hover already handled in globals.css */
+  }
+  .side-btn:hover .button_image {
+    /* Make dark PNGs appear white on accent hover */
+    filter: brightness(0) invert(1) drop-shadow(0 1px 1px rgba(0,0,0,.25));
+  }
 }
 
 .side-btn:focus-visible { outline:3px solid var(--color-accent); outline-offset:2px; }
@@ -88,7 +132,7 @@ html,body {
 .post { width:100%; max-width:30rem; }
 .empty-image { width:100%; height:auto; }
 
-.button_image { width:70%; height:60%; }
+.button_image { width:25px; height:25px; }
 
 .shortfeed {
   height:100vh;
@@ -109,11 +153,14 @@ html,body {
 }
 .short-card video,
 .short-card img {
-  max-height:80vh;
+  width:100%;
   max-width:100%;
+  max-height:80vh;
+  height:auto;
+  display:block;
   border-radius:14px;
   object-fit:cover;
-}
+ }
 
 @media (max-width:1300px) {
   .feed-grid { display:flex; justify-content:center; position:relative; }
@@ -143,29 +190,8 @@ html,body {
   .content-wrapper { position:relative; }
 }
 
-
-/* hidden by default on all sizes */
-  #mobileCloseBtn {
-    display: none;
-    position: fixed;
-    left: 0.75rem;
-    top: 1rem;
-    z-index: 60;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 35%;
-    background: var(--color-panel-bg);
-    color: var(--color-text);
-    border: 1px solid var(--color-panel-border);
-    box-shadow: 0 2px 6px rgba(0,0,0,.12);
-    font-size: 22px;
-    cursor: pointer;
-  }
-
   /* only show the X on small screens when a panel is active */
-  @media (max-width:520px) {
+  @media (max-width:760px) {
     /* keep small-screen positioning/appearance */
     #mobileCloseBtn { display: none; }
 
@@ -173,6 +199,15 @@ html,body {
     body:has(#userPanel.active) #mobileCloseBtn,
     body:has(#commentsPanel.active) #mobileCloseBtn {
       display: flex;
+    }
+
+    .content-wrapper{
+      gap: 0.5rem;
+      padding:0;
+    }
+
+    .feed-grid{
+        max-width:100%;
     }
 
     /* fallback for browsers without :has(): show when JS toggles body.close-visible */

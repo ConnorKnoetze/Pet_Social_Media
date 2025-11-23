@@ -23,6 +23,8 @@ html, body {
   --color-muted: #777777;
   --color-accent: #2684ff;
   color-scheme: light dark;
+  --color-panel-bg-glass: rgba(255,255,255,0.55);
+  --background-image: url("../images/backgrounds/light_back4k.png");
 }
 
 :root[data-theme='dark'] {
@@ -33,6 +35,9 @@ html, body {
   --color-muted: #a3a3a3;
   --color-accent: #4d9dff;
   color-scheme: dark;
+  --color-panel-bg-glass: rgba(30,30,30,0.55);
+  border: 1px solid rgba(255,255,255,0.12);
+  --background-image: url("../images/backgrounds/dark_back4k.png");
 }
 
 html, body {
@@ -41,15 +46,31 @@ html, body {
 }
 
 .panel {
-  background: var(--color-panel-bg);
-  border-color: var(--color-panel-border);
+  background: var(--color-panel-bg-glass);
+  border:1px solid var(--color-panel-border);
   color: var(--color-text);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  /* Optional: subtle inner shadow for contrast */
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+}
+
+@supports not ((backdrop-filter: blur(10px))) {
+  .panel {
+    background: var(--color-panel-bg); /* fall back to solid */
+  }
 }
 
 .side-btn {
   background: var(--color-panel-bg);
   color: var(--color-text);
   border-color: var(--color-panel-border);
+}
+
+.side-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
 }
 
 .side-btn:focus-visible {

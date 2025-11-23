@@ -1,8 +1,12 @@
 <div class="user">
-  {% if current_user %}
-    <p>Name: {{ current_user.username }}</p>
-    <p>Email: {{ current_user.email }}</p>
-  {% else %}
-    <h2>Anonymous</h2>
-  {% endif %}
+  <h2 id="username"></h2>
+  <div class="user-info">
+    <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+    <div class="user-details">
+      <p id="followers"></p>
+      <p id="bio"></p>
+      <p id="postCount" class="stat-line"></p>
+    </div>
+  </div>
+  <div id="userThumbnails" class="thumb-grid"></div>
 </div>

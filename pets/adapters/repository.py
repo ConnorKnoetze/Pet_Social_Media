@@ -14,9 +14,8 @@ class RepositoryException(Exception):
 
 
 class AbstractRepository(abc.ABC):
-
     @abc.abstractmethod
-    def populate(self, users:List[User]) -> None:
+    def populate(self, users: List[User]) -> None:
         # Populates the repository with a list of Users.
         raise NotImplementedError
 
@@ -61,6 +60,11 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_all_user_post_paths(self, user: User) -> List[str]:
+        # Retrieves all post media paths for a given user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_pet_users(self) -> List[User]:
         # Retrieves all pet users.
         raise NotImplementedError
@@ -73,6 +77,11 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def add_post(self, user: User, post: Post):
         # Adds a Post to the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_photo_posts(self) -> List[Post]:
+        # Retrieves all photo Posts.
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -101,6 +110,11 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_comments_for_post(self, post_id: int) -> List[Comment]:
+        # Retrieves Comments for a given Post by post ID.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_multiple_comments(self, user: User, comments: List[Comment]):
         # Adds multiple Comments to the repository.
         raise NotImplementedError
@@ -118,4 +132,9 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def delete_comment(self, user: User, comment: Comment):
         # Deletes a Comment from the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_posts_thumbnails(self, user_id: int) -> List[dict]:
+        # Retrieves post thumbnails for a given user ID.
         raise NotImplementedError
