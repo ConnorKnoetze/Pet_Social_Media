@@ -16,7 +16,7 @@ class PetUserReader:
         with DATA_PATH.open(newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                follower_ids = row["follower_ids"].split(',')
+                follower_ids = row["follower_ids"].split(",")
                 int_ids = [int(id) for id in follower_ids]
                 user = PetUser(
                     id=int(row["id"]),

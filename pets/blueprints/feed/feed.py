@@ -5,11 +5,13 @@ from pets.adapters import repository
 feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
 
+
 def _repo():
     r = repository.repo_instance
     if r is None:
         raise RuntimeError("Repository not initialized")
     return r
+
 
 def _serialize_post(p):
     created = getattr(p, "created_at", "")
@@ -36,12 +38,14 @@ def _serialize_post(p):
         "media_path": str(media_path),
     }
 
+
 @feed_bp.route("/")
 def feed():
     all_posts = _repo().get_photo_posts()
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]
     return render_template("pages/feed.html", posts=initial)
+
 
 @feed_bp.route("/api/feed")
 def feed_batch():
@@ -53,17 +57,20 @@ def feed_batch():
             offset = 0
     except ValueError:
         offset = 0
-    slice_ = all_posts[offset: offset + BATCH_SIZE]
+    slice_ = all_posts[offset : offset + BATCH_SIZE]
     next_offset = offset + len(slice_)
     has_more = next_offset < len(all_posts)
-    return jsonify({
-        "posts": [_serialize_post(p) for p in slice_],
-        "offset": offset,
-        "next_offset": next_offset,
-        "has_more": has_more,
-        "batch_size": BATCH_SIZE,
-        "total": len(all_posts),
-    })
+    return jsonify(
+        {
+            "posts": [_serialize_post(p) for p in slice_],
+            "offset": offset,
+            "next_offset": next_offset,
+            "has_more": has_more,
+            "batch_size": BATCH_SIZE,
+            "total": len(all_posts),
+        }
+    )
+
 
 @feed_bp.route("/api/comments/<int:post_id>")
 def comments(post_id: int):
@@ -72,9 +79,11 @@ def comments(post_id: int):
         items = repo.get_comments_for_post(post_id) or []
     except AttributeError:
         items = []
+
     def username_for(user_id: int):
         u = repo.get_human_user_by_id(user_id) or repo.get_pet_user_by_id(user_id)
         return getattr(u, "username", f"User {user_id}")
+
     def ser(c):
         created = getattr(c, "created_at", "")
         if hasattr(created, "isoformat"):
@@ -82,22 +91,26 @@ def comments(post_id: int):
         author = getattr(c, "author", None) or username_for(getattr(c, "user_id", 0))
         text = getattr(c, "text", None) or getattr(c, "comment_string", "")
         return {"author": str(author), "text": str(text), "created_at": created}
+
     return jsonify({"post_id": post_id, "comments": [ser(c) for c in items]})
+
 
 @feed_bp.route("/api/user/<int:user_id>")
 def user(user_id: int):
-  repo = _repo()
-  user = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
-  if not user:
-    return jsonify({"error": "User not found"}), 404
-  def serialize(u):
-    return {
-      "id": int(getattr(u, "id", 0)),
-      "username": str(getattr(u, "username", "")),
-      "bio": str(getattr(u, "bio", "")),
-      "profile_picture_path": str(getattr(u, "profile_picture_path", "")),
-      "posts_count": len(getattr(u, "posts", [])),
-      "followers_count": len(getattr(u, "follower_ids", [])),
-      "posts_thumbnails": repo.get_posts_thumbnails(user_id),
-    }
-  return jsonify(serialize(user))
+    repo = _repo()
+    user = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    def serialize(u):
+        return {
+            "id": int(getattr(u, "id", 0)),
+            "username": str(getattr(u, "username", "")),
+            "bio": str(getattr(u, "bio", "")),
+            "profile_picture_path": str(getattr(u, "profile_picture_path", "")),
+            "posts_count": len(getattr(u, "posts", [])),
+            "followers_count": len(getattr(u, "follower_ids", [])),
+            "posts_thumbnails": repo.get_posts_thumbnails(user_id),
+        }
+
+    return jsonify(serialize(user))

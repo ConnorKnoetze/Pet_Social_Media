@@ -103,10 +103,12 @@ class MemoryRepository(AbstractRepository):
         items.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
         out = []
         for p in items[:24]:
-            if p.media_type == "photo": # For now, just return photos.
-                out.append({
-                    "id": int(getattr(p, "id", 0)),
-                    "media_type": getattr(p, "media_type", ""),
-                    "media_path": str(getattr(p, "media_path", "")),
-                })
+            if p.media_type == "photo":  # For now, just return photos.
+                out.append(
+                    {
+                        "id": int(getattr(p, "id", 0)),
+                        "media_type": getattr(p, "media_type", ""),
+                        "media_path": str(getattr(p, "media_path", "")),
+                    }
+                )
         return out
