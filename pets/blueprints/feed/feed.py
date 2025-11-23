@@ -1,5 +1,13 @@
 from pathlib import Path
-from flask import Blueprint, render_template, jsonify, request
+from flask import (
+    Blueprint,
+    render_template,
+    jsonify,
+    request,
+    session,
+    redirect,
+    url_for,
+)
 from pets.adapters import repository
 
 feed_bp = Blueprint("feed", __name__)
@@ -41,6 +49,13 @@ def _serialize_post(p):
 
 @feed_bp.route("/")
 def feed():
+    # Require login to view root feed
+
+    print(session.get("user_name"))
+
+    if not session.get("user_name"):
+        return redirect(url_for("authentication_bp.register"))
+
     all_posts = _repo().get_photo_posts()
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]

@@ -10,7 +10,7 @@ from functools import wraps
 
 from pets.blueprints.feed.feed import feed, feed_bp
 
-#from pets.utilities import is_logged_in
+# from pets.utilities import is_logged_in
 
 
 authentication_blueprint = Blueprint("authentication_bp", __name__, url_prefix="/auth")

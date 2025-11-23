@@ -28,7 +28,6 @@ class PetUserReader:
                     bio=row["bio"],
                     follower_ids=int_ids,
                 )
-                print(user.follower_ids)
                 self.__users.append(user)
         return self.__users
 

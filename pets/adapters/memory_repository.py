@@ -40,8 +40,7 @@ class MemoryRepository(AbstractRepository):
     def get_pet_user_by_name(self, username) -> User:
         return next((u for u in self.__pet_users if u.username == username), None)
 
-    #def get_user_by_id(self, id: int) -> User:
-
+    # def get_user_by_id(self, id: int) -> User:
 
     def get_human_user_by_id(self, id: int) -> User:
         return next((u for u in self.__human_users if u.id == id), None)
