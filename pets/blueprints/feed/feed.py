@@ -9,6 +9,7 @@ from flask import (
     url_for,
 )
 from pets.adapters import repository
+from pets.blueprints.authentication.authentication import login_required
 
 feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
@@ -48,6 +49,7 @@ def _serialize_post(p):
 
 
 @feed_bp.route("/")
+@login_required
 def feed():
     # Require login to view root feed
 
