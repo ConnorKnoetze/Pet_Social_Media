@@ -7,6 +7,7 @@ from pets.adapters.memory_repository import MemoryRepository
 from pets.adapters.populate_repository import populate
 from pets.blueprints.feed.feed import feed, feed_bp
 from pets.blueprints.authentication.authentication import authentication_blueprint
+from pets.utilities.auth import get_current_user
 
 
 def create_app():
@@ -25,4 +26,23 @@ def create_app():
     app.register_blueprint(feed_bp)
     app.register_blueprint(authentication_blueprint)
 
+
+
+    @app.context_processor
+    def inject_user():
+        return {"current_user": get_current_user()}
+    #
+    # @app.before_request
+    # def before_flask_http_request_function():
+    #     if isinstance(repository.repo_instance, SqlAlchemyRepository):
+    #         repository.repo_instance.reset_session()
+    #
+    # # Register a tear-down method that will be called after each request has been processed.
+    # @app.teardown_appcontext
+    # def shutdown_session(exception=None):
+    #     if isinstance(repository.repo_instance, SqlAlchemyRepository):
+    #         repository.repo_instance.close_session()
+
     return app
+
+
