@@ -37,7 +37,7 @@ img {
   transition: all .2s ease;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 760px) {
   .video{
     min-width: 20rem;
   }

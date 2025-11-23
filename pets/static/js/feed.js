@@ -80,7 +80,7 @@
     mobileCloseBtn.className = 'side-btn';
     mobileCloseBtn.type = 'button';
     mobileCloseBtn.setAttribute('aria-label', 'Close overlays');
-    mobileCloseBtn.innerText = '×';
+    mobileCloseBtn.innerHTML = '<img class="button_image" src="/static/images/assets/close.png" alt="Close" />';
     mobileCloseBtn.addEventListener('click', mobileCloseHandler);
 
     leftButtons.insertBefore(mobileCloseBtn, leftButtons.firstChild);

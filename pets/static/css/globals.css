@@ -67,6 +67,12 @@ html, body {
   border-color: var(--color-panel-border);
 }
 
+.side-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
 .side-btn:focus-visible {
   outline-color: var(--color-accent);
 }

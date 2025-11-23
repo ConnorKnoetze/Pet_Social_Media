@@ -1,20 +1,20 @@
 .user { font-family: system-ui, Arial, sans-serif; padding: 0.75rem 1rem; line-height: 1.4; color: var(--color-text); }
 .user h2 { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 600; }
 .user-info { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.75rem; }
-.user-avatar { width:72px; height:72px; border-radius:50%; object-fit:cover; border:2px solid var(--color-panel-border); background: var(--color-panel-bg); }
+.user-avatar { width:128px; height:128px; border-radius:50%; object-fit:cover; border:2px solid var(--color-panel-border); background: var(--color-panel-bg); }
 .stat-line { font-size:0.75rem; opacity:0.8; margin:0.3rem 0; }
 
 .thumb-grid {
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-  gap:6px;
-  margin-top:0.5rem;
+  grid-template-columns: repeat(2, 1fr); /* exactly two items per row */
+  gap:12px; /* slightly larger gap for two-column layout */
+  margin-top:0.75rem;
 }
 
 .thumb {
   position:relative;
   width:100%;
-  aspect-ratio:1/1;
+  aspect-ratio:1/1.25;
   overflow:hidden;
   border-radius:8px;
   background:#000;
