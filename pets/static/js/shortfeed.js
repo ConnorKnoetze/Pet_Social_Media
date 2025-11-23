@@ -131,4 +131,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   attachObservers();
+
+  function currentCard() {
+    return container.querySelector(`.short-card[data-id="${activePostId}"]`);
+  }
+  function scrollFeed(direction) {
+    const cards = [...container.querySelectorAll('.short-card')];
+    if (!cards.length) return;
+    let idx = cards.indexOf(currentCard());
+    if (idx < 0) idx = 0;
+    if (direction === 'up') {
+      idx = Math.max(0, idx - 1);
+    } else {
+      idx = Math.min(cards.length - 1, idx + 1);
+      // If we are at the last card and more are available, prefetch next batch
+      if (idx === cards.length - 1 && hasMore && !loading) {
+        loadBatch();
+      }
+    }
+    cards[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-scroll]');
+    if (!btn) return;
+    const dir = btn.getAttribute('data-scroll');
+    scrollFeed(dir === 'up' ? 'up' : 'down');
+  }, { passive: true });
 });
