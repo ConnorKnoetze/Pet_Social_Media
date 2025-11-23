@@ -6,6 +6,7 @@ from pathlib import Path
 from pets.adapters.memory_repository import MemoryRepository
 from pets.adapters.populate_repository import populate
 from pets.blueprints.feed.feed import feed, feed_bp
+from pets.blueprints.authentication.authentication import authentication_blueprint
 
 
 def create_app():
@@ -22,5 +23,6 @@ def create_app():
         populate(repository.repo_instance)
 
     app.register_blueprint(feed_bp)
+    app.register_blueprint(authentication_blueprint)
 
     return app

@@ -19,6 +19,9 @@ class MemoryRepository(AbstractRepository):
     def add_pet_user(self, user: User):
         self.__pet_users.append(user)
 
+    def get_total_user_size(self):
+        return len(self.__pet_users) + len(self.__human_users)
+
     def add_multiple_pet_users(self, users: List[User]):
         self.__pet_users.extend(users)
 
@@ -36,6 +39,9 @@ class MemoryRepository(AbstractRepository):
 
     def get_pet_user_by_name(self, username) -> User:
         return next((u for u in self.__pet_users if u.username == username), None)
+
+    #def get_user_by_id(self, id: int) -> User:
+
 
     def get_human_user_by_id(self, id: int) -> User:
         return next((u for u in self.__human_users if u.id == id), None)
