@@ -43,6 +43,9 @@ class MemoryRepository(AbstractRepository):
     def get_pet_user_by_id(self, id: int) -> User:
         return next((u for u in self.__pet_users if u.id == id), None)
 
+    def get_all_user_post_paths(self, user: User) -> List[str]:
+        return [str(p.media_path) for p in self.__posts if p.user_id == user.id]
+
     def get_pet_users(self) -> List[User]:
         return self.__pet_users
 
@@ -92,3 +95,18 @@ class MemoryRepository(AbstractRepository):
     def delete_comment(self, user: User, comment: Comment):
         user.comments.remove(comment)
         self.__comments.remove(comment)
+
+    def get_posts_thumbnails(self, user_id: int) -> List[dict]:
+        # Return up to 24 latest posts (photo or video) for thumbnail grid.
+        items = [p for p in self.__posts if getattr(p, "user_id", None) == user_id]
+        # Sort newest first if created_at exists.
+        items.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
+        out = []
+        for p in items[:24]:
+            if p.media_type == "photo": # For now, just return photos.
+                out.append({
+                    "id": int(getattr(p, "id", 0)),
+                    "media_type": getattr(p, "media_type", ""),
+                    "media_path": str(getattr(p, "media_path", "")),
+                })
+        return out

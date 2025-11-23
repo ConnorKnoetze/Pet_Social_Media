@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const art = document.createElement('article');
     art.className = 'post short-card';
     art.dataset.id = post.id;
+    art.dataset.userId = post.user_id || 0;
     art.innerHTML = `
       <h2>${escapeHtml(post.caption)}</h2>
       <small>${escapeHtml(post.created_at)}</small>
@@ -61,15 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!vid) return;
       if (e.isIntersecting) {
         if (vid.paused) vid.play().catch(()=>{});
-      } else {
-        if (!vid.paused) vid.pause();
+      } else if (!vid.paused) {
+        vid.pause();
       }
     });
   }, { threshold: [0.6] });
 
-  // Active post & comments observer
   const activeObserver = new IntersectionObserver(entries => {
-    // Pick the entry with highest intersectionRatio that isIntersecting
     let best = null;
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const postId = best.target.dataset.id;
       if (postId && postId !== activePostId) {
         activePostId = postId;
-        if (window.setActivePostComments) {
-          window.setActivePostComments(postId);
-        }
+        if (window.setActivePostComments) window.setActivePostComments(postId);
+        const userId = best.target.dataset.userId;
+        if (userId && window.setActivePostUser) window.setActivePostUser(userId);
       }
     }
   }, { threshold: [0.6] });
@@ -105,12 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const trigger = cards[cards.length - PREFETCH_THRESHOLD];
     if (trigger) prefetchObserver.observe(trigger);
 
-    // Ensure initial active if none
     if (!activePostId) {
       const first = cards[0];
       if (first) {
         activePostId = first.dataset.id;
         if (window.setActivePostComments) window.setActivePostComments(activePostId);
+        if (window.setActivePostUser && first.dataset.userId) {
+          window.setActivePostUser(first.dataset.userId);
+        }
       }
     }
   }
@@ -119,6 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!hasMore || loading) return;
     const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 200;
     if (nearBottom) loadBatch();
+  });
+
+  // Inject data-user-id for initially server-rendered cards if missing
+  container.querySelectorAll('.short-card').forEach(card => {
+    if (!card.dataset.userId) {
+      // Attempt extraction via a hidden element or leave 0
+      card.dataset.userId = card.getAttribute('data-user-id') || '0';
+    }
   });
 
   attachObservers();
