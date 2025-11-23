@@ -23,6 +23,7 @@ html, body {
   --color-muted: #777777;
   --color-accent: #2684ff;
   color-scheme: light dark;
+  --background-image: url("../images/backgrounds/light_back4k.png");
 }
 
 :root[data-theme='dark'] {
@@ -33,6 +34,7 @@ html, body {
   --color-muted: #a3a3a3;
   --color-accent: #4d9dff;
   color-scheme: dark;
+  --background-image: url("../images/backgrounds/dark_back4k.png");
 }
 
 html, body {

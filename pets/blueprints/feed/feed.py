@@ -4,7 +4,7 @@ from pets.adapters import repository
 
 feed_bp = Blueprint("feed", __name__)
 
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 
 
 def _repo():
@@ -90,3 +90,23 @@ def comments(post_id: int):
         return {"author": str(author), "text": str(text), "created_at": created}
 
     return jsonify({"post_id": post_id, "comments": [ser(c) for c in items]})
+
+
+@feed_bp.route("/api/user/<int:user_id>")
+def user(user_id: int):
+    repo = _repo()
+    user = repo.get_pet_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    def serialize(u):
+        return {
+            "id": int(getattr(u, "id", 0)),
+            "username": str(getattr(u, "username", "")),
+            "bio": str(getattr(u, "bio", "")),
+            "profile_picture_path": str(
+                getattr(u, "profile_picture_path", "")
+            ),
+        }
+
+    return jsonify(serialize(user))
