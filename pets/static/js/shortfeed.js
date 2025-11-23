@@ -9,6 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const PREFETCH_THRESHOLD = 3;
   let activePostId = null;
 
+  function timeago(iso) {
+    if (!iso) return '';
+    const dt = new Date(iso);
+    if (isNaN(dt)) return '';
+    const now = new Date();
+    let diffSec = (now - dt) / 1000;
+    if (diffSec < 60) return 'Just now';
+    const mins = diffSec / 60;
+    if (mins < 60) return `${Math.floor(mins)}m`;
+    const hrs = mins / 60;
+    if (hrs < 24) return `${Math.floor(hrs)}h`;
+    const days = hrs / 24;
+    if (days < 7) return `${Math.floor(days)}d`;
+    const d = dt.getDate().toString().padStart(2,'0');
+    const m = (dt.getMonth()+1).toString().padStart(2,'0');
+    const y = dt.getFullYear().toString().slice(-2);
+    return `${d}/${m}/${y}`;
+  }
+
   async function loadBatch() {
     if (loading || !hasMore) return;
     loading = true;
@@ -28,15 +47,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function addCard(post) {
+   function addCard(post) {
     const art = document.createElement('article');
     art.className = 'post short-card';
     art.dataset.id = post.id;
     art.dataset.userId = post.user_id || 0;
+
     art.innerHTML = `
-      <h2>${escapeHtml(post.caption)}</h2>
-      <small>${escapeHtml(post.created_at)}</small>
-      ${mediaMarkup(post)}
+      <div class="post-wrapper">
+        ${mediaMarkup(post)}
+        <div class="post-info">
+          <p class="bio">${escapeHtml(post.caption)}</p>
+          <small class="created-at">Posted: ${escapeHtml(timeago(post.created_at))}</small>
+        </div>
+      </div>
     `;
     container.appendChild(art);
   }

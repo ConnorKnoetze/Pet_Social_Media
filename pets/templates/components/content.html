@@ -4,15 +4,19 @@
       <article class="post short-card"
                data-id="{{ post.id }}"
                data-user-id="{{ post.user_id if post.user_id is defined else (post.user.id if post.user is defined else 0) }}">
-        <h2>{{ post.caption }}</h2>
-        <small>{{ post.created_at }}</small>
-        {% if post.media_type == 'photo' %}
-          <img src="{{ post.media_path }}" alt="Post image">
-        {% elif post.media_type == 'video' %}
-          <video autoplay loop muted playsinline controlslist="nodownload nofullscreen noplaybackrate" disablepictureinpicture>
-            <source src="{{ post.media_path }}" type="video/mp4">
-          </video>
-        {% endif %}
+        <div class="post-wrapper">
+          {% if post.media_type == 'photo' %}
+            <img src="{{ post.media_path }}" alt="Post image">
+          {% elif post.media_type == 'video' %}
+            <video autoplay loop muted playsinline controlslist="nodownload nofullscreen noplaybackrate" disablepictureinpicture>
+              <source src="{{ post.media_path }}" type="video/mp4">
+            </video>
+          {% endif %}
+          <div class="post-info">
+            <p class="bio">{{ post.caption }}</p>
+            <small class="created-at">Posted: {{ post.created_at | timeago }}</small>
+          </div>
+        </div>
       </article>
     {% endfor %}
   {% endif %}
