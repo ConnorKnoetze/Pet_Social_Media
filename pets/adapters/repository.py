@@ -15,11 +15,6 @@ class RepositoryException(Exception):
 
 class AbstractRepository(abc.ABC):
     @abc.abstractmethod
-    def populate(self, users: List[User]) -> None:
-        # Populates the repository with a list of Users.
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def add_pet_user(self, user: User):
         # Adds a User to the repository.
         raise NotImplementedError

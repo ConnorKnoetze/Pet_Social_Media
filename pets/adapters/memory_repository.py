@@ -4,6 +4,7 @@ from pets.domainmodel.User import User
 from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
+from pets.domainmodel.Like import Like
 from datetime import datetime, UTC
 
 
@@ -13,12 +14,14 @@ class MemoryRepository(AbstractRepository):
         self.__pet_users: List[User] = []
         self.__posts: List[Post] = []
         self.__comments: List[Comment] = []
+        self.__max_like_id = 0
 
-    def populate(self, users: List[User]) -> None:
+    def populate(self, users: List[User], max_like_id) -> None:
         self.__pet_users = users
         # Flatten posts and comments
         self.__posts = [p for u in users for p in getattr(u, "posts", [])]
         self.__comments = [c for u in users for c in getattr(u, "comments", [])]
+        self.__max_like_id = max_like_id
 
     def add_pet_user(self, user: User):
         self.__pet_users.append(user)
@@ -100,11 +103,15 @@ class MemoryRepository(AbstractRepository):
             self.__comments.append(comment)
 
     def add_like(self, post: Post, user: User):
-        post.add_like(user)
+        self.__max_like_id += 1
+        like = Like(self.__max_like_id, user.id, post.id, datetime.now(UTC))
+        post.add_like(like)
 
     def add_multiple_likes(self, posts: List[Post], users: List[User]):
         for post, user in zip(posts, users):
-            post.add_like(user)
+            self.__max_like_id += 1
+            like = Like(self.__max_like_id, user.id, post.id, datetime.now(UTC))
+            post.add_like(like)
 
     def delete_comment(self, user: User, comment: Comment):
         user.comments.remove(comment)

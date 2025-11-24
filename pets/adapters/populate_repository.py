@@ -4,4 +4,4 @@ from pets.adapters.datareaders.data_reader import DataReader
 
 def populate(repo: AbstractRepository):
     data_reader = DataReader()
-    repo.populate(data_reader.users)
+    repo.populate(data_reader.users, data_reader.max_like_id)

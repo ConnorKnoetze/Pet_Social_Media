@@ -8,8 +8,6 @@ from password_validator import PasswordValidator
 from functools import wraps
 
 
-
-
 from pets.utilities.auth import is_logged_in
 
 
@@ -47,6 +45,7 @@ def register():
 @authentication_blueprint.route("/login", methods=["GET", "POST"])
 def login():
     from pets.blueprints.feed.feed import feed, feed_bp
+
     repo = repository.repo_instance
     form = LoginForm()
     user_name_not_recognised = None
@@ -85,6 +84,7 @@ def login():
 @authentication_blueprint.route("/logout")
 def logout():
     from pets.blueprints.feed.feed import feed, feed_bp
+
     session.clear()
     return redirect(url_for("feed.feed"))
 

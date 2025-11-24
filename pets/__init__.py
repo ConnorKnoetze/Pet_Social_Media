@@ -32,6 +32,7 @@ def create_app():
     @app.context_processor
     def inject_user():
         return {"current_user": get_current_user()}
+
     #
     # @app.before_request
     # def before_flask_http_request_function():
@@ -45,5 +46,3 @@ def create_app():
     #         repository.repo_instance.close_session()
 
     return app
-
-

@@ -48,6 +48,43 @@ def _serialize_post(p):
     }
 
 
+@feed_bp.route("/api/posts/<int:post_id>/like", methods=["POST"])
+@login_required
+def like_post(post_id: int):
+    repo = _repo()
+    username = session.get("user_name")
+    if not username:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
+    if not user:
+        return jsonify({"error": "User not found"}), 403
+
+    post = repo.get_post_by_id(post_id)
+    if not post:
+        return jsonify({"error": "Post not found"}), 404
+
+    user_id = getattr(user, "id", None)
+    likes_list = getattr(post, "likes", []) or []
+    existing = next(
+        (l for l in likes_list if getattr(l, "user_id", None) == user_id), None
+    )
+
+    if not existing:
+        # Use repository's add_like; assume it appends to post.likes and persists.
+        repo.add_like(post, user)
+
+    likes_count = len(getattr(post, "likes", []) or [])
+    return jsonify(
+        {
+            "post_id": post_id,
+            "liked": True,
+            "already_liked": existing is not None,
+            "likes_count": likes_count,
+        }
+    ), 200
+
+
 @feed_bp.route("/")
 @login_required
 def feed():
@@ -97,7 +134,9 @@ def comments(post_id: int):
         username = session.get("user_name")
         if not username:
             return jsonify({"error": "Not authenticated"}), 401
-        user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
+        user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(
+            username
+        )
         if not user:
             return jsonify({"error": "User not found"}), 403
         post = repo.get_post_by_id(post_id)
@@ -122,7 +161,9 @@ def comments(post_id: int):
                         "user_id": getattr(user, "id", 0),
                         "text": text,
                         "created_at": created,
-                        "profile_picture_path": str(getattr(user, "profile_picture_path", "")),
+                        "profile_picture_path": str(
+                            getattr(user, "profile_picture_path", "")
+                        ),
                         "likes": 0,
                     },
                 }
