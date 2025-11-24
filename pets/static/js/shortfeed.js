@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-   function addCard(post) {
+  function addCard(post) {
     const art = document.createElement('article');
     art.className = 'post short-card';
     art.dataset.id = post.id;
@@ -146,10 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nearBottom) loadBatch();
   });
 
-  // Inject data-user-id for initially server-rendered cards if missing
   container.querySelectorAll('.short-card').forEach(card => {
     if (!card.dataset.userId) {
-      // Attempt extraction via a hidden element or leave 0
       card.dataset.userId = card.getAttribute('data-user-id') || '0';
     }
   });
@@ -159,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function currentCard() {
     return container.querySelector(`.short-card[data-id="${activePostId}"]`);
   }
+
   function scrollFeed(direction) {
     const cards = [...container.querySelectorAll('.short-card')];
     if (!cards.length) return;
@@ -168,17 +167,35 @@ document.addEventListener('DOMContentLoaded', () => {
       idx = Math.max(0, idx - 1);
     } else {
       idx = Math.min(cards.length - 1, idx + 1);
-      // If we are at the last card and more are available, prefetch next batch
       if (idx === cards.length - 1 && hasMore && !loading) {
         loadBatch();
       }
     }
     cards[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  const DOUBLE_UP_THRESHOLD = 280;
+  let upClickTimer = null;
+
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-scroll]');
     if (!btn) return;
     const dir = btn.getAttribute('data-scroll');
+
+    if (dir === 'up') {
+      if (upClickTimer) {
+        clearTimeout(upClickTimer);
+        upClickTimer = null;
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      upClickTimer = setTimeout(() => {
+        scrollFeed('up');
+        upClickTimer = null;
+      }, DOUBLE_UP_THRESHOLD);
+      return;
+    }
+
     scrollFeed(dir === 'up' ? 'up' : 'down');
   }, { passive: true });
 });

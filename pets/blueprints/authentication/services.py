@@ -32,6 +32,7 @@ def add_user(
 
     password_hash = generate_password_hash(password)
     user = User(id, user_name, email, password_hash)
+    print(user,user.password_hash)
     repo.add_pet_user(user)
 
 

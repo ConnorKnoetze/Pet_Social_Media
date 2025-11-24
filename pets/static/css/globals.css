@@ -21,7 +21,7 @@ html, body {
   --color-panel-border: #dddddd;
   --color-text: #1b1b1b;
   --color-muted: #777777;
-  --color-accent: #2684ff;
+  --color-accent:linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: light dark;
   --color-panel-bg-glass: rgba(255,255,255,0.55);
   --background-image: url("../images/backgrounds/light_back4k.png");
@@ -33,7 +33,7 @@ html, body {
   --color-panel-border: #2c2c2c;
   --color-text: #e6e6e6;
   --color-muted: #a3a3a3;
-  --color-accent: #4d9dff;
+  --color-accent:linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: dark;
   --color-panel-bg-glass: rgba(30,30,30,0.55);
   border: 1px solid rgba(255,255,255,0.12);

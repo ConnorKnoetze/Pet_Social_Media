@@ -89,25 +89,78 @@ def feed_batch():
     )
 
 
-@feed_bp.route("/api/comments/<int:post_id>")
+@feed_bp.route("/api/comments/<int:post_id>", methods=["GET", "POST"])
 def comments(post_id: int):
     repo = _repo()
-    try:
-        items = repo.get_comments_for_post(post_id) or []
-    except AttributeError:
-        items = []
+    if request.method == "POST":
+        # Require authenticated user
+        username = session.get("user_name")
+        if not username:
+            return jsonify({"error": "Not authenticated"}), 401
+        user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
+        if not user:
+            return jsonify({"error": "User not found"}), 403
+        post = repo.get_post_by_id(post_id)
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+        data = request.get_json(silent=True) or {}
+        text = (data.get("text") or "").strip()
+        if not text:
+            return jsonify({"error": "Empty comment"}), 400
+        if len(text) > 500:
+            return jsonify({"error": "Comment too long"}), 400
+        comment = repo.create_comment(user, post, text)
+        created = getattr(comment, "created_at", "")
+        if hasattr(created, "isoformat"):
+            created = created.isoformat()
+        return (
+            jsonify(
+                {
+                    "post_id": post_id,
+                    "comment": {
+                        "author": getattr(user, "username", ""),
+                        "user_id": getattr(user, "id", 0),
+                        "text": text,
+                        "created_at": created,
+                        "profile_picture_path": str(getattr(user, "profile_picture_path", "")),
+                        "likes": 0,
+                    },
+                }
+            ),
+            201,
+        )
+
+    # GET branch
+    post = repo.get_post_by_id(post_id)
+    items = []
+    if post is not None:
+        items = list(getattr(post, "comments", []) or [])
+
+    def user_for(user_id: int):
+        return repo.get_human_user_by_id(user_id) or repo.get_pet_user_by_id(user_id)
 
     def username_for(user_id: int):
-        u = repo.get_human_user_by_id(user_id) or repo.get_pet_user_by_id(user_id)
+        u = user_for(user_id)
         return getattr(u, "username", f"User {user_id}")
 
     def ser(c):
         created = getattr(c, "created_at", "")
         if hasattr(created, "isoformat"):
             created = created.isoformat()
-        author = getattr(c, "author", None) or username_for(getattr(c, "user_id", 0))
+        uid = getattr(c, "user_id", 0)
+        u = user_for(uid)
+        profile_pic = getattr(u, "profile_picture_path", "") if u else ""
+        author = getattr(c, "author", None) or username_for(uid)
         text = getattr(c, "text", None) or getattr(c, "comment_string", "")
-        return {"author": str(author), "text": str(text), "created_at": created}
+        likes = getattr(c, "likes", 0)
+        return {
+            "author": str(author),
+            "user_id": int(uid),
+            "text": str(text),
+            "created_at": created,
+            "profile_picture_path": str(profile_pic),
+            "likes": int(likes),
+        }
 
     return jsonify({"post_id": post_id, "comments": [ser(c) for c in items]})
 

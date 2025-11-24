@@ -1,6 +1,10 @@
 from typing import List
-from pets.adapters.repository import AbstractRepository, RepositoryException
-from pets.domainmodel import User, PetUser, Post, Comment
+from pets.adapters.repository import AbstractRepository
+from pets.domainmodel.User import User
+from pets.domainmodel.PetUser import PetUser
+from pets.domainmodel.Post import Post
+from pets.domainmodel.Comment import Comment
+from datetime import datetime, UTC
 
 
 class MemoryRepository(AbstractRepository):
@@ -75,11 +79,16 @@ class MemoryRepository(AbstractRepository):
 
     def add_comment(self, user: User, comment: Comment):
         user.add_comment(comment)
+        # Attach to post if exists
+        post = self.get_post_by_id(getattr(comment, "post_id", -1))
+        if post is not None:
+            post.add_comment(comment)
         self.__comments.append(comment)
 
     # New method used by the /api/comments/<post_id> endpoint
     def get_comments_for_post(self, post_id: int) -> List[Comment]:
-        return self.get_post_by_id(post_id).comments
+        post = self.get_post_by_id(post_id)
+        return list(getattr(post, "comments", []) if post else [])
 
     # Optional: keep for internal usage if needed (fixed attribute)
     def get_comments_by_post(self, post: Post) -> List[Comment]:
@@ -117,3 +126,21 @@ class MemoryRepository(AbstractRepository):
                     }
                 )
         return out
+
+    def next_comment_id(self) -> int:
+        if not self.__comments:
+            return 1
+        return max(getattr(c, "id", 0) for c in self.__comments) + 1
+
+    def create_comment(self, user: User, post: Post, text: str) -> Comment:
+        cid = self.next_comment_id()
+        comment = Comment(
+            id=cid,
+            user_id=getattr(user, "id", 0),
+            post_id=getattr(post, "id", 0),
+            created_at=datetime.now(UTC),
+            comment_string=text,
+            likes=0,
+        )
+        self.add_comment(user, comment)
+        return comment
