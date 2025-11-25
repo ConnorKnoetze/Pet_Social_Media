@@ -1,3 +1,11 @@
+:root {
+  --background-image: url("../../images/backgrounds/light_back4k.png");
+}
+
+:root[data-theme='dark']{
+    --background-image: url("../../images/backgrounds/dark_back4k.png");
+}
+
 html, body {
   height: 100%;
   margin: 0;
