@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const nameEl = document.getElementById('username');
+  const userNameLinkEl = document.getElementById('usernameLink');
   const avatarEl = document.getElementById('userAvatar');
+  const avatarLinkEl = document.getElementById('userAvatarLink');
   const followersEl = document.getElementById('followers');
   const bioEl = document.getElementById('bio');
   const postCountEl = document.getElementById('postCount');
@@ -44,7 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderUser(u) {
     if (!u) return clear();
+    if (userNameLinkEl) {
+      userNameLinkEl.href = `/user/${u.id || ''}`;
+    }
     if (nameEl) nameEl.textContent = u.username || 'Unknown';
+    if (avatarLinkEl) {
+        avatarLinkEl.href = `/user/${u.id || ''}`;
+    }
     if (avatarEl) {
       avatarEl.src = u.profile_picture_path || '';
       avatarEl.alt = (u.username || 'User') + ' avatar';

@@ -7,6 +7,7 @@ from pets.adapters.memory_repository import MemoryRepository
 from pets.adapters.populate_repository import populate
 from pets.blueprints.feed.feed import feed, feed_bp
 from pets.blueprints.authentication.authentication import authentication_blueprint
+from pets.blueprints.user.user import user_bp
 from pets.utilities.auth import get_current_user
 from pets.utilities.timeago import timeago
 
@@ -26,6 +27,8 @@ def create_app():
 
     app.register_blueprint(feed_bp)
     app.register_blueprint(authentication_blueprint)
+    app.register_blueprint(user_bp)
+
 
     app.jinja_env.filters["timeago"] = timeago
 

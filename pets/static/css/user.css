@@ -4,6 +4,60 @@
 .user-avatar { width:128px; height:128px; border-radius:50%; object-fit:cover; border:2px solid var(--color-panel-border); background: var(--color-panel-bg); }
 .stat-line { font-size:0.75rem; opacity:0.8; margin:0.3rem 0; }
 
+#usernameLink,
+#userAvatarLink {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .15s ease, box-shadow .15s ease;
+  will-change: transform;
+}
+
+#userAvatarLink .user-avatar {
+  transition: border-color .15s ease, filter .15s ease, transform .15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #usernameLink:hover,
+  #userAvatarLink:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+  }
+
+  #userAvatarLink:hover .user-avatar {
+    border-color: var(--color-accent);
+  }
+}
+
+#usernameLink:active,
+#userAvatarLink:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 8px rgba(0,0,0,.22);
+}
+
+#usernameLink:focus-visible,
+#userAvatarLink:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+#usernameLink:hover,
+#usernameLink:focus,
+#usernameLink:active,
+#userAvatarLink:hover,
+#userAvatarLink:focus,
+#userAvatarLink:active {
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #usernameLink,
+  #userAvatarLink,
+  #userAvatarLink .user-avatar {
+    transition: none !important;
+  }
+}
+
 .thumb-grid {
   display:grid;
   grid-template-columns: repeat(2, 1fr); /* exactly two items per row */
