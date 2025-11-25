@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+from flask import render_template, app
+
 from pets.adapters import repository
 
 from pathlib import Path
@@ -18,6 +20,10 @@ def create_app():
     load_dotenv()
     app = Flask(__name__)
     app.config.from_object("config.Config")
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template("/pages/errors/404.html"), 404
 
     if app.config["REPOSITORY"] == "memory":
         # Create the MemoryRepository implementation for a memory-based repository.
