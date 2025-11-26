@@ -189,8 +189,8 @@ html, body {
   overflow-y: auto;
 }
 
-#userPanel img:not(.user-avatar),
-#userPanel video,
+#userPanel img:not(.user-avatar):not(.thumb img),
+#userPanel video:not(.thumb video),
 #commentsPanel img,
 #commentsPanel video {
   max-width: 100%;
