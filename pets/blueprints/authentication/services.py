@@ -26,6 +26,7 @@ def add_user(
 ):
     repo = repository.repo_instance
     user = repo.get_pet_user_by_name(user_name)
+    print(user)
     id = repo.get_total_user_size()
     if user is not None:
         raise NameNotUniqueException

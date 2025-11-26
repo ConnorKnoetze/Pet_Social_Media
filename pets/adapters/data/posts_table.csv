@@ -88,3 +88,9 @@ id,user_id,caption,views,created_at,size,tags,users_in_post_ids,media_path,media
 87,98,Tucker on Pexels,73935,2025-06-18T14:36:28+00:00,,video,,https://www.pexels.com/video/playful-puppies-exploring-forest-outdoors-34743050/,video
 88,66,Shadow on Pexels,1900,2024-01-30T05:41:32+00:00,,dog,,https://www.pexels.com/video/dog-and-cow-interaction-in-sunny-field-34755400/,video
 89,47,Finn on Pexels,56619,2025-03-23T11:44:53+00:00,,dog,,https://www.pexels.com/video/close-up-video-of-a-siberian-husky-looking-around-6507676/,video
+90,100,Just in the sun,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff1.jpg,photo
+91,100,Muff a day 1,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff2.jpg,photo
+92,100,Mogging all of you ,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff3.jpg,photo
+93,100,Just taking a nap,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff4.jpg,photo
+94,100,Tired of all the haters,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff5.jpg,photo
+95,100,Just woke up who this,10000000,2025-11-27T12:00+00:00,,cat,,/static/images/muffin/muff6.jpg,photo

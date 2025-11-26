@@ -1,6 +1,5 @@
 (function() {
   const LINES = 1;
-  const RETRY_DELAY = 2; // number of requestAnimationFrame hops to wait before retrying
 
   function applyClamp(el) {
     el.classList.add('clamped');
