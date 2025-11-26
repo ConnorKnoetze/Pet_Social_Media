@@ -2,6 +2,42 @@ html, body, .video {
   touch-action: manipulation; /* Prevent double-tap zoom on many browsers */
 }
 
+.short-card .post-info .bio {
+  min-width: 0;
+  margin: 0 0 0.35rem 0;
+  font-weight: 500;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.bio.clamped {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bio.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.see-more-btn {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: transparent;
+  border: none;
+  color: #2684ff;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.see-more-btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 .video,
 .button_image,
 .empty-image {

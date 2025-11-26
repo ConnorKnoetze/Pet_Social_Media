@@ -185,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
     container.appendChild(art);
-    initLikeForCard(art); // initialize like handlers for new card
+    initLikeForCard(art);
+    if (window.initCaptions) window.initCaptions(art);
   }
 
   function mediaMarkup(p) {
