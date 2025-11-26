@@ -35,7 +35,6 @@ def create_app():
     app.register_blueprint(authentication_blueprint)
     app.register_blueprint(user_bp)
 
-
     app.jinja_env.filters["timeago"] = timeago
 
     @app.context_processor

@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Feed{% endblock %}
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feed/feed.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/feed/comments.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/feed/user.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/feed/content.css') }}">
+<script src="{{ url_for('static', filename='js/feed/feed.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/feed/content.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/feed/comments.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/feed/user.js') }}" defer></script>

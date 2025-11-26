@@ -14,19 +14,21 @@ from pets.domainmodel.PetUser import PetUser
 
 user_bp = Blueprint("user", __name__)
 
+
 def _repo():
     r = repository.repo_instance
     if r is None:
         raise RuntimeError("Repository not initialized")
     return r
 
+
 @user_bp.route("/user/<int:user_id>")
 @login_required
 def view_user_profile(user_id: int):
     repo = _repo()
-    user =  repo.get_pet_user_by_id(user_id)
+    user = repo.get_pet_user_by_id(user_id)
     if not user:
         return "User not found", 404
     # Adjusted template path to match actual location under pages/
     posts = user.posts
-    return render_template("pages/user/profile.html", user=user, posts = posts)
+    return render_template("pages/user/profile.html", user=user, posts=posts)
