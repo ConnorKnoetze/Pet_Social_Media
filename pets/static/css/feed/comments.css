@@ -5,12 +5,15 @@
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   box-shadow: 0 8px 28px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
-  max-height: 100%;
   display: flex;
   flex-direction: column;
-  height: 99%;
   padding: 0.9rem 1rem 0; /* remove bottom padding so form hugs edge */
   overflow: hidden; /* stop container scroll */
+  box-sizing: border-box;
+  max-height: 100vh;  /* stronger viewport cap */
+  height: auto;       /* avoid fixed height fights */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 :root[data-theme='light'] .comments { background: rgba(0,0,0,0.40); }
 :root[data-theme='light'] .comment-form-wrapper {
@@ -25,7 +28,17 @@
   letter-spacing: .5px;
 }
 
-.comments-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.comments-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
 
 .comment-item { display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; padding: 0.55rem 0.6rem; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); position: relative; }
 .comment-item:hover { background: rgba(255,255,255,0.10); }

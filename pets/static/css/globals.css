@@ -25,6 +25,7 @@ html, body {
   color-scheme: light dark;
   --color-panel-bg-glass: rgba(255,255,255,0.55);
   --background-image: url("../images/backgrounds/light_back4k.png");
+  --avatar-size: 10px;
 }
 
 :root[data-theme='dark'] {
