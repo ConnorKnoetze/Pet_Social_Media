@@ -21,10 +21,12 @@ html, body {
   --color-panel-border: #dddddd;
   --color-text: #1b1b1b;
   --color-muted: #777777;
-  --color-accent:linear-gradient(135deg,#2684ff 0%, #444 100%);
+  --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: light dark;
   --color-panel-bg-glass: rgba(255,255,255,0.55);
-  --background-image: url("../images/backgrounds/light_back4k.png");
+  /* Use absolute static paths so they work from any stylesheet */
+  --background-image: url("/static/images/backgrounds/light_back4k.png");
+  --avatar-size: 10px;
 }
 
 :root[data-theme='dark'] {
@@ -33,11 +35,11 @@ html, body {
   --color-panel-border: #2c2c2c;
   --color-text: #e6e6e6;
   --color-muted: #a3a3a3;
-  --color-accent:linear-gradient(135deg,#2684ff 0%, #444 100%);
+  --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: dark;
   --color-panel-bg-glass: rgba(30,30,30,0.55);
   border: 1px solid rgba(255,255,255,0.12);
-  --background-image: url("../images/backgrounds/dark_back4k.png");
+  --background-image: url("/static/images/backgrounds/dark_back4k.png");
 }
 
 html, body {
@@ -47,7 +49,7 @@ html, body {
 
 .panel {
   background: var(--color-panel-bg-glass);
-  border:1px solid var(--color-panel-border);
+  border: 1px solid var(--color-panel-border);
   color: var(--color-text);
   backdrop-filter: blur(14px) saturate(120%);
   -webkit-backdrop-filter: blur(14px) saturate(120%);
@@ -67,12 +69,7 @@ html, body {
   border-color: var(--color-panel-border);
 }
 
-.side-btn:hover {
-  background: var(--color-accent);
-  color: #fff;
-  border-color: var(--color-accent);
-}
-
+/* Focus state retained here; hover/animation consolidated in feed.css */
 .side-btn:focus-visible {
   outline-color: var(--color-accent);
 }

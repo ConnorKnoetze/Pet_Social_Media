@@ -21,12 +21,11 @@ def _repo():
         raise RuntimeError("Repository not initialized")
     return r
 
-
-@user_bp.route("/user/<int:user_id>")
+@user_bp.route("/user/<string:username>")
 @login_required
-def view_user_profile(user_id: int):
+def view_user_profile(username: str):
     repo = _repo()
-    user = repo.get_pet_user_by_id(user_id)
+    user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
     if not user:
         return "User not found", 404
     # Adjusted template path to match actual location under pages/

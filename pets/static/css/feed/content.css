@@ -2,6 +2,36 @@ html, body, .video {
   touch-action: manipulation; /* Prevent double-tap zoom on many browsers */
 }
 
+/* Bio behavior utilities */
+.bio.clamped {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bio.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.see-more-btn {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: transparent;
+  border: none;
+  color: #2684ff;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.see-more-btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Interaction hygiene */
 .video,
 .button_image,
 .empty-image {
@@ -15,7 +45,6 @@ html, body, .video {
 .empty-image,
 img {
   -webkit-user-drag: none;
-  user-drag: none;
 }
 
 /* Optional: if you have a wrapper you want fully non-selectable */
@@ -24,6 +53,7 @@ img {
   -webkit-user-select: none;
 }
 
+/* Media */
 .video {
   width:100%;
   height:auto;
@@ -32,10 +62,6 @@ img {
   min-width: 25rem;
 }
 
-.video.paused {
-  filter:brightness(0.8);
-  transition: all .2s ease;
-}
 
 @media (max-width: 760px) {
   .video{

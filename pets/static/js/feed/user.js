@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderUser(u) {
     if (!u) return clear();
     if (userNameLinkEl) {
-      userNameLinkEl.href = `/user/${u.id || ''}`;
+      userNameLinkEl.href = `/user/${u.username || ''}`;
     }
     if (nameEl) nameEl.textContent = u.username || 'Unknown';
     if (avatarLinkEl) {
-        avatarLinkEl.href = `/user/${u.id || ''}`;
+        avatarLinkEl.href = `/user/${u.username || ''}`;
     }
     if (avatarEl) {
       avatarEl.src = u.profile_picture_path || '';
