@@ -10,10 +10,8 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
-from pets.domainmodel.PetUser import PetUser
 
 user_bp = Blueprint("user", __name__)
-
 
 def _repo():
     r = repository.repo_instance
@@ -29,5 +27,4 @@ def view_user_profile(username: str):
     if not user:
         return "User not found", 404
     # Adjusted template path to match actual location under pages/
-    posts = user.posts
-    return render_template("pages/user/profile.html", user=user, posts=posts)
+    return render_template("pages/user/profile.html", user=user)
