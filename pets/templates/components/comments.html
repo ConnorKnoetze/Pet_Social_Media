@@ -1,0 +1,17 @@
+<div class="comments" role="region" aria-label="Post comments">
+  <header class="comments-header">
+    <h2>Comments</h2>
+  </header>
+  <ul id="commentsList" class="comments-list" aria-live="polite" aria-busy="false">
+    <li class="comment-item empty">No post selected.</li>
+  </ul>
+  <div class="comment-form-wrapper">
+    <form id="commentForm" autocomplete="off" novalidate>
+      <textarea id="commentText" name="text" maxlength="500" placeholder="Add a comment..." aria-label="Add a comment"></textarea>
+      <div class="comment-form-actions">
+        <button type="submit" id="commentSubmit" class="comment-submit-btn">Post</button>
+        <span class="comment-form-status" id="commentStatus" aria-live="polite"></span>
+      </div>
+    </form>
+  </div>
+</div>

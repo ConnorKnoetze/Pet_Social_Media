@@ -8,6 +8,7 @@ from pets.domainmodel.Like import Like
 from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.Post import Post
 
+
 class DataReader:
     def __init__(self):
         pet_user_reader = PetUserReader()
@@ -28,6 +29,7 @@ class DataReader:
         self.__posts = posts_reader.posts
         self.__likes = likes_reader.likes
         self.__comments = comments_reader.comments
+        self.__max_like_id = likes_reader.max_like_id
 
     @property
     def users(self) -> List[PetUser]:
@@ -44,6 +46,11 @@ class DataReader:
     @property
     def comments(self) -> List[Comment]:
         return self.__comments
+
+    @property
+    def max_like_id(self) -> int:
+        return self.__max_like_id
+
 
 if __name__ == "__main__":
     data_reader = DataReader()
