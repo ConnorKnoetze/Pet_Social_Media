@@ -16,6 +16,12 @@ html, body {
   background-size: cover;
   color: var(--color-text);
 }
+
+h2{
+    margin: 0;
+    margin-bottom: 0.83rem;
+}
+
 .user-info {
   display: flex;
   gap: 0.75rem;

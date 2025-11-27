@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/globals.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/feed/feed.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/splash/splash.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nav/nav.css') }}">
 
   <script src="{{ url_for('static', filename='js/feed/feed.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/splash/splash.js') }}" defer></script>
@@ -24,6 +25,7 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body>
+  {% include 'components/nav.html' %}
   <!-- Splash overlay (shows on first visit) -->
   <div id="splash" role="dialog" aria-modal="true" aria-label="Welcome screen">
     <div class="splash-card" role="document">
