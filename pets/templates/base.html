@@ -1,19 +1,40 @@
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Feed{% endblock %}</title>
+
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/assets/up-arrow.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/assets/down-arrow.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/assets/user.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/assets/comment.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/backgrounds/dark_back4k.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/backgrounds/light_back4k.png') }}">
+
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="../static/images/favicon/paw.ico">
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/globals.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/feed/feed.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/splash/splash.css') }}">
+
   <script src="{{ url_for('static', filename='js/feed/feed.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/splash/splash.js') }}" defer></script>
+
   {% block extra_css %}{% endblock %}
 </head>
 <body>
+  <!-- Splash overlay (shows on first visit) -->
+  <div id="splash" role="dialog" aria-modal="true" aria-label="Welcome screen">
+    <div class="splash-card" role="document">
+      <img class="app-icon" src="{{ url_for('static', filename='images/favicon/paw.ico') }}" alt="App icon" />
+
+      <div class="progress" aria-hidden="true">
+        <div class="progress-fill" id="splash-progress" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
   {% block body %}{% endblock %}
 </body>
+</html>
