@@ -25,7 +25,9 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-  {% include 'components/nav.html' %}
+  {% if session.get('user_name') %}
+    {% include 'components/nav.html' %}
+  {% endif %}
   <!-- Splash overlay (shows on first visit) -->
   <div id="splash" role="dialog" aria-modal="true" aria-label="Welcome screen">
     <div class="splash-card" role="document">
