@@ -133,3 +133,13 @@ class AbstractRepository(abc.ABC):
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         # Retrieves post thumbnails for a given user ID.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def next_comment_id(self) -> int:
+        # Retrieves the next available comment ID.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_comment(self, user: User, post: Post, text: str) -> Comment:
+        # Creates and adds a Comment to the repository.
+        raise NotImplementedError
