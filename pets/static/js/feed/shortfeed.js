@@ -124,8 +124,35 @@ document.addEventListener('DOMContentLoaded', () => {
       video.addEventListener('pointerleave', cancelHold);
       video.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
     } else if (img) {
-      img.addEventListener('pointerup', handleImageTap);
-      img.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
+      img.addEventListener('pointerup', handleImageTap); // keep touch double-tap detection
+      // unified click/dblclick handling for mouse + fallback for touch
+      let clickTimer = null;
+      const CLICK_DELAY = DOUBLE_TAP_THRESHOLD;
+
+      function navigateToPost() {
+        window.location.href = img.dataset.href || `/post/${card.dataset.id}`;
+      }
+
+      // mouse click path: single click navigates, dblclick likes
+      img.addEventListener('click', (e) => {
+        // ignore if pointerup already handled a touch double-tap
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          likePost();
+          return;
+        }
+        clickTimer = setTimeout(() => {
+          clickTimer = null;
+          navigateToPost();
+        }, CLICK_DELAY);
+      });
+
+      img.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        likePost();
+      });
     }
 
     card.dataset.likeInit = '1';
@@ -195,7 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <source src="${escapeHtml(p.media_path)}" type="video/mp4">
       </video>`;
     }
-    return `<img src="${escapeHtml(p.media_path)}" alt="Post image">`;
+    // no anchor: use data-href so clicks are handled programmatically
+    return `<img class="post-link" data-href="/post/${p.id}" src="${escapeHtml(p.media_path)}" alt="Post image">`;
   }
 
   function escapeHtml(str='') {
