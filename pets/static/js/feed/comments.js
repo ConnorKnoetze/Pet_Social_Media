@@ -1,3 +1,4 @@
+// File: `pets/static/js/feed/comments.js`
 document.addEventListener('DOMContentLoaded', () => {
   const listEl = document.getElementById('commentsList');
   let currentPostId = null;
@@ -62,7 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const created = c.created_at || '';
     const profile = c.profile_picture_path || '';
     const likes = typeof c.likes === 'number' ? c.likes : 0;
-    return `<li class="comment-item" data-user-id="${escapeHtml(String(c.user_id||''))}">
+    // include data-comment-id if available
+    const commentIdAttr = c.id ? `data-comment-id="${escapeHtml(String(c.id))}"` : '';
+    return `<li class="comment-item" data-user-id="${escapeHtml(String(c.user_id||''))}" ${commentIdAttr}>
         ${avatarMarkup(author, profile)}
         <div class="comment-body">
           <div class="comment-author">${escapeHtml(author)}</div>
@@ -101,19 +104,68 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // Simple optimistic like button (no backend yet)
-  listEl.addEventListener('click', e => {
+  // Like handler: send POST to backend to add like to comment
+  listEl.addEventListener('click', async e => {
     const btn = e.target.closest('.comment-like');
     if (!btn) return;
     const item = btn.closest('.comment-item');
     if (!item) return;
     const likesEl = item.querySelector('.comment-likes');
     if (!likesEl) return;
-    let num = parseInt(likesEl.textContent) || 0;
-    num += 1;
-    likesEl.textContent = `${num}❤`;
+
+    const commentId = item.dataset && item.dataset.commentId;
+    const postId = currentPostId;
+    if (!postId) {
+      console.error('Cannot like comment: no active post selected');
+      return;
+    }
+    if (!commentId) {
+      // Server response may not include comment id - log and do optimistic local update
+      console.warn('Comment id missing; performing optimistic local like');
+      let num = parseInt(likesEl.textContent) || 0;
+      num += 1;
+      likesEl.textContent = `${num}❤`;
+      btn.disabled = true;
+      btn.textContent = 'Liked';
+      return;
+    }
+
+    // optimistic UI
+    const originalText = btn.textContent;
+    const originalDisabled = btn.disabled;
+    let originalCount = parseInt(likesEl.textContent) || 0;
+    const newCount = originalCount + 1;
+    likesEl.textContent = `${newCount}❤`;
     btn.disabled = true;
     btn.textContent = 'Liked';
+
+    try {
+      const res = await fetch(`/api/post/${encodeURIComponent(postId)}/comment/${encodeURIComponent(commentId)}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({}) // backend ignores body
+      });
+
+      if (!res.ok) {
+        // try to read server error message
+        const errBody = await res.json().catch(()=>null);
+        const msg = errBody && errBody.error ? errBody.error : `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+
+      // success: server doesn't return new like count currently; keep optimistic or adjust if server provides data
+      const data = await res.json().catch(()=>null);
+      if (data && typeof data.likes === 'number') {
+        likesEl.textContent = `${data.likes}❤`;
+      }
+    } catch (err) {
+      console.error('Failed to like comment', err);
+      // revert optimistic UI
+      likesEl.textContent = `${originalCount}❤`;
+      btn.disabled = originalDisabled;
+      btn.textContent = originalText;
+    }
   });
 
   function setStatus(msg='', type='info') {

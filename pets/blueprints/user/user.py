@@ -21,6 +21,7 @@ def _repo():
         raise RuntimeError("Repository not initialized")
     return r
 
+
 @user_bp.route("/user/<string:username>")
 @login_required
 def view_user_profile(username: str):

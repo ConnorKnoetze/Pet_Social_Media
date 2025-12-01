@@ -14,6 +14,7 @@ def _repo():
         raise RuntimeError("Repository not initialized")
     return r
 
+
 @post_bp.route("/post/<int:id>")
 @login_required
 def view_post(id: int):

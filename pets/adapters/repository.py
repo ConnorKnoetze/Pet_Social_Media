@@ -120,6 +120,11 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def delete_like(self, post: Post, user: User):
+        # Deletes a Like from the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_multiple_likes(self, posts: List[Post], users: List[User]):
         # Adds multiple Likes to the repository.
         raise NotImplementedError

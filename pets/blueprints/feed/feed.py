@@ -51,6 +51,14 @@ def _serialize_post(p):
 @feed_bp.route("/api/posts/<int:post_id>/like", methods=["POST"])
 @login_required
 def like_post(post_id: int):
+    print(
+        "DEBUG like_post called:",
+        post_id,
+        "session_user:",
+        session.get("user_name"),
+        "method:",
+        request.method,
+    )
     repo = _repo()
     username = session.get("user_name")
     if not username:
@@ -70,19 +78,27 @@ def like_post(post_id: int):
         (l for l in likes_list if getattr(l, "user_id", None) == user_id), None
     )
 
-    if not existing:
-        # Use repository's add_like; assume it appends to post.likes and persists.
+    if existing:
+        # user already liked -> remove (toggle off)
+        repo.delete_like(post, user)
+        liked = False
+    else:
+        # not liked -> add (toggle on)
         repo.add_like(post, user)
+        liked = True
 
     likes_count = len(getattr(post, "likes", []) or [])
-    return jsonify(
-        {
-            "post_id": post_id,
-            "liked": True,
-            "already_liked": existing is not None,
-            "likes_count": likes_count,
-        }
-    ), 200
+    return (
+        jsonify(
+            {
+                "post_id": post_id,
+                "liked": liked,
+                "already_liked": existing is not None,
+                "likes_count": likes_count,
+            }
+        ),
+        200,
+    )
 
 
 @feed_bp.route("/")
@@ -125,6 +141,30 @@ def feed_batch():
         }
     )
 
+@feed_bp.route("/api/post/<int:post_id>/comment/<int:comment_id>", methods=["POST"])
+@login_required
+def add_like_to_comment(post_id: int, comment_id: int):
+    repo = _repo()
+    username = session.get("user_name")
+    if not username:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    comments = repo.get_comments_for_post(post_id)
+    comment = next((c for c in comments if getattr(c, "id", None) == comment_id), None)
+
+    if not comment:
+        return jsonify({"error": "Comment not found"}), 404
+
+    repo.add_like_to_comment(comment)
+    return jsonify({
+        "message": "Like added to comment",
+        "post_id": post_id,
+        "comment_id": comment_id,
+        "likes": getattr(comment, "likes", 0)
+    }), 200
+
+
+
 
 @feed_bp.route("/api/comments/<int:post_id>", methods=["GET", "POST"])
 def comments(post_id: int):
@@ -157,6 +197,7 @@ def comments(post_id: int):
                 {
                     "post_id": post_id,
                     "comment": {
+                        "id": int(getattr(comment, "id", 0)),
                         "author": getattr(user, "username", ""),
                         "user_id": getattr(user, "id", 0),
                         "text": text,
@@ -194,7 +235,9 @@ def comments(post_id: int):
         author = getattr(c, "author", None) or username_for(uid)
         text = getattr(c, "text", None) or getattr(c, "comment_string", "")
         likes = getattr(c, "likes", 0)
+        # include id so client can post likes for specific comment
         return {
+            "id": int(getattr(c, "id", 0)),
             "author": str(author),
             "user_id": int(uid),
             "text": str(text),
@@ -204,7 +247,6 @@ def comments(post_id: int):
         }
 
     return jsonify({"post_id": post_id, "comments": [ser(c) for c in items]})
-
 
 @feed_bp.route("/api/user/<int:user_id>")
 def user(user_id: int):
