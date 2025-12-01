@@ -17,14 +17,13 @@ html, body, .video {
 
 .see-more-btn {
   display: inline-block;
-  margin-top: 0.4rem;
+  margin-bottom: 0.35rem;
   background: transparent;
   border: none;
-  color: #2684ff;
-  font-weight: 600;
+  color: #c0c0c0;
   cursor: pointer;
   padding: 0;
-  text-decoration: underline;
+  text-decoration: none;
 }
 .see-more-btn:focus-visible {
   outline: 3px solid var(--color-accent);

@@ -20,6 +20,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch(err => console.error('Like failed', err));
   }
 
+  (async function restoreLastPostOnLoad() {
+    if (!(container && history.state && history.state.lastPost)) return;
+    const last = history.state.lastPost;
+    const MAX_ATTEMPTS = 12;
+    const PAUSE_MS = 120;
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const card = container.querySelector(`.short-card[data-id="${last}"]`);
+      if (card) {
+        if (window.setActivePostComments) window.setActivePostComments(last);
+        if (card.dataset.userId && window.setActivePostUser) window.setActivePostUser(card.dataset.userId);
+        card.scrollIntoView({ behavior: 'auto', block: 'center' });
+        break;
+      }
+
+      if (hasMore) {
+        try {
+          await loadBatch();
+        } catch (e) {
+          console.error('restoreLastPost loadBatch failed', e);
+          break;
+        }
+        await delay(PAUSE_MS);
+        continue;
+      }
+      break;
+    }
+
+    try {
+      const cleared = Object.assign({}, history.state, { lastPost: undefined });
+      history.replaceState(cleared, document.title, window.location.href);
+    } catch (e) { /* ignore */ }
+  })();
+
   function createHeartBurst(card) {
     const heart = document.createElement('div');
     heart.textContent = '❤';
@@ -130,7 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const CLICK_DELAY = DOUBLE_TAP_THRESHOLD;
 
       function navigateToPost() {
-        window.location.href = img.dataset.href || `/post/${card.dataset.id}`;
+        const target = img.dataset.href || `/post/${card.dataset.id}`;
+        try {
+          // store clicked post id in the current history entry so the feed can restore it on back
+          const newState = Object.assign({}, history.state, { lastPost: card.dataset.id });
+          history.replaceState(newState, document.title, window.location.href);
+        } catch (e) { /* ignore if blocked */ }
+        window.location.href = target;
       }
 
       // mouse click path: single click navigates, dblclick likes

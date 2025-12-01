@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import render_template, app
+from flask import render_template
 
 from pets.adapters import repository
 

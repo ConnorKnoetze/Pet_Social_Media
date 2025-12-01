@@ -328,7 +328,7 @@ html, body {
 }
 
 .short-card .post-info .bio {
-  margin: 0 0 0.35rem 0;
+  margin: 0;
   font-weight: 500;
   color: #fff;
   overflow-wrap: anywhere; /* allow long strings to wrap */
