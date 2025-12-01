@@ -102,10 +102,30 @@ class MemoryRepository(AbstractRepository):
             user.add_comment(comment)
             self.__comments.append(comment)
 
+    def add_like_to_comment(self, comment: Comment):
+        comment.add_like()
+
     def add_like(self, post: Post, user: User):
         self.__max_like_id += 1
         like = Like(self.__max_like_id, user.id, post.id, datetime.now(UTC))
         post.add_like(like)
+
+    def delete_like(self, post: Post, user: User):
+        """Remove a like from *post* by *user* if present."""
+        likes = getattr(post, "likes", []) or []
+        target = next(
+            (
+                l
+                for l in likes
+                if getattr(l, "user_id", None) == getattr(user, "id", None)
+            ),
+            None,
+        )
+        if target:
+            try:
+                likes.remove(target)
+            except ValueError:
+                pass
 
     def add_multiple_likes(self, posts: List[Post], users: List[User]):
         for post, user in zip(posts, users):
