@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from datetime import datetime
+
+from pets import create_app, MemoryRepository, populate
 from pets.domainmodel.User import User
 from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.HumanUser import HumanUser
@@ -75,7 +77,7 @@ def test_post(test_pet_user):
         [],
         [test_pet_user],
         Path(""),
-        "image",
+        "photo",
     )
     return post
 
@@ -115,3 +117,18 @@ def test_likes_reader():
 def test_comments_reader():
     comments_reader = CommentsReader()
     return comments_reader
+
+
+@pytest.fixture
+def in_memory_repository() -> MemoryRepository:
+    repository = MemoryRepository()
+    populate(repository)
+    return repository
+
+
+@pytest.fixture(scope="function", autouse=True)
+def client():
+    my_app = create_app()
+
+    with my_app.test_client() as client:
+        yield client

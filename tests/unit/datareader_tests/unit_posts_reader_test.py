@@ -64,7 +64,7 @@ def test_posts_reader_no_posts_initially(test_posts_reader):
 
 def test_posts_reader_reads_all_posts(test_posts_reader):
     posts = test_posts_reader.read_posts()
-    assert len(posts) == 89  # There are 89 posts in the CSV file
+    assert len(posts) == 95  # There are 95 posts in the CSV file
 
 
 def test_posts_reader_assign_likes_and_comments(

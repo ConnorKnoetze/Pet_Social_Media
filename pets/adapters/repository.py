@@ -70,7 +70,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_post(self, user: User, post: Post):
+    def add_post(self, user: PetUser, post: Post):
         # Adds a Post to the repository.
         raise NotImplementedError
 
