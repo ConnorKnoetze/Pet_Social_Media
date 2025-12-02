@@ -7,15 +7,15 @@
     </li>
 
     <li class="nav-item">
-      <button type="button" class="nav-btn upload-btn" aria-label="Upload" title="Upload">
-        <img>
-      </button>
+      <a class="nav-link" href="{{ url_for('user.view_user_profile', username=session.get('user_name')) }}">
+          <img src="{{ url_for('static', filename='images/assets/user.png') }}" alt="App Logo" class="nav-logo">
+      </a>
     </li>
 
     <li class="nav-item">
       {% if session.get('user_name') %}
-        <a class="nav-link" href="{{ url_for('user.view_user_profile', username=session.get('user_name')) }}">
-          <img src="{{ url_for('static', filename='images/assets/user.png') }}" alt="App Logo" class="nav-logo">
+        <a class="nav-link" href="">
+          <img src="{{ url_for('static', filename='images/assets/nav/more.png') }}" alt="App Logo" class="nav-logo">
         </a>
       {% else %}
         <a class="nav-link" href="/login">Profile</a>

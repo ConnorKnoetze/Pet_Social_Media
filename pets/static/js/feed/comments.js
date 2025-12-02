@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function avatarMarkup(username, profilePath) {
     if (profilePath) {
-      return `<div class="comment-avatar"><img src="${escapeHtml(profilePath)}" alt="${escapeHtml(username)} avatar"></div>`;
+      return `<div class="comment-avatar"><a href="user/${username}"><img src="${escapeHtml(profilePath)}" alt="${escapeHtml(username)} avatar"></a></div>`;
     }
     const letter = (username||'?').charAt(0).toUpperCase();
     return `<div class="comment-avatar" aria-hidden="true">${escapeHtml(letter)}</div>`;

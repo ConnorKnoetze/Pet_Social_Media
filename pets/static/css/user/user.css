@@ -80,6 +80,8 @@ h2{
   border-radius: 12px;
   background: var(--color-panel-bg-glass);
   border: 1px solid var(--color-panel-border);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
   box-shadow: 0 6px 20px rgba(0,0,0,0.06);
   height: 100%;
   box-sizing: border-box;
