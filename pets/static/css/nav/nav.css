@@ -82,11 +82,6 @@ nav.app-nav.bottom-nav .nav-btn img {
   display: block;
 }
 
-/* Make sure body bottom content is not hidden behind the nav */
-body {
-  padding-bottom: 70px;
-}
-
 @media (hover: hover) and (pointer: fine) {
   nav.app-nav.bottom-nav .nav-link:hover,
   nav.app-nav.bottom-nav .nav-btn:hover {

@@ -26,23 +26,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderThumb(t) {
-    const wrap = document.createElement('div');
-    wrap.className = 'thumb' + (t.media_type === 'video' ? ' video' : '');
-    wrap.dataset.postId = t.id;
-    if (t.media_type === 'video') {
-      wrap.innerHTML = `<video muted playsinline preload="metadata">
-         <source src="${escapeHtml(t.media_path)}" type="video/mp4">
-       </video>`;
-     } else {
-      wrap.innerHTML = `<img src="${escapeHtml(t.media_path)}" alt="Post thumbnail">`;
-    }
-    wrap.addEventListener('click', () => {
-      // Optional: scroll to that post if present in feed
-      const target = document.querySelector(`.short-card[data-id="${t.id}"]`);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    return wrap;
+  const wrap = document.createElement('div');
+  wrap.className = 'thumb' + (t.media_type === 'video' ? ' video' : '');
+  wrap.dataset.postId = t.id;
+
+  const link = document.createElement('a');
+  link.href = `post/${encodeURIComponent(String(t.id))}`;
+  link.className = 'thumb-link';
+  link.setAttribute('aria-label', `View post ${t.id}`);
+
+  if (t.media_type === 'video') {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    const src = document.createElement('source');
+    src.src = t.media_path || '';
+    src.type = 'video/mp4';
+    video.appendChild(src);
+    link.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = t.media_path || '';
+    img.alt = 'Post thumbnail';
+    link.appendChild(img);
   }
+
+  wrap.appendChild(link);
+
+  return wrap;
+}
 
   function renderUser(u) {
     if (!u) return clear();

@@ -20,6 +20,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch(err => console.error('Like failed', err));
   }
 
+  (async function restoreLastPostOnLoad() {
+    if (!(container && history.state && history.state.lastPost)) return;
+    const last = history.state.lastPost;
+    const MAX_ATTEMPTS = 12;
+    const PAUSE_MS = 120;
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const card = container.querySelector(`.short-card[data-id="${last}"]`);
+      if (card) {
+        if (window.setActivePostComments) window.setActivePostComments(last);
+        if (card.dataset.userId && window.setActivePostUser) window.setActivePostUser(card.dataset.userId);
+        card.scrollIntoView({ behavior: 'auto', block: 'center' });
+        break;
+      }
+
+      if (hasMore) {
+        try {
+          await loadBatch();
+        } catch (e) {
+          console.error('restoreLastPost loadBatch failed', e);
+          break;
+        }
+        await delay(PAUSE_MS);
+        continue;
+      }
+      break;
+    }
+
+    try {
+      const cleared = Object.assign({}, history.state, { lastPost: undefined });
+      history.replaceState(cleared, document.title, window.location.href);
+    } catch (e) { /* ignore */ }
+  })();
+
   function createHeartBurst(card) {
     const heart = document.createElement('div');
     heart.textContent = '❤';
@@ -124,8 +159,41 @@ document.addEventListener('DOMContentLoaded', () => {
       video.addEventListener('pointerleave', cancelHold);
       video.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
     } else if (img) {
-      img.addEventListener('pointerup', handleImageTap);
-      img.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
+      img.addEventListener('pointerup', handleImageTap); // keep touch double-tap detection
+      // unified click/dblclick handling for mouse + fallback for touch
+      let clickTimer = null;
+      const CLICK_DELAY = DOUBLE_TAP_THRESHOLD;
+
+      function navigateToPost() {
+        const target = img.dataset.href || `/post/${card.dataset.id}`;
+        try {
+          // store clicked post id in the current history entry so the feed can restore it on back
+          const newState = Object.assign({}, history.state, { lastPost: card.dataset.id });
+          history.replaceState(newState, document.title, window.location.href);
+        } catch (e) { /* ignore if blocked */ }
+        window.location.href = target;
+      }
+
+      // mouse click path: single click navigates, dblclick likes
+      img.addEventListener('click', (e) => {
+        // ignore if pointerup already handled a touch double-tap
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          likePost();
+          return;
+        }
+        clickTimer = setTimeout(() => {
+          clickTimer = null;
+          navigateToPost();
+        }, CLICK_DELAY);
+      });
+
+      img.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        likePost();
+      });
     }
 
     card.dataset.likeInit = '1';
@@ -195,7 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <source src="${escapeHtml(p.media_path)}" type="video/mp4">
       </video>`;
     }
-    return `<img src="${escapeHtml(p.media_path)}" alt="Post image">`;
+    // no anchor: use data-href so clicks are handled programmatically
+    return `<img class="post-link" data-href="/post/${p.id}" src="${escapeHtml(p.media_path)}" alt="Post image">`;
   }
 
   function escapeHtml(str='') {

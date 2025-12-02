@@ -120,6 +120,11 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def delete_like(self, post: Post, user: User):
+        # Deletes a Like from the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_multiple_likes(self, posts: List[Post], users: List[User]):
         # Adds multiple Likes to the repository.
         raise NotImplementedError
@@ -132,4 +137,14 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         # Retrieves post thumbnails for a given user ID.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def next_comment_id(self) -> int:
+        # Retrieves the next available comment ID.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_comment(self, user: User, post: Post, text: str) -> Comment:
+        # Creates and adds a Comment to the repository.
         raise NotImplementedError

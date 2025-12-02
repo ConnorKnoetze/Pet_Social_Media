@@ -92,3 +92,19 @@ html, body {
 :root[data-theme='dark'] .video.paused {
   filter: brightness(0.95);
 }
+
+/* Remove borders and shadows on small screens so large panels appear borderless */
+@media (max-width: 520px) {
+  .panel,
+  .profile-grid,
+  .comments,
+  .user,
+  .user-wrapper,
+  .profile-layout,
+  .post-wrapper,
+  .content-card,
+  .content-wrapper {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
