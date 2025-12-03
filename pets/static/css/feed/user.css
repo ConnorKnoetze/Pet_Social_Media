@@ -43,4 +43,4 @@
 
 .thumb.video::after { content:'\25B6'; position:absolute; right:4px; bottom:2px; font-size:12px; background:rgba(0,0,0,.5); color:#fff; padding:2px 4px; border-radius:4px; pointer-events:none; font-weight:600; }
 
-.thumb:hover { outline:2px solid var(--color-accent); }
+.thumb:hover { outline:2px solid var(--color-accent); transform: translateY(-2px) scale(1.06); box-shadow: 0 6px 14px rgba(0,0,0,.28); transition: border-color .15s ease, filter .15s ease, transform .15s ease; }

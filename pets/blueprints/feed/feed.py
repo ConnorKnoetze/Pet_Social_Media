@@ -51,14 +51,6 @@ def _serialize_post(p):
 @feed_bp.route("/api/posts/<int:post_id>/like", methods=["POST"])
 @login_required
 def like_post(post_id: int):
-    print(
-        "DEBUG like_post called:",
-        post_id,
-        "session_user:",
-        session.get("user_name"),
-        "method:",
-        request.method,
-    )
     repo = _repo()
     username = session.get("user_name")
     if not username:
