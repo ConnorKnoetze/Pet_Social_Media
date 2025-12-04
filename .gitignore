@@ -9,5 +9,5 @@ venv
 *.db
 *.egg-info
 .DS_Store
-.envs
+.env
 /.idea/
