@@ -1,0 +1,41 @@
+<!-- html -->
+{% extends 'base.html' %}
+
+{% block title %}User | {{user.username}}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user/user.css') }}">
+<script src="{{ url_for('static', filename='js/feed/feed.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+<main class="profile-layout">
+    <div class="user-wrapper">
+        <section class="profile-grid" aria-label="User profile area">
+            <div class="user-name">
+                <h2>{{ user.username }}</h2>
+            </div>
+            <div class="user-info">
+                <img src="{{user.profile_picture_path}}" alt="User Avatar" class="user-avatar">
+                <div class="user-details">
+
+                <p>Followers: {{ user.follower_ids|length }}</p>
+                <p>{{ user.bio }}</p>
+                <p>Posts: {{ posts|length }}</p>
+                </div>
+            </div>
+            <div class="posts-grid">
+              {% for post in posts %}
+              <div class="post-item">
+                  <a href="/post/{{post.id}}">
+                    <img src="{{post.media_path}}" alt="post image" loading="lazy">
+                  </a>
+              </div>
+              {% else %}
+              <p>No posts yet.</p>
+              {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

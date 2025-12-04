@@ -1,0 +1,69 @@
+html, body, .video {
+  touch-action: manipulation; /* Prevent double-tap zoom on many browsers */
+}
+
+/* Bio behavior utilities */
+.bio.clamped {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bio.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.see-more-btn {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  background: transparent;
+  border: none;
+  color: #c0c0c0;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+.see-more-btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Interaction hygiene */
+.video,
+.button_image,
+.empty-image {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* iOS: suppress long-press menu */
+}
+
+.video,
+.button_image,
+.empty-image,
+img {
+  -webkit-user-drag: none;
+}
+
+/* Optional: if you have a wrapper you want fully non-selectable */
+.content {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Media */
+.video {
+  width:100%;
+  height:auto;
+  transition: all .2s ease;
+  border-radius:15px;
+  min-width: 25rem;
+}
+
+
+@media (max-width: 760px) {
+  .video{
+    min-width: 20rem;
+  }
+}

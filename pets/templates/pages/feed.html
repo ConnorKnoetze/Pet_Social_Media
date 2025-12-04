@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Feed{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feed/feed.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feed/comments.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feed/user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feed/content.css') }}">
+<script src="{{ url_for('static', filename='js/feed/content.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feed/comments.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feed/likes.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feed/user.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feed/shortfeed.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/feed/caption.js') }}" defer></script>
+{% endblock %}
+{% block body %}
+<main class="feed-layout">
+  <div class="feed-grid">
+    <aside id="userPanel" class="panel hidden" role="complementary" aria-hidden="true">
+      {% include 'components/user.html' %}
+    </aside>
+
+    <section class="content-wrapper" aria-label="Content area">
+      <div class="buttons-col left-buttons">
+        <button class="side-btn"
+                data-panel="userPanel"
+                data-action="toggle"
+                aria-controls="userPanel"
+                aria-label="Toggle user panel">
+          <img class="button_image"
+               src="{{ url_for('static', filename='images/assets/user.png') }}"
+               alt="Comments">
+        </button>
+        <button class="side-btn"
+                data-panel="commentsPanel"
+                data-action="toggle"
+                aria-controls="commentsPanel"
+                aria-label="Toggle comments panel">
+          <img class="button_image"
+               src="{{ url_for('static', filename='images/assets/comment.png') }}"
+               alt="Comments">
+        </button>
+      </div>
+
+      <div id="contentPanel" class="panel content-card active" role="main" aria-hidden="false">
+        {% include 'components/content.html' %}
+      </div>
+
+      <div class="buttons-col right-buttons">
+        <button class="side-btn"
+                data-scroll="up"
+                aria-controls="shortfeed"
+                aria-label="Scroll up feed">
+          <img class="button_image"
+               src="{{ url_for('static', filename='images/assets/up-arrow.png') }}"
+               alt="Scroll up">
+        </button>
+        <button class="side-btn"
+                data-scroll="down"
+                aria-controls="shortfeed"
+                aria-label="Scroll down feed">
+          <img class="button_image"
+               src="{{ url_for('static', filename='images/assets/down-arrow.png') }}"
+               alt="Scroll down">
+        </button>
+      </div>
+    </section>
+    <aside id="commentsPanel" class="panel hidden" role="region" aria-hidden="true">
+      {% include 'components/comments.html' %}
+    </aside>
+
+  </div>
+</main>
+{% endblock %}

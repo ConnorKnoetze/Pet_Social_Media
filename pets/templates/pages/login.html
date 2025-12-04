@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+{% block body %}
+<body>
+<div class="wrapper">
+    <h2>Login</h2>
+    <form method="POST" action="{{ handler_url }}">
+        {{ form.csrf_token }}
+
+        <div class="input-field">
+            {{ form.user_name(class="my-input", required=True) }}
+            <label for="{{ form.user_name.id }}">{{ form.user_name.label.text }}</label>
+
+            {% set user_errors = form.user_name.errors %}
+            {% if user_name_error_message %}
+            {% set user_errors = user_errors + [user_name_error_message] %}
+            {% endif %}
+
+            {% if user_errors|length > 0 %}
+            <ul class="form-errors">
+                {% for error in user_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+
+        <div class="input-field">
+
+            {{ form.password(class="my-input", required=True) }}
+            <label for="{{ form.password.id }}">{{ form.password.label.text }}</label>
+
+            {% set password_errors = form.password.errors %}
+            {% if password_error_message %}
+            {% set password_errors = password_errors + [password_error_message] %}
+            {% endif %}
+            {% if password_errors|length > 0 %}
+            <ul class="form-errors">
+                {% for error in password_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+
+        <button type="submit" class="auth-submit">{{ form.submit.label.text }}</button>
+        <div class="register">
+            <p>Don't have an account?
+  <a href="{{ url_for('authentication_bp.register') }}">Register</a>
+</p>
+
+        </div>
+    </form>
+</div>
+</body>
+{% endblock %}

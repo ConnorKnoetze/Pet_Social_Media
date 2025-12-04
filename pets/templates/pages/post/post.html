@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Post | {{user.username}}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/post/post.css') }}">
+{% endblock %}
+{% block body %}
+
+<main>
+    <button id="backBtn" class="backBtn" aria-label="Close / Back">
+        <img src="{{ url_for('static', filename='images/assets/close.png') }}" alt="Close">
+    </button>
+    <div class="post-wrapper">
+        <section class="post-grid" aria-label="Post area">
+            <div class="post-media">
+                {% if post.media_type.startswith('video/') %}
+                <video controls>
+                    <source src="{{post.media_path}}" type="{{post.media_type}}">
+                    Your browser does not support the video tag.
+                </video>
+                {% else %}
+                    <a href="/user/{{user.username}}">
+                        <img src="{{post.media_path}}" alt="Post media" loading="lazy">
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</main>
+<script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('backBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          // If referrer was feed, use history.back() so feed can restore the post
+          if (document.referrer && document.referrer.includes('/feed')) {
+            history.back();
+            return;
+          }
+          // Otherwise try to go back, fallback to home
+          if (history.length > 1) history.back();
+          else window.location.href = '/';
+        }, { passive: true });
+      });
+</script>
+{% endblock %}

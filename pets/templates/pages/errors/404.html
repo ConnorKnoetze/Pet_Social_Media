@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}404 | Page Not Found{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/errors/404.css') }}">
+{% endblock %}
+{% block body %}
+<body>
+    <div class="error">
+      <div class="card">
+        <h1>404 — Page not found</h1>
+        <p>The page you're looking for doesn't exist.</p>
+        <a href="/" class="return-home-btn" aria-label="Go back to home">Return Home</a>
+      </div>
+    </div>
+</body>
+{% endblock %}
