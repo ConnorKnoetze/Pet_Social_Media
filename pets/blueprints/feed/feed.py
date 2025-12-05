@@ -133,6 +133,7 @@ def feed_batch():
         }
     )
 
+
 @feed_bp.route("/api/post/<int:post_id>/comment/<int:comment_id>", methods=["POST"])
 @login_required
 def add_like_to_comment(post_id: int, comment_id: int):
@@ -148,14 +149,14 @@ def add_like_to_comment(post_id: int, comment_id: int):
         return jsonify({"error": "Comment not found"}), 404
 
     repo.add_like_to_comment(comment)
-    return jsonify({
-        "message": "Like added to comment",
-        "post_id": post_id,
-        "comment_id": comment_id,
-        "likes": getattr(comment, "likes", 0)
-    }), 200
-
-
+    return jsonify(
+        {
+            "message": "Like added to comment",
+            "post_id": post_id,
+            "comment_id": comment_id,
+            "likes": getattr(comment, "likes", 0),
+        }
+    ), 200
 
 
 @feed_bp.route("/api/comments/<int:post_id>", methods=["GET", "POST"])
@@ -239,6 +240,7 @@ def comments(post_id: int):
         }
 
     return jsonify({"post_id": post_id, "comments": [ser(c) for c in items]})
+
 
 @feed_bp.route("/api/user/<int:user_id>")
 def user(user_id: int):

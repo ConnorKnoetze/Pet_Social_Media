@@ -1,9 +1,11 @@
-# from pets.adapters.database_repository import SqlAlchemyRepository
+from datetime import datetime
+from pathlib import Path
+
 from pets.adapters import repository
 from pets.adapters.repository import AbstractRepository
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.User import User
 
 
@@ -19,38 +21,64 @@ class AuthenticationException(Exception):
     pass
 
 
-def add_user(
-    user_name: str,
-    email: str,
-    password: str,
-):
+def add_user(user_name: str, email: str, password: str):
     repo = repository.repo_instance
-    user = repo.get_pet_user_by_name(user_name)
-    print(user)
-    id = repo.get_total_user_size()
-    if user is not None:
+
+    if repo is None:
+        # clearer error when repo isn't configured
+        raise RuntimeError("repository.repo_instance is not set. Make sure the repository is initialised.")
+
+    if not user_name or not isinstance(user_name, str) or user_name.strip() == "":
+        raise ValueError("username is required")
+
+    username_clean = user_name.strip()
+    existing = repo.get_pet_user_by_name(username_clean)
+
+    # debug hint if lookup fails unexpectedly
+    if existing is None:
+        # this print helps trace why registration/login can't find users
+        print(f"DEBUG: no existing pet user found for '{username_clean}' (repo: {repo.__class__.__name__})")
+
+    if existing is not None:
         raise NameNotUniqueException
 
+    if not password:
+        raise ValueError("password is required")
+
     password_hash = generate_password_hash(password)
-    user = User(id, user_name, email, password_hash)
-    print(user, user.password_hash)
-    repo.add_pet_user(user)
+
+    # Let SQLAlchemy handle the ID when using DB-backed repo; PetUser id is now optional
+    new_user = PetUser(
+        username=username_clean,
+        email=email,
+        password_hash=password_hash,
+        profile_picture_path=None,
+        created_at=datetime.now(),
+    )
+
+    repo.add_pet_user(new_user)
+    return new_user
 
 
 def get_user(user_name: str, repo: AbstractRepository):
-    user = repo.get_pet_user_by_name(
-        user_name
-    )  # this is returning none? Meaning the database get_user function is not workign
+    user = repo.get_pet_user_by_name(user_name)
 
     if user is None:
+        # helpful debug line
+        print(f"DEBUG: get_user - no user for '{user_name}' (repo: {repo.__class__.__name__})")
         raise UnknownUserException
     return user_to_dict(user)
 
 
 def authenticate_user(user_name: str, password: str, repo: AbstractRepository):
     authenticated = False
+    users = repo.get_pet_users()
     user = repo.get_pet_user_by_name(user_name)
-    if user is not None:
+    if user is None:
+        print(f"DEBUG: authenticate_user - no user for '{user_name}' (repo: {repo.__class__.__name__})")
+    else:
+        # ensure attribute name matches repository/ORM (expecting 'password_hash')
+        print(f"DEBUG: authenticate_user - found user id={getattr(user, 'id', None)} username={getattr(user, 'username', None)}")
         authenticated = check_password_hash(user.password_hash, password)
     if not authenticated:
         raise AuthenticationException
