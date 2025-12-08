@@ -61,6 +61,8 @@ def add_user(user_name: str, email: str, password: str):
 
 
 def get_user(user_name: str, repo: AbstractRepository):
+    print([str(user) for user in repo.get_pet_users()])
+    print(user_name)
     user = repo.get_pet_user_by_name(user_name)
 
     if user is None:
@@ -93,7 +95,7 @@ def get_user_by_id(user_id, repo: AbstractRepository):
 
 def user_to_dict(user: User) -> dict:
     user_dict = {
-        "user_id": str(user.id),
+        "user_id": str(user.user_id),
         "email": user.email,
         "user_name": user.username,
         "password": user.password_hash,

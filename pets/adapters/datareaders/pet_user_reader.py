@@ -33,7 +33,7 @@ class PetUserReader:
                 )
 
                 user = PetUser(
-                    id=int(row["id"]),
+                    user_id=int(row["id"]),
                     username=row["username"],
                     email=row["email"],
                     password_hash=row["password_hash"],
@@ -46,9 +46,10 @@ class PetUserReader:
                     follower_ids=follower_ids,
                 )
                 self.__users.append(user)
+        print([str(user) for user in self.__users])
         return self.__users
     def assign_posts(self, posts: List[Post]):
-        user_dict = {user.id: user for user in self.__users}
+        user_dict = {user.user_id: user for user in self.__users}
         for post in posts:
             if post.user_id in user_dict:
                 user_dict[post.user_id].add_post(post)

@@ -17,25 +17,7 @@ from pets.domainmodel.PetUser import PetUser
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
 from pets.domainmodel.Like import Like
-
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import TypeDecorator
-
-Base = declarative_base()
-
-
-def init_db(engine):
-    """
-    Ensure all mapped model modules are imported so their classes register with `Base`,
-    then create any missing tables for the current engine.
-    """
-    import pets.domainmodel.User
-    import pets.domainmodel.PetUser
-    import pets.domainmodel.Post
-    import pets.domainmodel.Comment
-    import pets.domainmodel.Like
-
-    Base.metadata.create_all(bind=engine)
 
 
 class TagsType(TypeDecorator):
@@ -146,7 +128,7 @@ users_table = Table(
     Column('profile_picture_path', PathType(500)),
     Column('created_at', DateTimeType, nullable=False),
     Column('bio', Text),
-    Column('type', String(50)),  # Discriminator for inheritance
+    Column('type', String(50)),
 )
 
 pet_users_table = Table(
@@ -208,7 +190,7 @@ def map_model_to_tables():
         polymorphic_on=users_table.c.type,
         polymorphic_identity="user",
         properties={
-            "_User__id": users_table.c.id,
+            "_User__user_id": users_table.c.id,
             "_User__username": users_table.c.username,
             "_User__email": users_table.c.email,
             "_User__password_hash": users_table.c.password_hash,
@@ -248,21 +230,12 @@ def map_model_to_tables():
             "_Post__tags": posts_table.c.tags,
             "_Post__media_path": posts_table.c.media_path,
             "_Post__media_type": posts_table.c.media_type,
-            # relationship back to PetUser.posts
             "_Post__user": relationship(PetUser, back_populates="_PetUser__posts"),
             "_Post__comments": relationship(
                 Comment, back_populates="_Comment__post", cascade="all, delete-orphan"
             ),
             "_Post__likes": relationship(
                 Like, back_populates="_Like__post", cascade="all, delete-orphan"
-            ),
-            # users_tagged is many-to-many with PetUser via post_user_association
-            "_Post__users_tagged": relationship(
-                PetUser,
-                secondary=post_user_association,
-                primaryjoin=posts_table.c.id == post_user_association.c.post_id,
-                secondaryjoin=post_user_association.c.user_id == pet_users_table.c.id,
-                foreign_keys=[post_user_association.c.post_id, post_user_association.c.user_id],
             ),
         },
     )

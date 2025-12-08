@@ -1,3 +1,5 @@
+from overrides import overrides
+
 from pets.domainmodel.User import User
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
@@ -15,7 +17,7 @@ class PetUser(User):
 
     def __init__(
         self,
-        id: Optional[int] = None,
+        user_id: int = None,
         username: str = "",
         email: str = "",
         password_hash: str = "",
@@ -34,7 +36,7 @@ class PetUser(User):
             created_at = datetime.now()
 
         super().__init__(
-            id,
+            user_id,
             username,
             email,
             password_hash,
@@ -45,9 +47,14 @@ class PetUser(User):
             comments,
             bio,
         )
+        print('pet_user',user_id)
         self.__posts: List[Post] = posts if posts is not None else []
         self.__animal_type: AnimalType = animal_type
         self.__follower_ids: List[int] = follower_ids if follower_ids is not None else []
+
+    @overrides
+    def __str__(self):
+        return f"PetUser({self.user_id}, {self.username}, {self.email}, {self.animal_type}, Posts: {len(self.posts)}, Followers: {len(self.follower_ids)})"
 
     @property
     def posts(self) -> List[Post]:
