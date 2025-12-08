@@ -104,7 +104,6 @@ def feed():
         return redirect(url_for("authentication_bp.register"))
 
     all_posts = _repo().get_photo_posts()
-    print(all_posts)
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]
     return render_template("pages/feed.html", posts=initial)

@@ -46,7 +46,6 @@ class PetUserReader:
                     follower_ids=follower_ids,
                 )
                 self.__users.append(user)
-        print([str(user) for user in self.__users])
         return self.__users
     def assign_posts(self, posts: List[Post]):
         user_dict = {user.user_id: user for user in self.__users}

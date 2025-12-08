@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 
 from pets.adapters import repository
 from pets.adapters.repository import AbstractRepository
@@ -25,7 +24,6 @@ def add_user(user_name: str, email: str, password: str):
     repo = repository.repo_instance
 
     if repo is None:
-        # clearer error when repo isn't configured
         raise RuntimeError("repository.repo_instance is not set. Make sure the repository is initialised.")
 
     if not user_name or not isinstance(user_name, str) or user_name.strip() == "":
@@ -33,11 +31,6 @@ def add_user(user_name: str, email: str, password: str):
 
     username_clean = user_name.strip()
     existing = repo.get_pet_user_by_name(username_clean)
-
-    # debug hint if lookup fails unexpectedly
-    if existing is None:
-        # this print helps trace why registration/login can't find users
-        print(f"DEBUG: no existing pet user found for '{username_clean}' (repo: {repo.__class__.__name__})")
 
     if existing is not None:
         raise NameNotUniqueException
@@ -47,7 +40,6 @@ def add_user(user_name: str, email: str, password: str):
 
     password_hash = generate_password_hash(password)
 
-    # Let SQLAlchemy handle the ID when using DB-backed repo; PetUser id is now optional
     new_user = PetUser(
         username=username_clean,
         email=email,
@@ -61,12 +53,9 @@ def add_user(user_name: str, email: str, password: str):
 
 
 def get_user(user_name: str, repo: AbstractRepository):
-    print([str(user) for user in repo.get_pet_users()])
-    print(user_name)
     user = repo.get_pet_user_by_name(user_name)
 
     if user is None:
-        # helpful debug line
         print(f"DEBUG: get_user - no user for '{user_name}' (repo: {repo.__class__.__name__})")
         raise UnknownUserException
     return user_to_dict(user)
@@ -74,12 +63,10 @@ def get_user(user_name: str, repo: AbstractRepository):
 
 def authenticate_user(user_name: str, password: str, repo: AbstractRepository):
     authenticated = False
-    users = repo.get_pet_users()
     user = repo.get_pet_user_by_name(user_name)
     if user is None:
         print(f"DEBUG: authenticate_user - no user for '{user_name}' (repo: {repo.__class__.__name__})")
     else:
-        # ensure attribute name matches repository/ORM (expecting 'password_hash')
         print(f"DEBUG: authenticate_user - found user id={getattr(user, 'id', None)} username={getattr(user, 'username', None)}")
         authenticated = check_password_hash(user.password_hash, password)
     if not authenticated:

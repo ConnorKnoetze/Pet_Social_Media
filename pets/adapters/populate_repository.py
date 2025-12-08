@@ -7,7 +7,6 @@ def populate(repo: AbstractRepository, database_mode: bool = False):
 
     if database_mode:
         # Database mode: add data via repository methods
-        print([str(user) for user in data_reader.users])
         repo.add_multiple_pet_users(data_reader.users)
         repo.add_multiple_posts(data_reader.users, data_reader.posts)
         repo.add_multiple_comments(data_reader.users, data_reader.comments)

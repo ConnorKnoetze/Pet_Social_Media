@@ -17,7 +17,6 @@ class PostsReader:
     def read_posts(self):
         with DATA_PATH.open(newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
-            print(f"DEBUG: CSV headers: {reader.fieldnames}")  # Show actual headers
 
             for row_num, row in enumerate(reader, start=2):  # start=2 (header is row 1)
                 try:
