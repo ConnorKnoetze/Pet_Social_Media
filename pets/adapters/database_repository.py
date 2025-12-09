@@ -273,6 +273,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             return comments
 
     def add_like(self, user: User, like: Like):
+        print(user)
         with self._session_cm as scm:
             with scm.session.no_autoflush:
                 scm.session.merge(like)

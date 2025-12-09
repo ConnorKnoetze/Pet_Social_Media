@@ -5,7 +5,7 @@ from pets.domainmodel.Like import Like
 
 def test_like_creation(test_like, test_user, test_post):
     assert test_like.id == 1
-    assert test_like.user_id == test_user.id
+    assert test_like.user_id == test_user.user_id
     assert test_like.post_id == test_post.id
 
 

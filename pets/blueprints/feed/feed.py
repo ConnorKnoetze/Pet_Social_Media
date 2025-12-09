@@ -10,6 +10,7 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
+from pets.domainmodel.Like import Like
 
 feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
@@ -72,11 +73,12 @@ def like_post(post_id: int):
 
     if existing:
         # user already liked -> remove (toggle off)
-        repo.delete_like(post, user)
+        repo.delete_like(user, post)
         liked = False
     else:
         # not liked -> add (toggle on)
-        repo.add_like(post, user)
+
+        repo.add_like(user, post)
         liked = True
 
     likes_count = len(getattr(post, "likes", []) or [])

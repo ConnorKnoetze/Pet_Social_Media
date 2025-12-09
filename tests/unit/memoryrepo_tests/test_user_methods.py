@@ -27,9 +27,9 @@ class TestUserMethods:
 
     def test_get_pet_user_by_id(self, in_memory_repository, test_pet_user):
         in_memory_repository.add_pet_user(test_pet_user)
-        retrieved_user = in_memory_repository.get_pet_user_by_id(test_pet_user.id)
+        retrieved_user = in_memory_repository.get_pet_user_by_id(test_pet_user.user_id)
         assert retrieved_user is not None
-        assert retrieved_user.id == test_pet_user.id
+        assert retrieved_user.user_id == test_pet_user.user_id
 
     def test_get_all_user_post_paths(
         self, in_memory_repository, test_pet_user, test_post
