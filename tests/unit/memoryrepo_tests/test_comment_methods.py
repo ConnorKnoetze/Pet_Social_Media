@@ -13,7 +13,12 @@ class TestCommentMethods:
         self, in_memory_repository, test_user, test_post, test_comment
     ):
         comment2 = Comment(
-            999, test_user.user_id, test_post.id, datetime.now(), "Another test comment", 0
+            999,
+            test_user.user_id,
+            test_post.id,
+            datetime.now(),
+            "Another test comment",
+            0,
         )
         in_memory_repository.add_multiple_comments(
             [test_user, test_user], [test_comment, comment2]

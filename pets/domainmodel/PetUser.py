@@ -49,7 +49,9 @@ class PetUser(User):
         )
         self.__posts: List[Post] = posts if posts is not None else []
         self.__animal_type: AnimalType = animal_type
-        self.__follower_ids: List[int] = follower_ids if follower_ids is not None else []
+        self.__follower_ids: List[int] = (
+            follower_ids if follower_ids is not None else []
+        )
 
     @overrides
     def __str__(self):

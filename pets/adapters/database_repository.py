@@ -140,8 +140,13 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
 
     def get_photo_posts(self) -> List[Post]:
         from pets.adapters.orm import posts_table
+
         with self._session_cm as scm:
-            posts = scm.session.query(Post).filter(posts_table.c.media_type == "photo").all()
+            posts = (
+                scm.session.query(Post)
+                .filter(posts_table.c.media_type == "photo")
+                .all()
+            )
             return posts
 
     def get_all_user_post_paths(self, user: PetUser) -> List[str]:
@@ -228,7 +233,11 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def get_human_user_by_name(self, username: str) -> User | None:
         with self._session_cm as scm:
             try:
-                user = scm.session.query(User).filter(users_table.c.username == username).one()
+                user = (
+                    scm.session.query(User)
+                    .filter(users_table.c.username == username)
+                    .one()
+                )
                 return user
             except NoResultFound:
                 return None
@@ -261,14 +270,18 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def get_comments_by_post(self, post: Post) -> List[Comment]:
         with self._session_cm as scm:
             comments = (
-                scm.session.query(Comment).filter(comments_table.c.post_id == post.id).all()
+                scm.session.query(Comment)
+                .filter(comments_table.c.post_id == post.id)
+                .all()
             )
             return comments
 
     def get_comments_for_post(self, post_id: int) -> List[Comment]:
         with self._session_cm as scm:
             comments = (
-                scm.session.query(Comment).filter(comments_table.c.post_id == post_id).all()
+                scm.session.query(Comment)
+                .filter(comments_table.c.post_id == post_id)
+                .all()
             )
             return comments
 
@@ -284,7 +297,10 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             try:
                 like = (
                     scm.session.query(Like)
-                    .filter(like_table.c.post_id == post.id, like_table.c.user_id == user.user_id)
+                    .filter(
+                        like_table.c.post_id == post.id,
+                        like_table.c.user_id == user.user_id,
+                    )
                     .one()
                 )
                 with scm.session.no_autoflush:
@@ -300,7 +316,10 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 # attempt to find the comment by id and user to ensure ownership
                 db_comment = (
                     scm.session.query(Comment)
-                    .filter(comments_table.c.id == comment.id, comments_table.c.user_id == user.user_id)
+                    .filter(
+                        comments_table.c.id == comment.id,
+                        comments_table.c.user_id == user.user_id,
+                    )
                     .one()
                 )
                 with scm.session.no_autoflush:
@@ -311,7 +330,9 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
 
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         with self._session_cm as scm:
-            posts = scm.session.query(Post).filter(posts_table.c.user_id == user_id).all()
+            posts = (
+                scm.session.query(Post).filter(posts_table.c.user_id == user_id).all()
+            )
             return [
                 {
                     "post_id": post.id,
@@ -330,6 +351,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
 
     def create_comment(self, user: User, post: Post, text: str) -> Comment:
         from datetime import datetime, UTC
+
         with self._session_cm as scm:
             cid = self.next_comment_id()
             comment = Comment(

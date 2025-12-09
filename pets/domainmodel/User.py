@@ -48,7 +48,6 @@ class User:
         self.__comments: List[Comment] = comments if comments is not None else []
         self.__bio: str = bio
 
-
     def __eq__(self, other):
         if not isinstance(other, User):
             return False
@@ -59,7 +58,9 @@ class User:
         )
 
     def __str__(self) -> str:
-        return f"User(id={self.user_id}, username='{self.username}', email='{self.email}')"
+        return (
+            f"User(id={self.user_id}, username='{self.username}', email='{self.email}')"
+        )
 
     @property
     def user_id(self) -> int:
@@ -68,7 +69,6 @@ class User:
     @user_id.setter
     def user_id(self, value: int):
         self.__user_id = value
-
 
     @property
     def username(self) -> str:

@@ -58,6 +58,7 @@ class AnimalTypeType(TypeDecorator):
         if value is None:
             return None
         from pets.domainmodel.AnimalType import AnimalType
+
         if isinstance(value, AnimalType):
             return value.value
         return value
@@ -66,6 +67,7 @@ class AnimalTypeType(TypeDecorator):
         if value is None:
             return None
         from pets.domainmodel.AnimalType import AnimalType
+
         return AnimalType(value)
 
 
@@ -119,16 +121,16 @@ mapper_registry = registry()
 metadata = mapper_registry.metadata
 
 users_table = Table(
-    'users',
+    "users",
     metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('username', String(255), unique=True, nullable=False),
-    Column('email', String(255), unique=True, nullable=False),
-    Column('password_hash', String(255), nullable=False),
-    Column('profile_picture_path', PathType(500)),
-    Column('created_at', DateTimeType, nullable=False),
-    Column('bio', Text),
-    Column('type', String(50)),
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("username", String(255), unique=True, nullable=False),
+    Column("email", String(255), unique=True, nullable=False),
+    Column("password_hash", String(255), nullable=False),
+    Column("profile_picture_path", PathType(500)),
+    Column("created_at", DateTimeType, nullable=False),
+    Column("bio", Text),
+    Column("type", String(50)),
 )
 
 pet_users_table = Table(
@@ -156,10 +158,10 @@ posts_table = Table(
 )
 
 post_user_association = Table(
-    'post_user_association',
+    "post_user_association",
     metadata,
-    Column('post_id', Integer, ForeignKey('posts.id'), primary_key=True),
-    Column('user_id', Integer, ForeignKey('pet_users.id'), primary_key=True)
+    Column("post_id", Integer, ForeignKey("posts.id"), primary_key=True),
+    Column("user_id", Integer, ForeignKey("pet_users.id"), primary_key=True),
 )
 
 comments_table = Table(
