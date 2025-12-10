@@ -153,3 +153,8 @@ class AbstractRepository(abc.ABC):
     def get_total_user_size(self):
         # Retrieves the total number of users in the repository.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def follow_user(self, follower: User, followee: User):
+        # Follows a user.
+        raise NotImplementedError

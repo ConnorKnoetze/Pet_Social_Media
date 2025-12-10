@@ -28,6 +28,36 @@
 #userAvatarLink:focus,
 #userAvatarLink:active { text-decoration: none; }
 
+.follow-button-container{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.follow-button{
+    width: 100%;
+    background: #222;
+    border-radius: 8px;
+    color: var(--color-text);
+    border: 2px solid var(--color-panel-border);
+    font-weight: 600;
+    text-align: center;
+    transition: background .15s ease, color .15s ease;
+    padding: 0.5rem 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .follow-button:hover {
+    background: var(--color-accent) !important;
+    color: var(--color-text);
+    cursor: pointer;
+    border: 2px solid #fff;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+    transition: filter .15s ease, transform .15s ease;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #usernameLink,
   #userAvatarLink,

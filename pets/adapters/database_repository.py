@@ -18,6 +18,7 @@ from pets.adapters.orm import users_table
 from pets.adapters.orm import posts_table
 from pets.adapters.orm import comments_table
 from pets.adapters.orm import like_table
+from pets.adapters.orm import user_following_table
 
 
 class SessionContextManager:
@@ -331,11 +332,11 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         with self._session_cm as scm:
             posts = (
-                scm.session.query(Post).filter(posts_table.c.user_id == user_id).all()
+                scm.session.query(Post).filter(posts_table.c.user_id == user_id, posts_table.c.media_type == "photo").all()
             )
             return [
                 {
-                    "post_id": post.id,
+                    "id": post.id,
                     "media_path": str(post.media_path)
                     if hasattr(post, "media_path")
                     else None,
@@ -384,3 +385,37 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
 
     def close_session(self):
         self._session_cm.close_current_session()
+
+    def follow_user(self, follower: User, followee: PetUser):
+        with self._session_cm as scm:
+            from sqlalchemy import insert
+
+            # Check if already following
+            if self.is_following(follower.user_id, followee.user_id):
+                return
+
+            # Insert into association table
+            scm.session.execute(
+                insert(user_following_table).values(
+                    follower_id=follower.user_id,
+                    followee_id=followee.user_id
+                )
+            )
+            scm.commit()
+
+            # Update domain models
+            follower.follow(followee)
+            followee.add_follower(follower.user_id)
+
+    def is_following(self, follower_id: int, followee_id: int) -> bool:
+        """Check if a user is following another user."""
+        with self._session_cm as scm:
+            from sqlalchemy import select
+            result = scm.session.execute(
+                select(user_following_table).where(
+                    (user_following_table.c.follower_id == follower_id) &
+                    (user_following_table.c.followee_id == followee_id)
+                )
+            ).fetchone()
+            print(result)
+            return result is not None

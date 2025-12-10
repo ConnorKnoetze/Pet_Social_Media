@@ -78,8 +78,10 @@ class PetUser(User):
             self.__posts.remove(post)
 
     def add_follower(self, user_id: int):
+        print(user_id)
         if isinstance(user_id, int) and user_id not in self.__follower_ids:
             self.__follower_ids.append(user_id)
+        print(self.__follower_ids)
 
     def remove_follower(self, user_id: int):
         if user_id in self.__follower_ids:
