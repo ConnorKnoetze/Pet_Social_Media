@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class User:
-    __id: int
+    __user_id: int
     __username: str
     __email: str
     __password_hash: str
@@ -24,7 +24,7 @@ class User:
 
     def __init__(
         self,
-        id: int,
+        user_id: int,
         username: str,
         email: str,
         password_hash: str,
@@ -35,7 +35,7 @@ class User:
         comments: List["Comment"] = None,
         bio: str = "",
     ):
-        self.__id = id
+        self.__user_id = user_id
         self.__username: str = username
         self.__email: str = email
         self.__password_hash: str = password_hash
@@ -52,17 +52,23 @@ class User:
         if not isinstance(other, User):
             return False
         return (
-            self.id == other.id
-            and self.username == other.username
-            and self.email == other.email
+            self.__user_id == other.user_id
+            and self.__username == other.username
+            and self.__email == other.email
         )
 
     def __str__(self) -> str:
-        return f"User(id={self.id}, username='{self.username}', email='{self.email}')"
+        return (
+            f"User(id={self.user_id}, username='{self.username}', email='{self.email}')"
+        )
 
     @property
-    def id(self) -> int:
-        return self.__id
+    def user_id(self) -> int:
+        return self.__user_id
+
+    @user_id.setter
+    def user_id(self, value: int):
+        self.__user_id = value
 
     @property
     def username(self) -> str:

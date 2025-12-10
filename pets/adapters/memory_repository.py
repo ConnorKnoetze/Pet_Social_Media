@@ -47,15 +47,14 @@ class MemoryRepository(AbstractRepository):
     def get_pet_user_by_name(self, username) -> User:
         return next((u for u in self.__pet_users if u.username == username), None)
 
-
     def get_human_user_by_id(self, id: int) -> User:
-        return next((u for u in self.__human_users if u.id == id), None)
+        return next((u for u in self.__human_users if u.user_id == id), None)
 
     def get_pet_user_by_id(self, id: int) -> User:
-        return next((u for u in self.__pet_users if u.id == id), None)
+        return next((u for u in self.__pet_users if u.user_id == id), None)
 
     def get_all_user_post_paths(self, user: User) -> List[str]:
-        return [str(p.media_path) for p in self.__posts if p.user_id == user.id]
+        return [str(p.media_path) for p in self.__posts if p.user_id == user.user_id]
 
     def get_pet_users(self) -> List[User]:
         return self.__pet_users
@@ -87,12 +86,10 @@ class MemoryRepository(AbstractRepository):
             post.add_comment(comment)
         self.__comments.append(comment)
 
-    # New method used by the /api/comments/<post_id> endpoint
     def get_comments_for_post(self, post_id: int) -> List[Comment]:
         post = self.get_post_by_id(post_id)
         return list(getattr(post, "comments", []) if post else [])
 
-    # Optional: keep for internal usage if needed (fixed attribute)
     def get_comments_by_post(self, post: Post) -> List[Comment]:
         return [c for c in self.__comments if c.post_id == post.id]
 
@@ -106,7 +103,7 @@ class MemoryRepository(AbstractRepository):
 
     def add_like(self, post: Post, user: User):
         self.__max_like_id += 1
-        like = Like(self.__max_like_id, user.id, post.id, datetime.now(UTC))
+        like = Like(self.__max_like_id, user.user_id, post.id, datetime.now(UTC))
         post.add_like(like)
 
     def delete_like(self, post: Post, user: User):
@@ -116,7 +113,7 @@ class MemoryRepository(AbstractRepository):
             (
                 l
                 for l in likes
-                if getattr(l, "user_id", None) == getattr(user, "id", None)
+                if getattr(l, "user_id", None) == getattr(user, "user_id", None)
             ),
             None,
         )
@@ -129,7 +126,7 @@ class MemoryRepository(AbstractRepository):
     def add_multiple_likes(self, posts: List[Post], users: List[User]):
         for post, user in zip(posts, users):
             self.__max_like_id += 1
-            like = Like(self.__max_like_id, user.id, post.id, datetime.now(UTC))
+            like = Like(self.__max_like_id, user.user_id, post.id, datetime.now(UTC))
             post.add_like(like)
 
     def delete_comment(self, user: User, comment: Comment):
@@ -162,7 +159,7 @@ class MemoryRepository(AbstractRepository):
         cid = self.next_comment_id()
         comment = Comment(
             id=cid,
-            user_id=getattr(user, "id", 0),
+            user_id=getattr(user, "user_id", 0),
             post_id=getattr(post, "id", 0),
             created_at=datetime.now(UTC),
             comment_string=text,

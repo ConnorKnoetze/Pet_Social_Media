@@ -80,7 +80,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_posts(self, user: User, posts: List[Post]):
+    def add_multiple_posts(self, users: User, posts: List[Post]):
         # Adds multiple Posts to the repository.
         raise NotImplementedError
 
@@ -110,7 +110,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_comments(self, user: User, comments: List[Comment]):
+    def add_multiple_comments(self, users: User, comments: List[Comment]):
         # Adds multiple Comments to the repository.
         raise NotImplementedError
 
@@ -125,7 +125,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_likes(self, posts: List[Post], users: List[User]):
+    def add_multiple_likes(self, likes: List[Like]):
         # Adds multiple Likes to the repository.
         raise NotImplementedError
 
@@ -147,4 +147,9 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def create_comment(self, user: User, post: Post, text: str) -> Comment:
         # Creates and adds a Comment to the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_total_user_size(self):
+        # Retrieves the total number of users in the repository.
         raise NotImplementedError

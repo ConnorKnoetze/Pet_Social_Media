@@ -60,7 +60,7 @@ def test_comment(test_user, test_post):
     from pets.domainmodel.Comment import Comment
 
     comment: Comment = Comment(
-        1, test_user.id, test_post.id, datetime.now(), "This is a test comment", 0
+        1, test_user.user_id, test_post.id, datetime.now(), "This is a test comment", 0
     )
     return comment
 
@@ -69,7 +69,7 @@ def test_comment(test_user, test_post):
 def test_post(test_pet_user):
     post: Post = Post(
         1,
-        test_pet_user.id,
+        test_pet_user.user_id,
         "this is a test post",
         1,
         datetime.now(),
@@ -88,7 +88,7 @@ def test_like(test_user, test_post):
 
     like: Like = Like(
         1,
-        test_user.id,
+        test_user.user_id,
         test_post.id,
         datetime.now(),
     )
