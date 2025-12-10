@@ -162,5 +162,5 @@ document.addEventListener('DOMContentLoaded', () => {
       .finally(() => { inflight = null; });
   }
 
-  window.setActivePostUser = loadUser;
+  window.setActivePostUser = window.setActivePostUser || loadUser;
 });

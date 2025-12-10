@@ -121,14 +121,12 @@ class User:
         return self._following
 
     def follow(self, user: "User"):
-        print(user)
         if not hasattr(self, "_following"):
             self._following = []
         if user not in self._following:
             self._following.append(user)
 
     def is_following(self, user: "User") -> bool:
-        print(self._following)
         return user in self._following
 
     @property

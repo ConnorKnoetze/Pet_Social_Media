@@ -30,5 +30,5 @@ def view_user_profile(username: str):
     if not user:
         return "User not found", 404
     # Adjusted template path to match actual location under pages/
-    posts = user.posts
+    posts = [post for post in user.posts if post.media_type == "photo"]
     return render_template("pages/user/profile.html", user=user, posts=posts)

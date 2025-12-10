@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user/user.css') }}">
-<script src="{{ url_for('static', filename='js/feed/feed.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/user/user.js') }}" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -24,6 +24,28 @@
                 <p>Posts: {{ posts|length }}</p>
                 </div>
             </div>
+            <div class="user-follow-button-container">
+                <button id="userFollowButton"
+                        class="user-follow-button"
+                        data-user-id="{{ user.id }}">
+                  Follow
+                </button>
+            </div>
+
+            <!-- call the loader once scripts are ready (file: `pets/templates/pages/user/profile.html`) -->
+            <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const userId = {{ user.id | tojson }};
+              function callWhenReady() {
+                if (typeof window.setActivePostUser === 'function') {
+                  try { window.setActivePostUser(userId); } catch (e) { console.error('setActivePostUser call failed', e); }
+                  return;
+                }
+                setTimeout(callWhenReady, 20);
+              }
+              callWhenReady();
+            });
+            </script>
             <div class="posts-grid">
               {% for post in posts %}
               <div class="post-item">
