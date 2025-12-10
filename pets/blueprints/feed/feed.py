@@ -248,10 +248,9 @@ def user(user_id: int):
     session_user = session.get("user_name")
     if session_user:
         repo = _repo()
-        session_user = (
-            repo.get_human_user_by_name(session_user)
-            or repo.get_pet_user_by_name(session_user)
-        )
+        session_user = repo.get_human_user_by_name(
+            session_user
+        ) or repo.get_pet_user_by_name(session_user)
     else:
         session_user = None
     repo = _repo()
@@ -273,6 +272,7 @@ def user(user_id: int):
 
     return jsonify(serialize(user))
 
+
 @feed_bp.route("/follow/<int:user_id>", methods=["POST"])
 @login_required
 def follow_user(user_id: int):
@@ -281,7 +281,9 @@ def follow_user(user_id: int):
     if not username:
         return jsonify({"error": "Not authenticated"}), 401
 
-    follower = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
+    follower = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(
+        username
+    )
     if not follower:
         return jsonify({"error": "User not found"}), 403
 
@@ -294,8 +296,10 @@ def follow_user(user_id: int):
 
     repo.follow_user(follower, followee)
 
-    return jsonify({
-        "message": f"You are now following {followee.username}",
-        "user_id": followee.user_id,
-        "followers_count": len(getattr(followee, "follower_ids", [])),
-    }), 200
+    return jsonify(
+        {
+            "message": f"You are now following {followee.username}",
+            "user_id": followee.user_id,
+            "followers_count": len(getattr(followee, "follower_ids", [])),
+        }
+    ), 200

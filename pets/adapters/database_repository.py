@@ -332,7 +332,12 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         with self._session_cm as scm:
             posts = (
-                scm.session.query(Post).filter(posts_table.c.user_id == user_id, posts_table.c.media_type == "photo").all()
+                scm.session.query(Post)
+                .filter(
+                    posts_table.c.user_id == user_id,
+                    posts_table.c.media_type == "photo",
+                )
+                .all()
             )
             return [
                 {
@@ -397,8 +402,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             # Insert into association table
             scm.session.execute(
                 insert(user_following_table).values(
-                    follower_id=follower.user_id,
-                    followee_id=followee.user_id
+                    follower_id=follower.user_id, followee_id=followee.user_id
                 )
             )
             scm.commit()
@@ -411,10 +415,11 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
         """Check if a user is following another user."""
         with self._session_cm as scm:
             from sqlalchemy import select
+
             result = scm.session.execute(
                 select(user_following_table).where(
-                    (user_following_table.c.follower_id == follower_id) &
-                    (user_following_table.c.followee_id == followee_id)
+                    (user_following_table.c.follower_id == follower_id)
+                    & (user_following_table.c.followee_id == followee_id)
                 )
             ).fetchone()
             print(result)

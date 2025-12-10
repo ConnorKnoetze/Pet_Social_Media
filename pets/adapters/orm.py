@@ -134,10 +134,10 @@ users_table = Table(
 )
 
 user_following_table = Table(
-    'user_following',
+    "user_following",
     metadata,
-    Column('follower_id', Integer, ForeignKey('users.id'), primary_key=True),
-    Column('followee_id', Integer, ForeignKey('users.id'), primary_key=True)
+    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("followee_id", Integer, ForeignKey("users.id"), primary_key=True),
 )
 
 pet_users_table = Table(
@@ -208,14 +208,17 @@ def map_model_to_tables():
             "_User__created_at": users_table.c.created_at,
             "_User__bio": users_table.c.bio,
             "_User__following": relationship(
-                'User',
+                "User",
                 secondary=user_following_table,
                 primaryjoin=users_table.c.id == user_following_table.c.follower_id,
                 secondaryjoin=users_table.c.id == user_following_table.c.followee_id,
-                foreign_keys=[user_following_table.c.follower_id, user_following_table.c.followee_id],
+                foreign_keys=[
+                    user_following_table.c.follower_id,
+                    user_following_table.c.followee_id,
+                ],
                 viewonly=False,
-                lazy='select'
-            )
+                lazy="select",
+            ),
         },
     )
 
