@@ -268,6 +268,7 @@ def user(user_id: int):
             "followers_count": len(getattr(u, "follower_ids", [])),
             "posts_thumbnails": repo.get_posts_thumbnails(user_id),
             "following": repo.is_following(session_user.user_id, user.user_id),
+            "session_user_id": session_user.user_id if session_user else None,
         }
 
     return jsonify(serialize(user))

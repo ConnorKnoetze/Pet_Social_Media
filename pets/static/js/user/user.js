@@ -44,15 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (followBtnEl) {
             const id = u.id ?? '';
             if (id) {
-                followBtnEl.style.display = 'inline-block';
-                followBtnEl.disabled = false;
-                if (u.following){
-                    followBtnEl.textContent = 'Following';
+                if (u.id !== u.session_user_id) {
+                    followBtnEl.style.display = 'inline-block';
+                    followBtnEl.disabled = false;
+                    if (u.following) {
+                        followBtnEl.textContent = 'Following';
+                    } else followBtnEl.textContent = 'Follow';
+                    if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+                    followBtnEl.__followHandler = (e) => {
+                        e.preventDefault();
+                        doThisFollow(id);
+                    };
+                    followBtnEl.addEventListener('click', followBtnEl.__followHandler);
                 }
-                else followBtnEl.textContent = 'Follow';
-                if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
-                followBtnEl.__followHandler = (e) => { e.preventDefault(); doThisFollow(id); };
-                followBtnEl.addEventListener('click', followBtnEl.__followHandler);
                 } else {
                 if (followBtnEl.__followHandler) { followBtnEl.removeEventListener('click', followBtnEl.__followHandler); delete followBtnEl.__followHandler; }
                 followBtnEl.style.display = 'none';
