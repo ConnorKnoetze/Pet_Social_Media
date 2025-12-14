@@ -424,3 +424,9 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             ).fetchone()
             print(result)
             return result is not None
+
+    def update_user(self, user: User):
+        with self._session_cm as scm:
+            with scm.session.no_autoflush:
+                scm.session.merge(user)
+            scm.commit()

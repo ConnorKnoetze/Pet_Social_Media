@@ -18,10 +18,9 @@
             <div class="user-info">
                 <img src="{{user.profile_picture_path}}" alt="User Avatar" class="user-avatar">
                 <div class="user-details">
-
-                <p>Followers: {{ user.follower_ids|length }}</p>
-                <p>{{ user.bio }}</p>
-                <p>Posts: {{ posts|length }}</p>
+                    <p id="followers">Followers: {{ user.follower_ids|length }}</p>
+                    <p id="bio">{{ user.bio }}</p>
+                    <p id="postCount" class="stat-line">Posts: {{ posts|length }}</p>
                 </div>
             </div>
             <div class="user-follow-button-container">
@@ -31,8 +30,6 @@
                   Follow
                 </button>
             </div>
-
-            <!-- call the loader once scripts are ready (file: `pets/templates/pages/user/profile.html`) -->
             <script>
             document.addEventListener('DOMContentLoaded', () => {
               const userId = {{ user.id | tojson }};

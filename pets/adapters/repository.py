@@ -158,3 +158,8 @@ class AbstractRepository(abc.ABC):
     def follow_user(self, follower: User, followee: User):
         # Follows a user.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def update_user(self, user: User):
+        # Updates user information in the repository.
+        raise NotImplementedError

@@ -64,8 +64,26 @@ document.addEventListener('DOMContentLoaded', () => {
            }
         }
     }
+
+    function renderEditProfileButton(u) {
+        if (followBtnEl) {
+            followBtnEl.style.display = 'inline-block';
+            followBtnEl.disabled = false;
+            followBtnEl.textContent = 'Edit Profile';
+            followBtnEl.removeAttribute('href');
+            if (followBtnEl.__followHandler) {
+                followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+                delete followBtnEl.__followHandler;
+            }
+            followBtnEl.__followHandler = (e) => {
+                e.preventDefault();
+                window.location.href = `/${u.id}/settings`;
+            };
+            followBtnEl.addEventListener('click', followBtnEl.__followHandler);
+        }
+    }
+
     async function loadThisUser(id) {
-        console.log('Loading user for follow button:', id);
         const uid = String(id || '');
         if (!uid || uid === currentUserId) return;
         currentUserId = uid;
@@ -75,7 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(r => r.ok ? r.json() : Promise.reject(r.status))
           .then(data => {
             if (String(data.id) !== currentUserId) return;
-            renderFollowButton(data);
+            if (data.id !== data.session_user_id) renderFollowButton(data);
+            else renderEditProfileButton(data);
           })
           .catch(err => {
             console.error('User load failed', err);
