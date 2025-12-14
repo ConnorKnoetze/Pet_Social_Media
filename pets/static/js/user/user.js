@@ -1,10 +1,19 @@
+// javascript
 document.addEventListener('DOMContentLoaded', () => {
     const followBtnEl = document.getElementById('userFollowButton');
+    // try several common selectors for the followers count element
+    const followersEl = document.getElementById('followers')
+      || document.getElementById('userFollowers')
+      || document.getElementById('userFollowersCount')
+      || document.querySelector('[data-user-followers]');
     let currentUserId = null;
     let inflight = null;
+    let currentUserData = null;
 
     function clear() {
-        if(followBtnEl) {
+        // DO NOT redeclare currentUserData (no "let" here)
+        currentUserData = null;
+        if (followBtnEl) {
           followBtnEl.style.display = 'none';
           followBtnEl.disabled = false;
           followBtnEl.textContent = 'Follow';
@@ -15,41 +24,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function doThisFollow(id) {
-        if (!id) return;
+    async function fetchUserData(id) {
         try {
-          const res = await fetch(`/follow/${encodeURIComponent(id)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: '{}' // server doesn't require body but keep JSON to satisfy some setups
-          });
-          if (!res.ok) {
-            if (res.status === 401) {
-              // not authenticated -> go to register/login
-              window.location.href = '/register';
-              return;
+            const r = await fetch(`/api/user/${encodeURIComponent(id)}`);
+            if (!r.ok) return null;
+            return await r.json();
+        } catch (e) {
+            console.error('fetchUserData failed', e);
+            return null;
+        }
+    }
+
+    function updateFollowersCountFromResp(dataOrCount) {
+        if (!followersEl) return;
+        let count = null;
+        if (dataOrCount == null) return;
+        if (typeof dataOrCount === 'number') count = dataOrCount;
+        else if (typeof dataOrCount === 'object') {
+            if (dataOrCount.followers_count != null) count = dataOrCount.followers_count;
+            else if (dataOrCount.delta != null && currentUserData && typeof currentUserData.followers_count === 'number') {
+                count = currentUserData.followers_count + dataOrCount.delta;
             }
-            throw new Error(`Follow failed: ${res.status}`);
-          }
-          if (followBtnEl) {
-            followBtnEl.textContent = 'Following';
-            followBtnEl.disabled = true;
-          }
+        }
+        if (count == null) return;
+        followersEl.textContent = `Followers: ${count}`;
+        if (currentUserData) currentUserData.followers_count = count;
+    }
+
+    async function doThisFollow(id) {
+        if (!id || !followBtnEl) return;
+        followBtnEl.disabled = true;
+        try {
+            const res = await fetch(`/follow/${encodeURIComponent(id)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}'
+            });
+            if (!res.ok) {
+                if (res.status === 401) { window.location.href = '/register'; return; }
+                throw new Error(`Follow failed: ${res.status}`);
+            }
+            const data = await res.json();
+            // if server didn't include followers_count, fetch the user object as fallback
+            if (data.followers_count == null) {
+                const fresh = await fetchUserData(id);
+                if (fresh && fresh.followers_count != null) data.followers_count = fresh.followers_count;
+                else console.warn('follow response missing followers_count and fetchUserData failed');
+            }
+            updateFollowersCountFromResp(data);
+            if (currentUserData) {
+                currentUserData.following = true;
+                currentUserData.followers_count = data.followers_count ?? currentUserData.followers_count;
+            }
+            const renderArg = Object.assign({}, currentUserData || {}, { id, following: true, followers_count: data.followers_count });
+            renderUnfollowButton(renderArg);
         } catch (err) {
-          console.error('Follow request failed', err);
+            console.error('Follow request failed', err);
+        } finally {
+            if (followBtnEl) followBtnEl.disabled = false;
         }
     }
 
     function renderFollowButton(u) {
+        currentUserData = u;
         if (followBtnEl) {
             const id = u.id ?? '';
             if (id) {
                 if (u.id !== u.session_user_id) {
                     followBtnEl.style.display = 'inline-block';
                     followBtnEl.disabled = false;
-                    if (u.following) {
-                        followBtnEl.textContent = 'Following';
-                    } else followBtnEl.textContent = 'Follow';
+                    followBtnEl.textContent = u.following ? 'Following' : 'Follow';
                     if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
                     followBtnEl.__followHandler = (e) => {
                         e.preventDefault();
@@ -57,7 +101,64 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     followBtnEl.addEventListener('click', followBtnEl.__followHandler);
                 }
-                } else {
+            } else {
+                if (followBtnEl.__followHandler) { followBtnEl.removeEventListener('click', followBtnEl.__followHandler); delete followBtnEl.__followHandler; }
+                followBtnEl.style.display = 'none';
+                followBtnEl.removeAttribute('href');
+           }
+        }
+    }
+
+    async function doThisUnfollow(id) {
+        if (!id || !followBtnEl) return;
+        followBtnEl.disabled = true;
+        try {
+            const res = await fetch(`/unfollow/${encodeURIComponent(id)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}'
+            });
+            if (!res.ok) {
+                if (res.status === 401) { window.location.href = '/register'; return; }
+                throw new Error(`Unfollow failed: ${res.status}`);
+            }
+            const data = await res.json();
+            if (data.followers_count == null) {
+                const fresh = await fetchUserData(id);
+                if (fresh && fresh.followers_count != null) data.followers_count = fresh.followers_count;
+                else console.warn('unfollow response missing followers_count and fetchUserData failed');
+            }
+            updateFollowersCountFromResp(data);
+            if (currentUserData) {
+                currentUserData.following = false;
+                currentUserData.followers_count = data.followers_count ?? currentUserData.followers_count;
+            }
+            const renderArg = Object.assign({}, currentUserData || {}, { id, following: false, followers_count: data.followers_count });
+            renderFollowButton(renderArg);
+        } catch (err) {
+            console.error('Unfollow request failed', err);
+        } finally {
+            if (followBtnEl) followBtnEl.disabled = false;
+        }
+    }
+
+    function renderUnfollowButton(u) {
+        currentUserData = u;
+        if (followBtnEl) {
+            const id = u.id ?? '';
+            if (id) {
+                if (u.id !== u.session_user_id) {
+                    followBtnEl.style.display = 'inline-block';
+                    followBtnEl.disabled = false;
+                    followBtnEl.textContent = u.following ? 'Following' : 'Follow';
+                    if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+                    followBtnEl.__followHandler = (e) => {
+                        e.preventDefault();
+                        doThisUnfollow(id);
+                    };
+                    followBtnEl.addEventListener('click', followBtnEl.__followHandler);
+                }
+            } else {
                 if (followBtnEl.__followHandler) { followBtnEl.removeEventListener('click', followBtnEl.__followHandler); delete followBtnEl.__followHandler; }
                 followBtnEl.style.display = 'none';
                 followBtnEl.removeAttribute('href');
@@ -93,8 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(r => r.ok ? r.json() : Promise.reject(r.status))
           .then(data => {
             if (String(data.id) !== currentUserId) return;
-            if (data.id !== data.session_user_id) renderFollowButton(data);
+            if (data.id !== data.session_user_id) {
+                if (data.following) {
+                    renderUnfollowButton(data);
+                } else renderFollowButton(data);
+            }
             else renderEditProfileButton(data);
+            // ensure followers count shown on initial load
+            updateFollowersCountFromResp(data);
           })
           .catch(err => {
             console.error('User load failed', err);

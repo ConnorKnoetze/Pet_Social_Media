@@ -36,7 +36,7 @@ html, body {
   --color-panel-bg: #1e1e1e;
   --color-panel-border: #2c2c2c;
   --color-text: #e6e6e6;
-  --color-text-inverse: #1b1b1b;
+  --color-text-inverse: #e6e6e6;
   --color-muted: #a3a3a3;
   --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: dark;
