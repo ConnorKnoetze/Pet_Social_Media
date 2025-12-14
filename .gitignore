@@ -11,3 +11,5 @@ venv
 .DS_Store
 .env
 /.idea/
+# Ignore uploaded media
+pets/static/images/uploads/
