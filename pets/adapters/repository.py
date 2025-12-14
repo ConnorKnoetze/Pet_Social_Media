@@ -160,6 +160,21 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def unfollow_user(self, follower: User, followee: User):
+        # Unfollows a user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def update_user(self, user: User):
         # Updates user information in the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def is_following(self, follower_id: int, followee_id: int) -> bool:
+        # Checks if a user is following another user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_followers(self, user: User) -> List[User]:
+        # Retrieves the followers of a given user.
         raise NotImplementedError

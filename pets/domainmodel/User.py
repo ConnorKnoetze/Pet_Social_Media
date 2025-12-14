@@ -129,6 +129,12 @@ class User:
     def is_following(self, user: "User") -> bool:
         return user in self._following
 
+    def unfollow(self, user: "User"):
+        if not hasattr(self, "_following"):
+            self._following = []
+        if user in self._following:
+            self._following.remove(user)
+
     @property
     def comments(self) -> List[Comment]:
         return self.__comments

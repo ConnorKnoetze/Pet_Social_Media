@@ -1,3 +1,4 @@
+// Language: JavaScript
 document.addEventListener('DOMContentLoaded', () => {
   const nameEl = document.getElementById('username');
   const userNameLinkEl = document.getElementById('usernameLink');
@@ -9,15 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const followBtnEl = document.getElementById('followButton');
   const thumbsEl = document.getElementById('userThumbnails');
   let currentUserId = null;
+  let currentUserData = null; // track the loaded user's data
   let inflight = null;
 
   function clear() {
+    currentUserData = null;
     if (nameEl) nameEl.textContent = '';
     if (avatarEl) avatarEl.src = '';
     if (followersEl) followersEl.textContent = '';
     if (bioEl) bioEl.textContent = '';
     if (postCountEl) postCountEl.textContent = '';
-    if(followBtnEl) {
+    if (followBtnEl) {
       followBtnEl.style.display = 'none';
       followBtnEl.disabled = false;
       followBtnEl.textContent = 'Follow';
@@ -29,12 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (thumbsEl) thumbsEl.innerHTML = '';
   }
 
-  function escapeHtml(str='') {
-    return str.replace(/[&<>"']/g, ch => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[ch]));
-  }
-
   function renderThumb(t) {
     const wrap = document.createElement('div');
     wrap.className = 'thumb' + (t.media_type === 'video' ? ' video' : '');
@@ -44,8 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     link.href = `/post/${encodeURIComponent(String(t.id))}`;
     link.className = 'thumb-link';
     link.setAttribute('aria-label', `View post ${t.id}`);
-
-    // Add click handler to ensure navigation
     link.addEventListener('click', (e) => {
       e.preventDefault();
       window.location.href = `/post/${encodeURIComponent(String(t.id))}`;
@@ -72,43 +67,62 @@ document.addEventListener('DOMContentLoaded', () => {
     return wrap;
   }
 
-  // helper that POSTs to follow endpoint and updates UI
   async function doFollow(id) {
     if (!id) return;
     try {
       const res = await fetch(`/follow/${encodeURIComponent(id)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}' // server doesn't require body but keep JSON to satisfy some setups
+        body: '{}'
       });
       if (!res.ok) {
-        if (res.status === 401) {
-          // not authenticated -> go to register/login
-          window.location.href = '/register';
-          return;
-        }
+        if (res.status === 401) { window.location.href = '/register'; return; }
         throw new Error(`Follow failed: ${res.status}`);
       }
       const data = await res.json();
+      // update UI and local state
       if (followersEl) followersEl.textContent = `Followers: ${data.followers_count ?? 0}`;
       if (followBtnEl) {
         followBtnEl.textContent = 'Following';
-        followBtnEl.disabled = true;
+        followBtnEl.disabled = false; // keep enabled for toggle
       }
+      if (currentUserData) currentUserData.following = true;
     } catch (err) {
       console.error('Follow request failed', err);
     }
   }
 
+  async function doUnfollow(id) {
+    if (!id) return;
+    try {
+      const res = await fetch(`/unfollow/${encodeURIComponent(id)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      });
+      if (!res.ok) {
+        if (res.status === 401) { window.location.href = '/register'; return; }
+        throw new Error(`Unfollow failed: ${res.status}`);
+      }
+      const data = await res.json();
+      // update UI and local state
+      if (followersEl) followersEl.textContent = `Followers: ${data.followers_count ?? 0}`;
+      if (followBtnEl) {
+        followBtnEl.textContent = 'Follow';
+        followBtnEl.disabled = false;
+      }
+      if (currentUserData) currentUserData.following = false;
+    } catch (err) {
+      console.error('Unfollow request failed', err);
+    }
+  }
+
   function renderUser(u) {
+    currentUserData = u;
     if (!u) return clear();
-    if (userNameLinkEl) {
-      userNameLinkEl.href = `/user/${u.username || ''}`;
-    }
+    if (userNameLinkEl) userNameLinkEl.href = `/user/${u.username || ''}`;
     if (nameEl) nameEl.textContent = u.username || 'Unknown';
-    if (avatarLinkEl) {
-        avatarLinkEl.href = `/user/${u.username || ''}`;
-    }
+    if (avatarLinkEl) avatarLinkEl.href = `/user/${u.username || ''}`;
     if (avatarEl) {
       avatarEl.src = u.profile_picture_path || '';
       avatarEl.alt = (u.username || 'User') + ' avatar';
@@ -119,22 +133,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (followBtnEl) {
       const id = u.id ?? '';
-      if (id) {
-        if (u.id !== u.session_user_id) {
-          followBtnEl.style.display = 'inline-block';
-          followBtnEl.disabled = false;
-          if (u.following) {
-            followBtnEl.textContent = 'Following';
-          } else followBtnEl.textContent = 'Follow';
-          if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
-          followBtnEl.__followHandler = (e) => {
-            e.preventDefault();
-            doFollow(id);
-          };
-          followBtnEl.addEventListener('click', followBtnEl.__followHandler);
-        }
+      if (id && u.id !== u.session_user_id) {
+        followBtnEl.style.display = 'inline-block';
+        followBtnEl.disabled = false;
+        followBtnEl.textContent = u.following ? 'Following' : 'Follow';
+        if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+        followBtnEl.__followHandler = (e) => {
+          e.preventDefault();
+          const targetId = currentUserData?.id || id;
+          if (!currentUserData?.following) {
+            doFollow(targetId);
+          } else {
+            doUnfollow(targetId);
+          }
+        };
+        followBtnEl.addEventListener('click', followBtnEl.__followHandler);
       } else {
-        if (followBtnEl.__followHandler) { followBtnEl.removeEventListener('click', followBtnEl.__followHandler); delete followBtnEl.__followHandler; }
+        if (followBtnEl.__followHandler) {
+          followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+          delete followBtnEl.__followHandler;
+        }
         followBtnEl.style.display = 'none';
         followBtnEl.removeAttribute('href');
       }
