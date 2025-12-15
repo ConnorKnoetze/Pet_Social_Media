@@ -29,6 +29,11 @@ p{
   align-items: center; /* vertically center avatar and details */
   flex-direction: row; /* side-by-side */
 }
+
+.user-info a{
+  text-decoration: none;
+}
+
 .stat-line { font-size:0.75rem; opacity:0.8; margin:0.3rem 0; }
 .user-avatar {
   width: 128px;

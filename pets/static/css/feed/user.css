@@ -5,6 +5,7 @@ p{
     color: var(--color-text);
 }
 .user-info { color: var(--color-text); display:flex; gap:0.75rem; align-items:center; margin-bottom:0.75rem; }
+.user-info a{ text-decoration:none; color: inherit; }
 .user-avatar { width:128px; height:128px; border-radius:50%; object-fit:cover; border:2px solid var(--color-panel-border); background: var(--color-panel-bg); }
 .stat-line { font-size:0.75rem; opacity:0.8; margin:0.3rem 0; }
 

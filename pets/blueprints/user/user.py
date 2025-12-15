@@ -11,7 +11,7 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
-from pets.domainmodel.PetUser import PetUser
+from werkzeug.utils import secure_filename
 
 user_bp = Blueprint("user", __name__)
 
@@ -57,25 +57,39 @@ def user_settings(user_id: int):
             return "Unauthorized", 403
         # Process form data and update user settings
 
-        #process profile picture upload
+        # process profile picture upload
         file = request.files.get("profile_picture")
         if file and allowed_file(file.filename):
-            if not os.path.exists(UPLOAD_FOLDER / username):
-                os.makedirs(UPLOAD_FOLDER / username, exist_ok=True)
-            filename = f"user_{user_id}_" + file.filename
-            file_path = UPLOAD_FOLDER / username / filename
-            file.save(file_path)
-            if os.path.exists(file_path):
-                split_path = str(file_path).split("\\")
-                file_path = '../'+"/".join(split_path[6:])
-                user.profile_picture_path = file_path
+            user_folder = UPLOAD_FOLDER / username
+            user_folder.mkdir(parents=True, exist_ok=True)
+            filename = f"user_{user_id}_" + secure_filename(file.filename)
+            full_path = user_folder / filename
+            file.save(full_path)
+            if full_path.exists():
+                static_root = PROJECT_ROOT / "static"
+                rel_path = full_path.relative_to(static_root)
+                user.profile_picture_path = url_for(
+                    "static", filename=str(rel_path).replace("\\", "/")
+                )
 
 
         #process bio update
         new_bio = request.form.get("bio", "")
+        if len(new_bio) > 255:
+            return "Bio must be 255 characters or less", 400
         user.bio = new_bio
 
         #update user in repo
         repo.update_user(user)
         return redirect(url_for("user.view_user_profile", username=user.username))
     return render_template("pages/user/settings.html", user=user)
+
+@user_bp.route("/user/<string:username>/followers")
+@login_required
+def view_followers(username: str):
+    repo = _repo()
+    user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
+    if not user:
+        return "User not found", 404
+    followers = repo.get_followers(user)
+    return render_template("pages/user/followers.html", user=user, followers=followers)

@@ -449,7 +449,6 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                     & (user_following_table.c.followee_id == followee_id)
                 )
             ).fetchone()
-            print(result)
             return result is not None
 
     def update_user(self, user: User):
@@ -474,8 +473,6 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def add_multiple_followers(self, follower_id_lists: Tuple[int, List[int]]):
         """(int followee_id, List[int] follower_ids)"""
         with self._session_cm as scm:
-            from sqlalchemy import insert
-
             for followee_id, follower_ids in follower_id_lists:
                 for follower_id in follower_ids:
                     follower = self.get_pet_user_by_id(follower_id) or self.get_human_user_by_id(follower_id)
@@ -483,5 +480,4 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                     if follower is None or followee is None:
                         continue
                     self.follow_user(follower, followee)
-                print(self.get_followers(followee))
             scm.commit()
