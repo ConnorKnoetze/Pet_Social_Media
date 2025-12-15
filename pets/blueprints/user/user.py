@@ -13,6 +13,8 @@ from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
 from werkzeug.utils import secure_filename
 
+from pets.blueprints.user.services import save_file
+
 user_bp = Blueprint("user", __name__)
 
 
@@ -21,15 +23,6 @@ def _repo():
     if r is None:
         raise RuntimeError("Repository not initialized")
     return r
-
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-UPLOAD_FOLDER = PROJECT_ROOT / "static" / "images" / "uploads"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @user_bp.route("/user/<string:username>")
@@ -59,19 +52,7 @@ def user_settings(user_id: int):
 
         # process profile picture upload
         file = request.files.get("profile_picture")
-        if file and allowed_file(file.filename):
-            user_folder = UPLOAD_FOLDER / username
-            user_folder.mkdir(parents=True, exist_ok=True)
-            filename = f"user_{user_id}_" + secure_filename(file.filename)
-            full_path = user_folder / filename
-            file.save(full_path)
-            if full_path.exists():
-                static_root = PROJECT_ROOT / "static"
-                rel_path = full_path.relative_to(static_root)
-                user.profile_picture_path = url_for(
-                    "static", filename=str(rel_path).replace("\\", "/")
-                )
-
+        save_file(file, user)
 
         #process bio update
         new_bio = request.form.get("bio", "")
