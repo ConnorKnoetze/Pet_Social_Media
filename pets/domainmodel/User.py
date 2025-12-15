@@ -44,7 +44,7 @@ class User:
         )
         self.__created_at: datetime = created_at
         self.__liked_posts: List[Post] = liked_posts if liked_posts is not None else []
-        self.__following: List[User] = following if following is not None else []
+        self._following: List[User] = following if following is not None else []
         self.__comments: List[Comment] = comments if comments is not None else []
         self.__bio: str = bio
 
@@ -115,12 +115,25 @@ class User:
             self.__liked_posts.append(post)
 
     @property
-    def following(self) -> List[User]:
-        return self.__following
+    def following(self) -> List["User"]:
+        if not hasattr(self, "_following"):
+            self._following = []
+        return self._following
 
-    def follow(self, user: User):
-        if user not in self.__following:
-            self.__following.append(user)
+    def follow(self, user: "User"):
+        if not hasattr(self, "_following"):
+            self._following = []
+        if user not in self._following:
+            self._following.append(user)
+
+    def is_following(self, user: "User") -> bool:
+        return user in self._following
+
+    def unfollow(self, user: "User"):
+        if not hasattr(self, "_following"):
+            self._following = []
+        if user in self._following:
+            self._following.remove(user)
 
     @property
     def comments(self) -> List[Comment]:

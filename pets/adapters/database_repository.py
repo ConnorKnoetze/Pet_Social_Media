@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List
+from typing import List, Tuple
 
 from sqlalchemy import func, select, text, inspect
 from sqlalchemy.exc import OperationalError
@@ -18,6 +18,10 @@ from pets.adapters.orm import users_table
 from pets.adapters.orm import posts_table
 from pets.adapters.orm import comments_table
 from pets.adapters.orm import like_table
+from pets.adapters.orm import user_following_table
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 
 class SessionContextManager:
@@ -53,8 +57,11 @@ class SessionContextManager:
 
 
 class SqlAlchemyRepository(AbstractRepository, ABC):
-    def __init__(self, session_factory):
+    def __init__(self, session_factory, database_uri: str):
         self._session_cm = SessionContextManager(session_factory)
+        self._engine = create_engine(database_uri, future=True)
+        self._session_factory = sessionmaker(bind=self._engine, expire_on_commit=False)
+
 
     def add_multiple_pet_users(self, users: List[PetUser]):
         with self._session_cm as scm:
@@ -331,11 +338,16 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
         with self._session_cm as scm:
             posts = (
-                scm.session.query(Post).filter(posts_table.c.user_id == user_id).all()
+                scm.session.query(Post)
+                .filter(
+                    posts_table.c.user_id == user_id,
+                    posts_table.c.media_type == "photo",
+                )
+                .all()
             )
             return [
                 {
-                    "post_id": post.id,
+                    "id": post.id,
                     "media_path": str(post.media_path)
                     if hasattr(post, "media_path")
                     else None,
@@ -384,3 +396,88 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
 
     def close_session(self):
         self._session_cm.close_current_session()
+
+    def follow_user(self, follower: User, followee: PetUser):
+        with self._session_cm as scm:
+            from sqlalchemy import insert
+
+            # Check if already following
+            if self.is_following(follower.user_id, followee.user_id):
+                return
+
+            # Insert into association table
+            scm.session.execute(
+                insert(user_following_table).values(
+                    follower_id=follower.user_id, followee_id=followee.user_id
+                )
+            )
+            scm.commit()
+
+            # Update domain models
+            follower.follow(followee)
+            followee.add_follower(follower.user_id)
+
+    def unfollow_user(self, follower: User, followee: PetUser):
+        with self._session_cm as scm:
+            from sqlalchemy import delete
+
+            # Check if currently following
+            if not self.is_following(follower.user_id, followee.user_id):
+                return
+
+            # Delete from association table
+            scm.session.execute(
+                delete(user_following_table).where(
+                    (user_following_table.c.follower_id == follower.user_id)
+                    & (user_following_table.c.followee_id == followee.user_id)
+                )
+            )
+            scm.commit()
+
+            # Update domain models
+            follower.unfollow(followee)
+            followee.remove_follower(follower.user_id)
+
+    def is_following(self, follower_id: int, followee_id: int) -> bool:
+        """Check if a user is following another user."""
+        with self._session_cm as scm:
+            from sqlalchemy import select
+
+            result = scm.session.execute(
+                select(user_following_table).where(
+                    (user_following_table.c.follower_id == follower_id)
+                    & (user_following_table.c.followee_id == followee_id)
+                )
+            ).fetchone()
+            return result is not None
+
+    def update_user(self, user: User):
+        with self._session_cm as scm:
+            with scm.session.no_autoflush:
+                scm.session.merge(user)
+            scm.commit()
+
+    def get_followers(self, user: User) -> List[User]:
+        target_id = int(getattr(user, "user_id"))
+        with self._session_factory() as session:
+            return (
+                session.query(users_table)
+                .join(
+                    user_following_table,
+                    users_table.c.id == user_following_table.c.follower_id,
+                    )
+                .filter(user_following_table.c.followee_id == target_id)
+                .all()
+            )
+
+    def add_multiple_followers(self, follower_id_lists: Tuple[int, List[int]]):
+        """(int followee_id, List[int] follower_ids)"""
+        with self._session_cm as scm:
+            for followee_id, follower_ids in follower_id_lists:
+                for follower_id in follower_ids:
+                    follower = self.get_pet_user_by_id(follower_id) or self.get_human_user_by_id(follower_id)
+                    followee = self.get_pet_user_by_id(followee_id)
+                    if follower is None or followee is None:
+                        continue
+                    self.follow_user(follower, followee)
+            scm.commit()

@@ -1,10 +1,6 @@
-:root {
-  --background-image: url("../../images/backgrounds/light_back4k.png");
-}
-
-:root[data-theme='dark']{
-    --background-image: url("../../images/backgrounds/dark_back4k.png");
-}
+/* Remove local theme background overrides; rely on globals */
+:root { /* no local overrides here */ }
+:root[data-theme='dark']{ /* no local overrides here */ }
 
 html, body {
   height: 100%;
@@ -22,13 +18,23 @@ h2{
     margin-bottom: 0.83rem;
 }
 
+p{
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
 .user-info {
   display: flex;
   gap: 0.75rem;
   align-items: center; /* vertically center avatar and details */
-  margin-bottom: 0.75rem;
   flex-direction: row; /* side-by-side */
 }
+
+.user-info a{
+  text-decoration: none;
+}
+
+.stat-line { font-size:0.75rem; opacity:0.8; margin:0.3rem 0; }
 .user-avatar {
   width: 128px;
   height: 128px;
@@ -36,7 +42,7 @@ h2{
   object-fit: cover;
   border: 2px solid var(--color-panel-border);
   background: var(--color-panel-bg);
-  flex-shrink: 0; /* prevent avatar from shrinking */
+  flex-shrink: 0;
 }
 
 .user-details {
@@ -123,6 +129,37 @@ h2{
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+.user-follow-button-container{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    margin: 0.3rem 0 0.3rem 0;
+}
+
+.user-follow-button{
+  width: 100%;
+  background: var(--color-panel-bg);
+  border-radius: 8px;
+  color: var(--color-text);
+  border: 2px solid var(--color-panel-border);
+  font-weight: 600;
+  text-align: center;
+  transition: background .15s ease, color .15s ease;
+  padding: 0.5rem 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .user-follow-button:hover {
+    background: var(--color-accent) !important;
+    color: var(--color-text-inverse);
+    cursor: pointer;
+    border: 2px solid #fff;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+    transition: filter .15s ease, transform .15s ease;
+  }
 }
 
 /* Responsive breakpoints */

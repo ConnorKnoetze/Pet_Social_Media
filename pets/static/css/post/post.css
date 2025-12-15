@@ -2,6 +2,13 @@
     padding: 0;
 }
 
+html, body{
+  background: var(--color-bg);
+  background-image: var(--background-image);
+  background-size: cover;
+  color: var(--color-text);
+}
+
 .post-wrapper{
     display: flex;
     justify-content: center;
@@ -44,9 +51,9 @@
   font-size: 22px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,.12);
-  border: 1px solid var(--color-panel-border, rgba(0,0,0,0.12));
-  color: var(--color-text, #111);
-  background: var(--color-bg, #fff);
+  border: 1px solid var(--color-panel-border);
+  color: var(--color-text);
+  background: var(--color-panel-bg);
   z-index: 60;
   display: flex;
   align-items: center;
@@ -70,8 +77,8 @@
 /* hover effects for pointer devices */
 @media (hover: hover) and (pointer: fine) {
   #backBtn:hover {
-    background: var(--color-accent, #ff6b6b) !important;
-    border-color: var(--color-accent, #ff6b6b) !important;
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
     color: #fff;
     transform: translateY(-2px) scale(1.06);
     box-shadow: 0 6px 14px rgba(0,0,0,.28);

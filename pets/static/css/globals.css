@@ -20,13 +20,15 @@ html, body {
   --color-panel-bg: #ffffff;
   --color-panel-border: #dddddd;
   --color-text: #1b1b1b;
+  --color-text-inverse: #e6e6e6;
   --color-muted: #777777;
   --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: light dark;
   --color-panel-bg-glass: rgba(255,255,255,0.55);
-  /* Use absolute static paths so they work from any stylesheet */
   --background-image: url("/static/images/backgrounds/light_back4k.png");
   --avatar-size: 10px;
+  --btn-bg: #c4c4c4;
+  --comments-bg: rgba(0,0,0,0.13);
 }
 
 :root[data-theme='dark'] {
@@ -34,12 +36,15 @@ html, body {
   --color-panel-bg: #1e1e1e;
   --color-panel-border: #2c2c2c;
   --color-text: #e6e6e6;
+  --color-text-inverse: #e6e6e6;
   --color-muted: #a3a3a3;
   --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: dark;
   --color-panel-bg-glass: rgba(30,30,30,0.55);
   border: 1px solid rgba(255,255,255,0.12);
   --background-image: url("/static/images/backgrounds/dark_back4k.png");
+  --btn-bg: #3f3f3f;
+  --comments-bg: rgba(255,255,255,0.06);
 }
 
 html, body {

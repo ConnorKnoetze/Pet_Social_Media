@@ -64,6 +64,7 @@ nav.app-nav.bottom-nav .nav-btn {
 nav.app-nav.bottom-nav .nav-link:hover,
 nav.app-nav.bottom-nav .nav-btn:hover {
   background: var(--color-accent);
+  color: #fff;
 }
 
 /* Focus-visible for accessibility */

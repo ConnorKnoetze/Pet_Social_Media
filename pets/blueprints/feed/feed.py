@@ -100,8 +100,6 @@ def like_post(post_id: int):
 def feed():
     # Require login to view root feed
 
-    print(session.get("user_name"))
-
     if not session.get("user_name"):
         return redirect(url_for("authentication_bp.register"))
 
@@ -124,6 +122,7 @@ def feed_batch():
     slice_ = all_posts[offset : offset + BATCH_SIZE]
     next_offset = offset + len(slice_)
     has_more = next_offset < len(all_posts)
+
     return jsonify(
         {
             "posts": [_serialize_post(p) for p in slice_],
@@ -246,6 +245,14 @@ def comments(post_id: int):
 
 @feed_bp.route("/api/user/<int:user_id>")
 def user(user_id: int):
+    session_user = session.get("user_name")
+    if session_user:
+        repo = _repo()
+        session_user = repo.get_human_user_by_name(
+            session_user
+        ) or repo.get_pet_user_by_name(session_user)
+    else:
+        session_user = None
     repo = _repo()
     user = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
     if not user:
@@ -258,8 +265,73 @@ def user(user_id: int):
             "bio": str(getattr(u, "bio", "")),
             "profile_picture_path": str(getattr(u, "profile_picture_path", "")),
             "posts_count": len(getattr(u, "posts", [])),
-            "followers_count": len(getattr(u, "follower_ids", [])),
+            "followers_count": len(repo.get_followers(u)),
             "posts_thumbnails": repo.get_posts_thumbnails(user_id),
+            "following": repo.is_following(session_user.user_id, user.user_id),
+            "session_user_id": session_user.user_id if session_user else None,
         }
 
     return jsonify(serialize(user))
+
+
+@feed_bp.route("/follow/<int:user_id>", methods=["POST"])
+@login_required
+def follow_user(user_id: int):
+    repo = _repo()
+    username = session.get("user_name")
+    if not username:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    follower = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(
+        username
+    )
+    if not follower:
+        return jsonify({"error": "User not found"}), 403
+
+    followee = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
+    if not followee:
+        return jsonify({"error": "User to follow not found"}), 404
+
+    if followee.user_id == follower.user_id:
+        return jsonify({"error": "Cannot follow yourself"}), 400
+
+    repo.follow_user(follower, followee)
+
+    return jsonify(
+        {
+            "message": f"You are now following {followee.username}",
+            "user_id": followee.user_id,
+            "followers_count": len(repo.get_followers(followee)),
+        }
+    ), 200
+
+@feed_bp.route("/unfollow/<int:user_id>", methods=["POST"])
+@login_required
+def unfollow_user(user_id: int):
+    repo = _repo()
+    username = session.get("user_name")
+    if not username:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    follower = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(
+        username
+    )
+    if not follower:
+        return jsonify({"error": "User not found"}), 403
+
+    followee = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
+    if not followee:
+        return jsonify({"error": "User to unfollow not found"}), 404
+
+    if followee.user_id == follower.user_id:
+        return jsonify({"error": "Cannot unfollow yourself"}), 400
+
+    repo.unfollow_user(follower, followee)
+
+    return jsonify(
+        {
+            "message": f"You have unfollowed {followee.username}",
+            "user_id": followee.user_id,
+            "followers_count": len(repo.get_followers(followee)),
+        }
+    ), 200
