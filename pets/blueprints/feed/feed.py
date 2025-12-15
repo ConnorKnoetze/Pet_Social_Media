@@ -10,7 +10,7 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
-from pets.domainmodel.Like import Like
+
 
 feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
@@ -188,7 +188,7 @@ def comments(post_id: int):
             created = created.isoformat()
 
         pfp=getattr(user, "profile_picture_path", "")
-        if not user.username in str(pfp):
+        if "." == str(pfp):
             pfp = Path('/static/images/assets/user.png')
 
         return (
@@ -229,8 +229,7 @@ def comments(post_id: int):
         uid = getattr(c, "user_id", 0)
         u = user_for(uid)
         pfp=getattr(u, "profile_picture_path", "")
-        if not u.username in str(pfp):
-            print(pfp)
+        if not '.' == str(pfp):
             pfp = Path('/static/images/assets/user.png')
 
         author = getattr(c, "author", None) or username_for(uid)
