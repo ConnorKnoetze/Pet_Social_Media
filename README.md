@@ -44,7 +44,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-3. Configure environment variables (example):
+3. Configure environment variables:
 
 - `FLASK_APP` or your chosen entry point
 - `DATABASE_URL` (or use the provided `pets.db` for local development)
@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 Create a `.env` or set variables in your shell before running.
 
-## Running locally (example)
+## Running locally 
 
 Start the application using the project's entry point. Adjust commands to your chosen framework or runner.
 
