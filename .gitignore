@@ -13,3 +13,5 @@ venv
 /.idea/
 # Ignore uploaded media
 pets/static/images/uploads/
+pets/static/images/backgrounds/light/
+pets/static/images/backgrounds/dark/

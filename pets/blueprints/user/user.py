@@ -31,7 +31,7 @@ def view_user_profile(username: str):
     user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
     if not user:
         return "User not found", 404
-    if not user.username in str(user.profile_picture_path):
+    if "." == str(user.profile_picture_path):
         user.profile_picture_path = Path('../static/images/assets/user.png')
     # Adjusted template path to match actual location under pages/
     posts = [post for post in user.posts if post.media_type == "photo"]
