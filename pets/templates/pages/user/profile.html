@@ -16,7 +16,7 @@
                 <h2>{{ user.username }}</h2>
             </div>
             <div class="user-info">
-                <img src="{{user.profile_picture_path}}" alt="User Avatar" class="user-avatar">
+                <img src="{{image_path}}" alt="User Avatar" class="user-avatar">
                 <div class="user-details">
                     <a href="/user/{{user.username}}/followers"><p id="followers">Followers: {{ user.follower_ids|length }}</p></a>
                     <p id="bio">{{ user.bio }}</p>

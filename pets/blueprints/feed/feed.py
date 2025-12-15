@@ -186,6 +186,11 @@ def comments(post_id: int):
         created = getattr(comment, "created_at", "")
         if hasattr(created, "isoformat"):
             created = created.isoformat()
+
+        pfp=getattr(user, "profile_picture_path", "")
+        if not user.username in str(pfp):
+            pfp = Path('/static/images/assets/user.png')
+
         return (
             jsonify(
                 {
@@ -196,9 +201,7 @@ def comments(post_id: int):
                         "user_id": getattr(user, "id", 0),
                         "text": text,
                         "created_at": created,
-                        "profile_picture_path": str(
-                            getattr(user, "profile_picture_path", "")
-                        ),
+                        "profile_picture_path": str(pfp),
                         "likes": 0,
                     },
                 }
@@ -225,7 +228,11 @@ def comments(post_id: int):
             created = created.isoformat()
         uid = getattr(c, "user_id", 0)
         u = user_for(uid)
-        profile_pic = getattr(u, "profile_picture_path", "") if u else ""
+        pfp=getattr(u, "profile_picture_path", "")
+        if not u.username in str(pfp):
+            print(pfp)
+            pfp = Path('/static/images/assets/user.png')
+
         author = getattr(c, "author", None) or username_for(uid)
         text = getattr(c, "text", None) or getattr(c, "comment_string", "")
         likes = getattr(c, "likes", 0)
@@ -236,7 +243,7 @@ def comments(post_id: int):
             "user_id": int(uid),
             "text": str(text),
             "created_at": created,
-            "profile_picture_path": str(profile_pic),
+            "profile_picture_path": str(pfp),
             "likes": int(likes),
         }
 

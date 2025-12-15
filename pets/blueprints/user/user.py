@@ -11,7 +11,6 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
-from werkzeug.utils import secure_filename
 
 from pets.blueprints.user.services import save_file
 
@@ -32,9 +31,11 @@ def view_user_profile(username: str):
     user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username)
     if not user:
         return "User not found", 404
+    if not user.username in str(user.profile_picture_path):
+        user.profile_picture_path = Path('../static/images/assets/user.png')
     # Adjusted template path to match actual location under pages/
     posts = [post for post in user.posts if post.media_type == "photo"]
-    return render_template("pages/user/profile.html", user=user, posts=posts)
+    return render_template("pages/user/profile.html", user=user, posts=posts, image_path=user.profile_picture_path)
 
 @user_bp.route("/<int:user_id>/settings", methods=["GET", "POST"])
 @login_required
@@ -50,9 +51,13 @@ def user_settings(user_id: int):
             return "Unauthorized", 403
         # Process form data and update user settings
 
+        print(user.profile_picture_path)
+
         # process profile picture upload
         file = request.files.get("profile_picture")
         save_file(file, user)
+
+        print(user.profile_picture_path)
 
         #process bio update
         new_bio = request.form.get("bio", "")
