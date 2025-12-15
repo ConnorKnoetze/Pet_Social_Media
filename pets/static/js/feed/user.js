@@ -119,6 +119,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function renderEditProfileButton(u) {
+    if (followBtnEl) {
+      followBtnEl.style.display = 'inline-block';
+      followBtnEl.disabled = false;
+      followBtnEl.textContent = 'Edit Profile';
+      if (followBtnEl.__followHandler) {
+        followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+        delete followBtnEl.__followHandler;
+      }
+      followBtnEl.__followHandler = (e) => {
+        e.preventDefault();
+        window.location.href = `/${u.id}/settings`;
+      };
+      followBtnEl.addEventListener('click', followBtnEl.__followHandler);
+    }
+  }
+
   function renderUser(u) {
     currentUserData = u;
     if (!u) return clear();
@@ -136,21 +153,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (followBtnEl) {
       const id = u.id ?? '';
-      if (id && u.id !== u.session_user_id) {
-        followBtnEl.style.display = 'inline-block';
-        followBtnEl.disabled = false;
-        followBtnEl.textContent = u.following ? 'Following' : 'Follow';
-        if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
-        followBtnEl.__followHandler = (e) => {
-          e.preventDefault();
-          const targetId = currentUserData?.id || id;
-          if (!currentUserData?.following) {
-            doFollow(targetId);
-          } else {
-            doUnfollow(targetId);
-          }
-        };
-        followBtnEl.addEventListener('click', followBtnEl.__followHandler);
+      if (id) {
+        if (u.id !== u.session_user_id) {
+          followBtnEl.style.display = 'inline-block';
+          followBtnEl.disabled = false;
+          followBtnEl.textContent = u.following ? 'Following' : 'Follow';
+          if (followBtnEl.__followHandler) followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
+          followBtnEl.__followHandler = (e) => {
+            e.preventDefault();
+            const targetId = currentUserData?.id || id;
+            if (!currentUserData?.following) {
+              doFollow(targetId);
+            } else {
+              doUnfollow(targetId);
+            }
+          };
+          followBtnEl.addEventListener('click', followBtnEl.__followHandler);
+        } else {
+          renderEditProfileButton(u);
+        }
       } else {
         if (followBtnEl.__followHandler) {
           followBtnEl.removeEventListener('click', followBtnEl.__followHandler);
