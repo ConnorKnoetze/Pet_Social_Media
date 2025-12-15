@@ -82,7 +82,9 @@ def user_settings(user_id: int):
         #update user in repo
         repo.update_user(user)
         return redirect(url_for("user.view_user_profile", username=user.username))
-    return render_template("pages/user/settings.html", user=user)
+
+    username = (user.username[0].upper() if user.username[0].isalpha() else user.username[0]) + user.username[1:]
+    return render_template("pages/user/settings.html", user=user, username=username)
 
 @user_bp.route("/user/<string:username>/followers")
 @login_required
