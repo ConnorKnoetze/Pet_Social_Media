@@ -25,7 +25,7 @@ html, body {
   --color-accent: linear-gradient(135deg,#2684ff 0%, #444 100%);
   color-scheme: light dark;
   --color-panel-bg-glass: rgba(255,255,255,0.55);
-  --background-image: url("/static/images/backgrounds/light_back4k.png");
+  --background-image: url("/static/images/backgrounds/light_back_full4k.png");
   --avatar-size: 10px;
   --btn-bg: #c4c4c4;
   --comments-bg: rgba(0,0,0,0.13);
@@ -43,7 +43,7 @@ html, body {
   color-scheme: dark;
   --color-panel-bg-glass: rgba(30,30,30,0.55);
   border: 1px solid rgba(255,255,255,0.12);
-  --background-image: url("/static/images/backgrounds/dark_back4k.png");
+  --background-image: url("/static/images/backgrounds/dark_back_full4k.png");
   --btn-bg: #3f3f3f;
   --comments-bg: rgba(255,255,255,0.06);
   --text-background: #222222;
