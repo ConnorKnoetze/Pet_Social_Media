@@ -1,0 +1,130 @@
+.settings-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.settings-card{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 20px 0 20px 0;
+    width: 60%;
+    max-width: 800px;
+    height: 100%;
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid var(--color-panel-border);
+    border-radius: 15px;
+}
+
+.settings-card h2{
+    width: 86.5%;
+    color: white;
+    text-align: center;
+    background: linear-gradient(135deg,#2684ff 0%, #444 100%);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+}
+
+.settings-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
+    width: 92.5%;
+    background: var(--color-panel-bg);
+    border-radius: 12px;
+}
+
+#settingsForm{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    margin: 25px;
+}
+
+label[for="profilePicture"],
+label[for="bio"] {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input[type="file"]::file-selector-button {
+    background: var(--color-panel-border);
+    color: var(--color-text);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    overflow: hidden;
+    margin: 5px;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: linear-gradient(135deg,#2684ff 0%, #444 100%);
+    transform: translateY(-2px) scale(1.03);
+    transition: border-color .15s ease, filter .15s ease, transform .15s ease;
+    cursor: pointer;
+    color: var(--color-text-inverse);
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+}
+
+textarea {
+    resize: none;
+    background: var(--color-panel-bg);
+    border: 1px solid var(--color-panel-border);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.form-group{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 100%;
+    gap:15px;
+}
+
+.save-button {
+    background: var(--color-panel-border);
+    color: var(--color-text);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.save-button:hover{
+    background: linear-gradient(135deg,#2684ff 0%, #444 100%);
+    transform: translateY(-2px) scale(1.03);
+    transition: border-color .15s ease, filter .15s ease, transform .15s ease;
+    cursor: pointer;
+    color: var(--color-text-inverse);
+    box-shadow: 0 6px 14px rgba(0,0,0,.28);
+}
+
+@media (max-width: 1000px) {
+    .settings-card {
+        width: 90%;
+    }
+}
+
+@media (max-width: 600px) {
+    .settings-card {
+        width: 95%;
+        height:100%;
+        margin:0;
+    }
+}

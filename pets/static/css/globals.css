@@ -29,6 +29,7 @@ html, body {
   --avatar-size: 10px;
   --btn-bg: #c4c4c4;
   --comments-bg: rgba(0,0,0,0.13);
+  --text-background: #f0f0f0;
 }
 
 :root[data-theme='dark'] {
@@ -45,6 +46,7 @@ html, body {
   --background-image: url("/static/images/backgrounds/dark_back4k.png");
   --btn-bg: #3f3f3f;
   --comments-bg: rgba(255,255,255,0.06);
+  --text-background: #222222;
 }
 
 html, body {
