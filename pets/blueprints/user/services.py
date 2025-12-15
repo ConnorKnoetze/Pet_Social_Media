@@ -18,6 +18,8 @@ def save_file(file, user):
     if file and allowed_file(file.filename):
 
         ## Remove existing profile pictures for the user
+        if not os.path.exists(PFP_FOLDER / user.username):
+            os.makedirs(PFP_FOLDER / user.username, exist_ok=True)
         if os.listdir(PFP_FOLDER / user.username):
             for f in os.listdir(PFP_FOLDER / user.username):
                 if f.startswith(f"user_{user.user_id}_"):

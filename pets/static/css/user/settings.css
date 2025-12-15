@@ -122,9 +122,39 @@ textarea {
 }
 
 @media (max-width: 600px) {
+    .settings-container{
+        height: 100%;
+    }
+    .settings-wrapper{
+        padding: 15px;
+        width: 100%;
+    }
     .settings-card {
         width: 95%;
         height:100%;
         margin:0;
+    }
+    .settings-card h2 {
+        font-size: 1.5em;
+    }
+
+    input[type="file"]::file-selector-button {
+        font-size: 1em;
+        padding: 8px 16px;
+        margin-top: 8px;
+    }
+
+    label[for="profilePicture"],
+    label[for="bio"] {
+        font-size: 1.1em;
+    }
+
+    textarea {
+        font-size: 1em;
+    }
+    .save-button{
+        font-size: 1em;
+        padding: 8px 16px;
+        margin-top: 8px;
     }
 }
