@@ -372,6 +372,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 )
                 .all()
             )
+            posts.sort(key=lambda p: p.created_at, reverse=True)
             return [
                 {
                     "id": post.id,

@@ -28,6 +28,7 @@ def view_user_profile(username: str):
         user.profile_picture_path = Path('../static/images/assets/user.png')
     # Adjusted template path to match actual location under pages/
     posts = [post for post in user.posts if post.media_type == "photo"]
+    posts.sort(key=lambda p: p.created_at, reverse=True)
 
     ## Temporary fix for media path issues move to standard service when only database used
     post_paths = [os.path.join("../", post.media_path) if user.username in str(post.media_path) and "uploads" in str(post.media_path) else post.media_path for post in posts]

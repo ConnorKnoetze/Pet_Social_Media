@@ -44,8 +44,6 @@ def register():
 
 @authentication_blueprint.route("/login", methods=["GET", "POST"])
 def login():
-    from pets.blueprints.feed.feed import feed, feed_bp
-
     repo = repository.repo_instance
     form = LoginForm()
     user_name_not_recognised = None
