@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import List, Tuple
+from pathlib import Path
 
 from sqlalchemy import func, select, text, inspect
 from sqlalchemy.exc import OperationalError
@@ -138,6 +139,32 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 return user
             except NoResultFound:
                 return None
+
+    def create_post(self, user: PetUser, caption:str, tags:List[str], media_path:Path, media_type:str) -> Post:
+        from datetime import datetime, UTC
+
+        with self._session_cm as scm:
+            # determine next post ID
+            max_id = scm.session.scalar(select(func.max(posts_table.c.id)))
+            next_id = 1 if max_id is None else int(max_id) + 1
+
+            post = Post(
+                id=next_id,
+                user_id=user.user_id,
+                caption=caption,
+                created_at=datetime.now(UTC),
+                media_path=media_path,
+                media_type=media_type,
+                views=0,
+                size=(0, 0),
+                tags=tags,
+                users_tagged=[],
+            )
+            with scm.session.no_autoflush:
+                scm.session.add(post)
+            scm.commit()
+            print(post)
+            return post
 
     def add_post(self, user: PetUser, post: Post):
         with self._session_cm as scm:
