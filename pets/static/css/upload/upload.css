@@ -252,3 +252,20 @@ input:-webkit-autofill + .floating-label{
 .change-btn{
     width: 100%;
 }
+
+@media (max-width: 900px){
+    .upload-form-container{
+        width: 80%;
+    }
+}
+
+@media (max-width: 600px){
+    .upload-form-container{
+        width: 95%;
+    }
+
+    .actions{
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
