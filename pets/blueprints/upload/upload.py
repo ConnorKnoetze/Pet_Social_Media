@@ -10,12 +10,12 @@ from flask import (
 from werkzeug.utils import secure_filename
 from pets.blueprints.authentication.authentication import login_required
 from pets.blueprints.services import _repo
+from PIL import Image
 
 upload_bp = Blueprint("upload", __name__)
 
 TEMP_UPLOAD_FOLDER = "pets/static/images/uploads/temp_uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp4", "mov", "avi"}
-
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -45,17 +45,55 @@ def preview_upload():
     if not allowed_file(file.filename):
         return jsonify({"error": "Invalid file type"}), 400
 
+    filename_secure = secure_filename(file.filename)
+    ext = filename_secure.rsplit(".", 1)[1].lower()
+
     user_name = session.get("user_name")
     user_temp_folder = os.path.join(TEMP_UPLOAD_FOLDER, user_name)
     os.makedirs(user_temp_folder, exist_ok=True)
 
-    # Generate unique temp ID
+    # Generate unique temp ID and path
     temp_id = str(uuid.uuid4())
-    ext = secure_filename(file.filename).rsplit(".", 1)[1].lower()
     temp_filename = f"{temp_id}.{ext}"
     temp_path = os.path.join(user_temp_folder, temp_filename)
 
-    file.save(temp_path)
+    try:
+        # Process images with PIL to preserve aspect ratio and reduce size
+        if ext in {"png", "jpg", "jpeg", "gif"}:
+            from PIL import ImageOps
+
+            image = Image.open(file.stream)
+            image = ImageOps.exif_transpose(image)  # fix orientation from EXIF
+
+            width, height = image.size
+
+            # Choose UHD box based on orientation
+            if width >= height:
+                target = (1920, 1080)
+            else:
+                target = (1080, 1920)
+
+            # Resize in-place; thumbnail preserves aspect ratio and avoids upscaling
+            image.thumbnail(target, Image.LANCZOS)
+
+            # Prepare save options to reduce file size
+            save_kwargs = {}
+            if ext in {"jpg", "jpeg"}:
+                if image.mode in ("RGBA", "P"):
+                    image = image.convert("RGB")
+                save_kwargs.update({"format": "JPEG", "quality": 85, "optimize": True})
+            elif ext == "png":
+                save_kwargs.update({"format": "PNG", "optimize": True})
+            else:
+                # GIF or other: save as-is (PIL will handle)
+                save_kwargs.update({})
+
+            image.save(temp_path, **save_kwargs)
+        else:
+            # For videos or other allowed types, just save the uploaded file
+            file.save(temp_path)
+    except Exception as e:
+        return jsonify({"error": "Could not process file", "details": str(e)}), 500
 
     return jsonify(
         {
