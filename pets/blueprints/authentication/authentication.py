@@ -17,9 +17,18 @@ authentication_blueprint = Blueprint("authentication_bp", __name__, url_prefix="
 @authentication_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()
-    user_name_not_unique = None
+    user_name_error_message = None
 
     if form.validate_on_submit():
+        if len(form.user_name.data) > 20:
+            user_name_error_message = "Your user name is too long - please limit to 20 characters"
+            return render_template(
+                "pages/register.html",
+                title="Register",
+                form=form,
+                user_name_error_message=user_name_error_message,
+                handler_url=url_for("authentication_bp.register"),
+            )
         try:
             services.add_user(
                 form.user_name.data,
@@ -30,14 +39,14 @@ def register():
             return redirect(url_for("authentication_bp.login"))
 
         except services.NameNotUniqueException:
-            user_name_not_unique = (
+            user_name_error_message = (
                 "Your user name is already taken - please supply another"
             )
     return render_template(
         "pages/register.html",
         title="Register",
         form=form,
-        user_name_error_message=user_name_not_unique,
+        user_name_error_message=user_name_error_message,
         handler_url=url_for("authentication_bp.register"),
     )
 

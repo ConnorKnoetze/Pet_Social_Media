@@ -73,6 +73,7 @@ h2 {
   font-size: 16px;
   color: var(--color-text);
   border-radius: 8px;
+  padding-left: 5px;
 }
 
 .input-field input:focus~label,
