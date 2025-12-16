@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{user.username}} | upload{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/upload/upload.css" />
+<script defer src="{{ url_for('static', filename='js/upload/upload.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="upload-container">
+  <div class="upload-form-container">
+      <div class="upload-header">
+        <h2>Upload</h2>
+        <div class="help">Signed in as {{ user.username }}</div>
+      </div>
+      <form id="upload-form" method="post" novalidate>
+        <div class="form-row">
+          <label class="help" for="file">Select a file to upload</label>
+          <input id="file" name="file" type="file" class="file-input" accept="image/*,video/*" required style="display:none;" />
+          <button type="button" class="btn file-select-btn" onclick="document.getElementById('file').click()">Choose File</button>
+        </div>
+
+        <div id="preview-container" class="preview-container" style="display:none;">
+          <div id="file-preview" class="file-preview"></div>
+          <button type="button" class="btn change-btn" id="change-btn">Change File</button>
+        </div>
+
+        <div class="form-row floating-group" data-float>
+          <input id="caption" name="caption" type="text" class="floating-input" placeholder=" " autocomplete="on" />
+          <label class="floating-label" for="caption">Caption</label>
+        </div>
+
+        <div class="form-row floating-group" data-float>
+          <input id="tags" name="tags" type="text" class="floating-input" placeholder=" " autocomplete="on" />
+          <label class="floating-label" for="tags">Tags (comma separated)</label>
+          <div class="help">Example: pets, cute, park</div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" id="reset-btn">Reset</button>
+          <button type="submit" class="btn primary">Upload</button>
+        </div>
+      </form>
+  </div>
+</div>
+{% endblock %}

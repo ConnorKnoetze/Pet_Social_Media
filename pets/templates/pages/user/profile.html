@@ -44,10 +44,10 @@
             });
             </script>
             <div class="posts-grid">
-              {% for post in posts %}
+              {% for post_path_tuple in post_path_tuples %}
               <div class="post-item">
-                  <a href="/post/{{post.id}}">
-                    <img src="{{post.media_path}}" alt="post image" loading="lazy">
+                  <a href="/post/{{post_path_tuple[0].id}}">
+                    <img src="{{post_path_tuple[1]}}" alt="post image" loading="lazy">
                   </a>
               </div>
               {% else %}

@@ -10,17 +10,10 @@ from flask import (
 )
 from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
-
+from pets.blueprints.services import _repo
 
 feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
-
-
-def _repo():
-    r = repository.repo_instance
-    if r is None:
-        raise RuntimeError("Repository not initialized")
-    return r
 
 
 def _serialize_post(p):
@@ -229,7 +222,7 @@ def comments(post_id: int):
         uid = getattr(c, "user_id", 0)
         u = user_for(uid)
         pfp=getattr(u, "profile_picture_path", "")
-        if not '.' == str(pfp):
+        if '.' == str(pfp):
             pfp = Path('/static/images/assets/user.png')
 
         author = getattr(c, "author", None) or username_for(uid)
