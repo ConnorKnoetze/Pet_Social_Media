@@ -91,3 +91,22 @@ def view_followers(username: str):
         return "User not found", 404
     followers = repo.get_followers(user)
     return render_template("pages/user/followers.html", user=user, followers=followers)
+
+@user_bp.route("/post/<int:post_id>/delete")
+@login_required
+def delete_post(post_id: int):
+    repo = _repo()
+    username = session.get("user_name")
+    if not username:
+        return redirect(url_for("authentication.login"))
+
+    user = repo.get_pet_user_by_name(username)
+    post = repo.get_post_by_id(post_id)
+    if not post or post.user_id != user.id:
+        return "Unauthorized", 403
+
+    repo.delete_post(user, post)
+    if os.path.exists(os.path.join('pets',post.media_path)):
+        os.remove(os.path.join('pets',post.media_path))
+
+    return redirect(url_for("user.view_user_profile", username=user.username))
