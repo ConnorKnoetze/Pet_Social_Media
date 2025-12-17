@@ -12,10 +12,9 @@
     <div class="post-wrapper">
         <section class="post-grid" aria-label="Post area">
             <div class="post-media">
-                {% if post.media_type.startswith('video/') %}
-                <video controls>
-                    <source src="{{post_path}}" type="{{post.media_type}}">
-                    Your browser does not support the video tag.
+                {% if post.media_type == "video" %}
+                <video autoplay loop muted playsinline controlslist="nodownload nofullscreen noplaybackrate" disablepictureinpicture>
+                  <source src="{{ post_path }}" type="video/mp4">
                 </video>
                 {% else %}
                     <a href="/user/{{user.username}}">

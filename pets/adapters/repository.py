@@ -183,3 +183,8 @@ class AbstractRepository(abc.ABC):
     def get_video_thumbnail(self, post: Post, user : User) -> Post:
         # Retrieves the thumbnail for a video post.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def delete_post(self, user: User, post: Post):
+        # Deletes a Post from the repository.
+        raise NotImplementedError
