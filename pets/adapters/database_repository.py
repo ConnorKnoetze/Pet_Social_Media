@@ -363,26 +363,32 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 scm.rollback()
 
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
+        user = self.get_pet_user_by_id(user_id)
         with self._session_cm as scm:
             posts = (
                 scm.session.query(Post)
                 .filter(
                     posts_table.c.user_id == user_id,
-                    posts_table.c.media_type == "photo",
                 )
                 .all()
             )
             posts.sort(key=lambda p: p.created_at, reverse=True)
-            return [
-                {
-                    "id": post.id,
-                    "media_path": str(post.media_path)
-                    if hasattr(post, "media_path")
-                    else None,
-                    "media_type": getattr(post, "media_type", None),
-                }
-                for post in posts
-            ]
+            return_posts = []
+            for post in posts:
+                if post.media_type == "photo":
+                    return_posts.append({
+                        "id": post.id,
+                        "media_path": str(post.media_path),
+                        "media_type": post.media_type,
+                    })
+                else:
+                    video_post_thumbnail = self.get_video_thumbnail(post, user)
+                    return_posts.append({
+                        "id": post.id,
+                        "media_path": str(video_post_thumbnail.media_path),
+                        "media_type": video_post_thumbnail.media_type,
+                    })
+            return return_posts
 
     def next_comment_id(self) -> int:
         with self._session_cm as scm:
@@ -603,3 +609,8 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             final_thumb_path,
             "photo",
         )
+
+    def get_all_posts(self) -> List[type[Post]]:
+        with self._session_cm as scm:
+            posts = scm.session.query(Post).all()
+            return posts

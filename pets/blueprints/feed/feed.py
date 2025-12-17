@@ -96,7 +96,7 @@ def feed():
     if not session.get("user_name"):
         return redirect(url_for("authentication_bp.register"))
 
-    all_posts = _repo().get_photo_posts()
+    all_posts = _repo().get_all_posts()
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]
     return render_template("pages/feed.html", posts=initial)
@@ -104,7 +104,7 @@ def feed():
 
 @feed_bp.route("/api/feed")
 def feed_batch():
-    all_posts = _repo().get_photo_posts()
+    all_posts = _repo().get_all_posts()
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     try:
         offset = int(request.args.get("offset", 0))

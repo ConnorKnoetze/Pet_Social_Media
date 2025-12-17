@@ -4,7 +4,6 @@ from flask import (
     Blueprint,
     render_template,
 )
-from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
 from pets.blueprints.services import _repo
 

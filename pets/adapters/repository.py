@@ -188,3 +188,8 @@ class AbstractRepository(abc.ABC):
     def delete_post(self, user: User, post: Post):
         # Deletes a Post from the repository.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_all_posts(self) -> List[type[Post]]:
+        # Retrieves all Posts in the repository.
+        raise NotImplementedError
