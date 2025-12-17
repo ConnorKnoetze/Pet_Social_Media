@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
@@ -7,7 +7,7 @@ import pets.blueprints.authentication.services as services
 from password_validator import PasswordValidator
 from functools import wraps
 
-
+from pets.blueprints.user.services import clean_up
 from pets.utilities.auth import is_logged_in
 
 
@@ -87,14 +87,12 @@ def login():
         handler_url=url_for("authentication_bp.login"),
     )
 
-
-@authentication_blueprint.route("/logout")
+@authentication_blueprint.route('/logout', methods=['GET', 'POST'])
 def logout():
-    from pets.blueprints.feed.feed import feed, feed_bp
-
+    print("cleaning up thumbnails for user:", session.get("user_name"))
+    clean_up(session.get("user_name"))
     session.clear()
-    return redirect(url_for("feed.feed"))
-
+    return redirect(url_for('authentication_bp.login'))
 
 def login_required(view):
     @wraps(view)

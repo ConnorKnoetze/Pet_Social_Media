@@ -160,9 +160,5 @@
     apply(loadPref());
   }
 
-  mq.addEventListener('change', () => {
-    if (loadPref() === 'system') apply('system');
-  });
-
   init();
 })();

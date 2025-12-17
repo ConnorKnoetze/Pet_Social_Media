@@ -178,3 +178,8 @@ class AbstractRepository(abc.ABC):
     def get_followers(self, user: User) -> List[User]:
         # Retrieves the followers of a given user.
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_video_thumbnail(self, post: Post, user : User) -> Post:
+        # Retrieves the thumbnail for a video post.
+        raise NotImplementedError

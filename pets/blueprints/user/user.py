@@ -27,8 +27,23 @@ def view_user_profile(username: str):
     if "." == str(user.profile_picture_path):
         user.profile_picture_path = Path('../static/images/assets/user.png')
     # Adjusted template path to match actual location under pages/
-    posts = [post for post in user.posts if post.media_type == "photo"]
+
+    posts = []
+    for post in user.posts:
+        if post.media_type == "video":
+            print(f"Post ID {post.id} is a video with media path {post.media_path}")
+            thumbnail_post = _repo().get_video_thumbnail(post, user)
+            if thumbnail_post:
+                print(f"Generated thumbnail for Post ID {post.id} at {thumbnail_post.media_path}")
+                posts.append(thumbnail_post)
+            else:
+                print(f"Failed to generate thumbnail for Post ID {post.id}")
+                posts.append(post)  # Fallback to original post if thumbnail generation fails
+        else:
+            posts.append(post)
     posts.sort(key=lambda p: p.created_at, reverse=True)
+
+    print([str(post) for post in posts])
 
     ## Temporary fix for media path issues move to standard service when only database used
     post_paths = [os.path.join("../", post.media_path) if user.username in str(post.media_path) and "uploads" in str(post.media_path) else post.media_path for post in posts]
@@ -50,13 +65,9 @@ def user_settings(user_id: int):
             return "Unauthorized", 403
         # Process form data and update user settings
 
-        print(user.profile_picture_path)
-
         # process profile picture upload
         file = request.files.get("profile_picture")
         save_file(file, user)
-
-        print(user.profile_picture_path)
 
         #process bio update
         new_bio = request.form.get("bio", "")

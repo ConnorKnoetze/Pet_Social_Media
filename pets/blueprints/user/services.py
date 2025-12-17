@@ -36,3 +36,16 @@ def save_file(file, user):
             user.profile_picture_path = url_for(
                 "static", filename=str(rel_path).replace("\\", "/")
             )
+
+
+UPLOADS_FOLDER_DIR = PROJECT_ROOT / "static" / "images" / "uploads"
+def clean_up(username: str):
+    """Clean Up user video Thumbnails folder."""
+    if not username:
+        return
+    user_thumbnail_folder = UPLOADS_FOLDER_DIR / username / "thumbnails"
+    if os.path.exists(user_thumbnail_folder):
+        for f in os.listdir(user_thumbnail_folder):
+            file_path = user_thumbnail_folder / f
+            if os.path.isfile(file_path):
+                os.remove(file_path)

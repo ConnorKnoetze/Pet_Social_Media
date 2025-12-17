@@ -503,9 +503,103 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
         with self._session_cm as scm:
             for followee_id, follower_ids in follower_id_lists:
                 for follower_id in follower_ids:
-                    follower = self.get_pet_user_by_id(follower_id) or self.get_human_user_by_id(follower_id)
+                    follower = self.get_pet_user_by_id(
+                        follower_id
+                    ) or self.get_human_user_by_id(follower_id)
                     followee = self.get_pet_user_by_id(followee_id)
                     if follower is None or followee is None:
                         continue
                     self.follow_user(follower, followee)
             scm.commit()
+
+    def get_video_thumbnail(self, post: Post, user: User) -> Post:
+        import os
+        from pathlib import Path
+        from uuid import uuid4
+        from PIL import Image
+        import cv2
+
+        video_path = Path(post.media_path)
+        final_path = video_path
+        video_path = os.path.join("pets", video_path)
+
+        if not os.path.exists(video_path):
+            print("Path does not exist for video post", post.id)
+            return post
+
+        video_path = Path(video_path)
+        thumb_name = f"{video_path.stem}_thumb_{uuid4().hex}.jpg"
+        final_thumb_path = final_path.parent / "thumbnails" / thumb_name
+        thumb_path = video_path.parent / "thumbnails" / thumb_name
+
+        thumbnails_dir = thumb_path.parent
+        if thumbnails_dir.exists():
+            for existing_file in thumbnails_dir.iterdir():
+                if video_path.stem in existing_file.name:
+                    print("Thumbnail already exists at", existing_file)
+
+                    return Post(
+                        post.id,
+                        user.user_id,
+                        post.caption,
+                        0,
+                        post.created_at,
+                        (0, 0),
+                        post.tags,
+                        [],
+                        Path(*existing_file.parts[1:]),
+                        "photo",
+                    )
+
+        thumb_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            # open video with opencv
+            cap = cv2.VideoCapture(str(video_path))
+
+            if not cap.isOpened():
+                print(f"Failed to open video file for post {post.id}")
+                return post
+
+            # seek to 1 second (fps * 1)
+            fps = cap.get(cv2.CAP_PROP_FPS) or 30
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(fps))
+
+            ret, frame = cap.read()
+            cap.release()
+
+            if not ret or frame is None:
+                print(f"Failed to read frame from video for post {post.id}")
+                return post
+
+            # convert BGR to RGB and save
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame_rgb)
+
+            # downscale to fit within UHD
+            max_w, max_h = 1920, 1080
+            w, h = image.size
+            scale = min(max_w / w, max_h / h, 1.0)
+            if scale < 1.0:
+                new_size = (int(w * scale), int(h * scale))
+                image = image.resize(new_size, Image.LANCZOS)
+
+            image.save(thumb_path, format="JPEG", quality=85, optimize=True)
+
+        except Exception as e:
+            print(f"Failed to generate thumbnail for video post {post.id}: {e}")
+            return post
+
+        print("Success generating thumbnail at", thumb_path)
+        return Post(
+            post.id,
+            user.user_id,
+            post.caption,
+            0,
+            post.created_at,
+            (0, 0),
+            post.tags,
+            [],
+            final_thumb_path,
+            "photo",
+        )
