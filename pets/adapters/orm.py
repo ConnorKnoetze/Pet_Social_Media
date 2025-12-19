@@ -14,6 +14,7 @@ from pathlib import Path
 
 from pets.domainmodel.User import User
 from pets.domainmodel.PetUser import PetUser
+from pets.domainmodel.HumanUser import HumanUser
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
 from pets.domainmodel.Like import Like
@@ -150,6 +151,13 @@ pet_users_table = Table(
     Column("follower_ids", ListType, nullable=True),
 )
 
+human_users_table = Table(
+    "human_users",
+    metadata,
+    Column("id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("favourite_animals", ListType, nullable=True),
+)
+
 
 posts_table = Table(
     "posts",
@@ -236,6 +244,19 @@ def map_model_to_tables():
             "_PetUser__animal_type": pet_users_table.c.animal_type,
             # follower ids stored as serialized list column
             "_PetUser__follower_ids": column_property(pet_users_table.c.follower_ids),
+        },
+    )
+
+    mapper_registry.map_imperatively(
+        HumanUser,
+        human_users_table,
+        inherits=User,
+        polymorphic_identity="human_user",
+        properties={
+            # favourite_animals stored as serialized list column
+            "_HumanUser__favourite_animals": column_property(
+                human_users_table.c.favourite_animals
+            ),
         },
     )
 

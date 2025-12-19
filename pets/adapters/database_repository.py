@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from pets.adapters.repository import AbstractRepository
 from pets.domainmodel.User import User
 from pets.domainmodel.PetUser import PetUser
+from pets.domainmodel.HumanUser import HumanUser
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
 from pets.domainmodel.Like import Like
@@ -58,11 +59,13 @@ class SessionContextManager:
 
 
 class SqlAlchemyRepository(AbstractRepository, ABC):
+    _temp_users: List[User]
+
     def __init__(self, session_factory, database_uri: str):
         self._session_cm = SessionContextManager(session_factory)
         self._engine = create_engine(database_uri, future=True)
         self._session_factory = sessionmaker(bind=self._engine, expire_on_commit=False)
-
+        self._temp_users = []
 
     def add_multiple_pet_users(self, users: List[PetUser]):
         with self._session_cm as scm:
@@ -140,7 +143,14 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             except NoResultFound:
                 return None
 
-    def create_post(self, user: PetUser, caption:str, tags:List[str], media_path:Path, media_type:str) -> Post:
+    def create_post(
+        self,
+        user: PetUser,
+        caption: str,
+        tags: List[str],
+        media_path: Path,
+        media_type: str,
+    ) -> Post:
         from datetime import datetime, UTC
 
         with self._session_cm as scm:
@@ -376,18 +386,22 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             return_posts = []
             for post in posts:
                 if post.media_type == "photo":
-                    return_posts.append({
-                        "id": post.id,
-                        "media_path": str(post.media_path),
-                        "media_type": post.media_type,
-                    })
+                    return_posts.append(
+                        {
+                            "id": post.id,
+                            "media_path": str(post.media_path),
+                            "media_type": post.media_type,
+                        }
+                    )
                 else:
                     video_post_thumbnail = self.get_video_thumbnail(post, user)
-                    return_posts.append({
-                        "id": post.id,
-                        "media_path": str(video_post_thumbnail.media_path),
-                        "media_type": video_post_thumbnail.media_type,
-                    })
+                    return_posts.append(
+                        {
+                            "id": post.id,
+                            "media_path": str(video_post_thumbnail.media_path),
+                            "media_type": video_post_thumbnail.media_type,
+                        }
+                    )
             return return_posts
 
     def next_comment_id(self) -> int:
@@ -499,7 +513,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 .join(
                     user_following_table,
                     users_table.c.id == user_following_table.c.follower_id,
-                    )
+                )
                 .filter(user_following_table.c.followee_id == target_id)
                 .all()
             )
@@ -614,3 +628,96 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
         with self._session_cm as scm:
             posts = scm.session.query(Post).all()
             return posts
+
+    def add_temp_user(self, user: User):
+        self._temp_users.append(user)
+
+    def get_temp_user_by_name(self, username: str) -> User | None:
+        for user in self._temp_users:
+            if user.username == username:
+                return user
+        return None
+
+    def get_temp_user_by_id(self, user_id: int) -> User | None:
+        for user in self._temp_users:
+            if user.user_id == user_id:
+                return user
+        return None
+
+    def get_temp_user_max_id(self) -> int:
+        with self._session_cm as scm:
+            max_id = scm.session.scalar(select(func.max(users_table.c.id)))
+            next_id = 1 if max_id is None else int(max_id) + 1
+            return next_id
+
+    def convert_temp_user_to_permanent(self, temp_user: User, type: str):
+        with self._session_cm as scm:
+            if type == "Human":
+                new_user = HumanUser(
+                    user_id=temp_user.user_id,
+                    username=temp_user.username,
+                    email=temp_user.email,
+                    password_hash=temp_user.password_hash,
+                    profile_picture_path=temp_user.profile_picture_path,
+                    bio=temp_user.bio,
+                    created_at=temp_user.created_at,
+                    following=[],
+                )
+            elif type == "Pet":
+                new_user = PetUser(
+                    user_id=temp_user.user_id,
+                    username=temp_user.username,
+                    profile_picture_path=temp_user.profile_picture_path,
+                    bio=temp_user.bio,
+                    posts=[],
+                    following=[],
+                )
+            else:
+                raise ValueError("Invalid user type specified.")
+
+            with scm.session.no_autoflush:
+                scm.session.add(new_user)
+            scm.commit()
+            # Remove from temp users list
+            self._temp_users = [
+                user for user in self._temp_users if user.user_id != temp_user.user_id
+            ]
+            return new_user
+
+    def convert_human_to_pet(self, human_user: User) -> PetUser:
+        with self._session_cm as scm:
+            new_user = PetUser(
+                user_id=human_user.user_id,
+                username=human_user.username,
+                email=human_user.email,
+                password_hash=human_user.password_hash,
+                profile_picture_path=human_user.profile_picture_path,
+                bio=human_user.bio,
+                posts=[],
+                following=human_user.following,
+            )
+            with scm.session.no_autoflush:
+                scm.session.delete(human_user)
+                scm.session.flush()
+                scm.session.add(new_user)
+            scm.commit()
+            return new_user
+
+    def convert_pet_to_human(self, pet_user: User) -> HumanUser:
+        with self._session_cm as scm:
+            new_user = HumanUser(
+                user_id=pet_user.user_id,
+                username=pet_user.username,
+                email=pet_user.email,
+                password_hash=pet_user.password_hash,
+                profile_picture_path=pet_user.profile_picture_path,
+                bio=pet_user.bio,
+                created_at=pet_user.created_at,
+                following=pet_user.following,
+            )
+            with scm.session.no_autoflush:
+                scm.session.delete(pet_user)
+                scm.session.flush()
+                scm.session.add(new_user)
+            scm.commit()
+            return new_user

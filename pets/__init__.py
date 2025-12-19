@@ -65,7 +65,9 @@ def create_app():
 
             mapper_registry.metadata.create_all(database_engine)
 
-            repository.repo_instance = SqlAlchemyRepository(session_factory, database_uri)
+            repository.repo_instance = SqlAlchemyRepository(
+                session_factory, database_uri
+            )
 
             database_mode = True
 
@@ -74,7 +76,9 @@ def create_app():
         else:
             print("Tables found")
 
-            repository.repo_instance = SqlAlchemyRepository(session_factory, database_uri)
+            repository.repo_instance = SqlAlchemyRepository(
+                session_factory, database_uri
+            )
 
     app.register_blueprint(feed_bp)
     app.register_blueprint(authentication_blueprint)

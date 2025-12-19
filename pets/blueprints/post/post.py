@@ -19,6 +19,12 @@ def view_post(id: int):
     if not post:
         return "User not found", 404
 
-    post_path = os.path.join("../", post.media_path) if user.username in str(post.media_path) else post.media_path
+    post_path = (
+        os.path.join("../", post.media_path)
+        if user.username in str(post.media_path)
+        else post.media_path
+    )
     # Adjusted template path to match actual location under pages/
-    return render_template("pages/post/post.html", post=post, user=user, post_path=post_path)
+    return render_template(
+        "pages/post/post.html", post=post, user=user, post_path=post_path
+    )

@@ -180,7 +180,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_video_thumbnail(self, post: Post, user : User) -> Post:
+    def get_video_thumbnail(self, post: Post, user: User) -> Post:
         # Retrieves the thumbnail for a video post.
         raise NotImplementedError
 
