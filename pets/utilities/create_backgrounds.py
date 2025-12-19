@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 
+
 def create_backgrounds():
     sizes = [
         # Mobile (portrait)

@@ -27,5 +27,9 @@ def is_logged_in():
     if repo is None:
         return False
 
-    user = repo.get_pet_user_by_name(username)
+    user = (
+        repo.get_pet_user_by_name(username)
+        or repo.get_human_user_by_name(username)
+        or repo.get_temp_user_by_name(username)
+    )
     return user is not None

@@ -99,7 +99,13 @@ def feed():
     all_posts = _repo().get_all_posts()
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]
-    return render_template("pages/feed.html", posts=initial)
+
+
+    session_user_name = session.get("user_name")
+    session_user = _repo().get_pet_user_by_name(session_user_name) or _repo().get_human_user_by_name(session_user_name) or _repo().get_temp_user_by_name(session_user_name)
+    type = session_user.__class__.__name__
+
+    return render_template("pages/feed.html", posts=initial, type=type)
 
 
 @feed_bp.route("/api/feed")
@@ -180,9 +186,9 @@ def comments(post_id: int):
         if hasattr(created, "isoformat"):
             created = created.isoformat()
 
-        pfp=getattr(user, "profile_picture_path", "")
+        pfp = getattr(user, "profile_picture_path", "")
         if "." == str(pfp):
-            pfp = Path('/static/images/assets/user.png')
+            pfp = Path("/static/images/assets/user.png")
 
         return (
             jsonify(
@@ -221,9 +227,9 @@ def comments(post_id: int):
             created = created.isoformat()
         uid = getattr(c, "user_id", 0)
         u = user_for(uid)
-        pfp=getattr(u, "profile_picture_path", "")
-        if '.' == str(pfp):
-            pfp = Path('/static/images/assets/user.png')
+        pfp = getattr(u, "profile_picture_path", "")
+        if "." == str(pfp):
+            pfp = Path("/static/images/assets/user.png")
 
         author = getattr(c, "author", None) or username_for(uid)
         text = getattr(c, "text", None) or getattr(c, "comment_string", "")
@@ -247,19 +253,25 @@ def user(user_id: int):
     session_user = session.get("user_name")
     if session_user:
         repo = _repo()
-        session_user = repo.get_human_user_by_name(
-            session_user
-        ) or repo.get_pet_user_by_name(session_user)
+        session_user = (
+            repo.get_human_user_by_name(session_user)
+            or repo.get_pet_user_by_name(session_user)
+            or repo.get_temp_user_by_name(session_user)
+        )
     else:
         session_user = None
     repo = _repo()
-    user = repo.get_pet_user_by_id(user_id) or repo.get_human_user_by_id(user_id)
+    user = (
+        repo.get_pet_user_by_id(user_id)
+        or repo.get_human_user_by_id(user_id)
+        or repo.get_temp_user_by_id(user_id)
+    )
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     def serialize(u):
         return {
-            "id": int(getattr(u, "id", 0)),
+            "id": int(getattr(u, "user_id", 0)),
             "username": str(getattr(u, "username", "")),
             "bio": str(getattr(u, "bio", "")),
             "profile_picture_path": str(getattr(u, "profile_picture_path", "")),
@@ -269,7 +281,6 @@ def user(user_id: int):
             "following": repo.is_following(session_user.user_id, user.user_id),
             "session_user_id": session_user.user_id if session_user else None,
         }
-
     return jsonify(serialize(user))
 
 
@@ -303,6 +314,7 @@ def follow_user(user_id: int):
             "followers_count": len(repo.get_followers(followee)),
         }
     ), 200
+
 
 @feed_bp.route("/unfollow/<int:user_id>", methods=["POST"])
 @login_required

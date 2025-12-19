@@ -22,6 +22,25 @@
                     <textarea id="bio" name="bio" rows="4" cols="50">{{ user.bio }}</textarea>
                     <p id="char-count"></p>
                 </div>
+                <p>{{'Select User Type: (WARNING : Converting to Human will delete all posts)' if type == "PetUser" else 'Select User Type:'}}</p>
+                <div class="user-type-checkboxes">
+                  <label>
+                    {% if type == "HumanUser" %}
+                    <input type="radio" name="user_type" value="Human" required checked>
+                    {% else %}
+                    <input type="radio" name="user_type" value="Human" required>
+                    {% endif %}
+                    Human
+                  </label>
+                  <label>
+                    {% if type == "PetUser" %}
+                    <input type="radio" name="user_type" value="Pet" required checked>
+                    {% else %}
+                    <input type="radio" name="user_type" value="Pet" required>
+                    {% endif %}
+                    Pet
+                  </label>
+                </div>
                 <button type="submit" class="save-button">Save Changes</button>
             </form>
         </div>

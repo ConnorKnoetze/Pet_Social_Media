@@ -32,7 +32,7 @@
             </div>
             <script>
             document.addEventListener('DOMContentLoaded', () => {
-              const userId = {{ user.id | tojson }};
+              const userId = {{ user.user_id | tojson }};
               function callWhenReady() {
                 if (typeof window.setActivePostUser === 'function') {
                   try { window.setActivePostUser(userId); } catch (e) { console.error('setActivePostUser call failed', e); }
@@ -58,7 +58,11 @@
                   </a>
               </div>
               {% else %}
-              <p>No posts yet.</p>
+              {% if session.get("is_temp") and session.get("user_name") == user.username %}
+                <p>Finish setting up your account</p>
+              {% elif user.__class__.__name__ == "PetUser" %}
+                <p>No posts yet.</p>
+              {% endif %}
               {% endfor %}
             </div>
         </section>
