@@ -23,14 +23,9 @@ def _serialize_post(p):
     media_path = getattr(p, "media_path", "")
     if isinstance(media_path, Path):
         media_path = str(media_path)
-    # Try several attribute names for the owning user
+
     user_id = (
         getattr(p, "user_id", None)
-        or getattr(p, "owner_id", None)
-        or getattr(getattr(p, "user", None), "id", None)
-        or getattr(getattr(p, "owner", None), "id", None)
-        or getattr(getattr(p, "pet_user", None), "id", None)
-        or 0
     )
     return {
         "id": int(getattr(p, "id", 0)),
