@@ -246,6 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
     art.innerHTML = `
       <div class="post-wrapper">
         ${mediaMarkup(post)}
+        <div class="engagement-metrics">
+          <span class="engagement-item">❤️ ${escapeHtml(post.likes_count)}</span>
+          <span class="engagement-item">💬 ${escapeHtml(post.comments_count)}</span>
+        </div>
         <div class="post-info">
           <p class="bio">${escapeHtml(post.caption)}</p>
           <small class="created-at">Posted: ${escapeHtml(timeago(post.created_at))}</small>

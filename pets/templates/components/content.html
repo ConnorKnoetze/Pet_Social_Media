@@ -12,6 +12,10 @@
               <source src="{{ post.media_path }}" type="video/mp4">
             </video>
           {% endif %}
+          <div class="engagement-metrics">
+            <span class="engagement-item">❤️ {{ likes_count[post.id] }}</span>
+            <span class="engagement-item">💬 {{ comments_count[post.id] }}</span>
+          </div>
           <div class="post-info">
             <p class="bio">{{ post.caption }}</p>
             <small class="created-at">Posted: {{ post.created_at | timeago }}</small>
