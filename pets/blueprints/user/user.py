@@ -39,7 +39,7 @@ def view_user_profile(username: str):
             posts=[],
             image_path=user.profile_picture_path,
             post_path_tuples=[],
-            type="TempUser"
+            type="TempUser",
         )
 
     if user.__class__.__name__ == "HumanUser":
@@ -51,10 +51,9 @@ def view_user_profile(username: str):
         )
 
     session_user = session.get("user_name")
-    session_user_obj = (
-        repo.get_human_user_by_name(session_user)
-        or repo.get_pet_user_by_name(session_user)
-    )
+    session_user_obj = repo.get_human_user_by_name(
+        session_user
+    ) or repo.get_pet_user_by_name(session_user)
     # Process posts to generate video thumbnails
     posts = []
     for post in user.posts:
@@ -102,7 +101,11 @@ def user_settings(user_id: int):
     if not username:
         return redirect(url_for("authentication.login"))
 
-    user = repo.get_human_user_by_name(username) or repo.get_pet_user_by_name(username) or repo.get_temp_user_by_name(username)
+    user = (
+        repo.get_human_user_by_name(username)
+        or repo.get_pet_user_by_name(username)
+        or repo.get_temp_user_by_name(username)
+    )
     if request.method == "POST":
         if not user or user.user_id != user_id:
             return "Unauthorized", 403
@@ -135,19 +138,36 @@ def user_settings(user_id: int):
                 pass
         # update user in repo
         repo.update_user(user)
-        return redirect(url_for("user.view_user_profile", username=user.username, type=user.__class__.__name__))
+        return redirect(
+            url_for(
+                "user.view_user_profile",
+                username=user.username,
+                type=user.__class__.__name__,
+            )
+        )
 
     ## Capitalize first letter of username for display
     username = (
         user.username[0].upper() if user.username[0].isalpha() else user.username[0]
     ) + user.username[1:]
-    return render_template("pages/user/settings.html", user=user, username=username, type= user.__class__.__name__)
+    return render_template(
+        "pages/user/settings.html",
+        user=user,
+        username=username,
+        type=user.__class__.__name__,
+    )
 
 
 @user_bp.route("/user/<string:username>/followers")
 @login_required
 def view_followers(username: str):
     repo = _repo()
+    session_username = session.get("user_name")
+    session_user_obj = (
+        repo.get_human_user_by_name(session_username)
+        or repo.get_pet_user_by_name(session_username)
+        or repo.get_temp_user_by_name(session_username)
+    )
     user = (
         repo.get_human_user_by_name(username)
         or repo.get_pet_user_by_name(username)
@@ -156,7 +176,12 @@ def view_followers(username: str):
     if not user:
         return "User not found", 404
     followers = repo.get_followers(user)
-    return render_template("pages/user/followers.html", user=user, followers=followers)
+    return render_template(
+        "pages/user/followers.html",
+        user=user,
+        followers=followers,
+        type=session_user_obj.__class__.__name__,
+    )
 
 
 @user_bp.route("/post/<int:post_id>/delete")

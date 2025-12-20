@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 from flask import (
     Blueprint,
@@ -16,6 +17,15 @@ feed_bp = Blueprint("feed", __name__)
 BATCH_SIZE = 8
 
 
+def _truncate_count(count: int) -> str:
+    if count >= 1_000_000:
+        return f"{count / 1000000:.1f}M"
+    elif count >= 1000:
+        return f"{count / 1000:.1f}K"
+    else:
+        return str(count)
+
+
 def _serialize_post(p):
     created = getattr(p, "created_at", "")
     if hasattr(created, "isoformat"):
@@ -24,9 +34,7 @@ def _serialize_post(p):
     if isinstance(media_path, Path):
         media_path = str(media_path)
 
-    user_id = (
-        getattr(p, "user_id", None)
-    )
+    user_id = getattr(p, "user_id", None)
     return {
         "id": int(getattr(p, "id", 0)),
         "user_id": int(user_id),
@@ -34,6 +42,8 @@ def _serialize_post(p):
         "created_at": created,
         "media_type": str(getattr(p, "media_type", "")),
         "media_path": str(media_path),
+        "likes_count": _truncate_count(len(getattr(p, "likes", []))),
+        "comments_count": _truncate_count(len(getattr(p, "comments", []))),
     }
 
 
@@ -95,12 +105,21 @@ def feed():
     all_posts.sort(key=lambda p: getattr(p, "created_at", None), reverse=True)
     initial = all_posts[:BATCH_SIZE]
 
-
     session_user_name = session.get("user_name")
-    session_user = _repo().get_pet_user_by_name(session_user_name) or _repo().get_human_user_by_name(session_user_name) or _repo().get_temp_user_by_name(session_user_name)
+    session_user = (
+        _repo().get_pet_user_by_name(session_user_name)
+        or _repo().get_human_user_by_name(session_user_name)
+        or _repo().get_temp_user_by_name(session_user_name)
+    )
     type = session_user.__class__.__name__
 
-    return render_template("pages/feed.html", posts=initial, type=type)
+    return render_template(
+        "pages/feed.html",
+        posts=initial,
+        type=type,
+        likes_count={p.id: len(getattr(p, "likes", []) or []) for p in initial},
+        comments_count={p.id: len(getattr(p, "comments", []) or []) for p in initial},
+    )
 
 
 @feed_bp.route("/api/feed")
@@ -276,6 +295,7 @@ def user(user_id: int):
             "following": repo.is_following(session_user.user_id, user.user_id),
             "session_user_id": session_user.user_id if session_user else None,
         }
+
     return jsonify(serialize(user))
 
 
