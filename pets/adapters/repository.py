@@ -115,7 +115,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_like(self, user: User, like: Like):
+    def add_like(self, user: User, post: Post):
         # Adds a Like to the repository.
         raise NotImplementedError
 

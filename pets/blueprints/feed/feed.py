@@ -75,7 +75,6 @@ def like_post(post_id: int):
         liked = False
     else:
         # not liked -> add (toggle on)
-
         repo.add_like(user, post)
         liked = True
 
