@@ -1,31 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const cards = document.querySelectorAll('.short-card');
 
-  function createHeartBurst(card) {
-    const heart = document.createElement('div');
-    heart.textContent = '❤';
-    Object.assign(heart.style, {
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      transform: 'translate(-50%,-50%) scale(0.3)',
-      fontSize: '4rem',
-      color: 'rgba(255,80,120,0.95)',
-      pointerEvents: 'none',
-      transition: 'transform 420ms cubic-bezier(.2,.9,.3,1), opacity 420ms',
-      opacity: '1',
-      zIndex: 40,
-      textShadow: '0 6px 20px rgba(0,0,0,0.35)'
-    });
-    if (getComputedStyle(card).position === 'static') {
-      card.style.position = 'relative';
-    }
-    card.appendChild(heart);
-    requestAnimationFrame(() => { heart.style.transform = 'translate(-50%,-60%) scale(1)'; });
-    setTimeout(() => { heart.style.opacity = '0'; heart.style.transform = 'translate(-50%,-80%) scale(1.2)'; }, 420);
-    setTimeout(() => heart.remove(), 900);
-  }
-
   async function sendLike(postId) {
     if (!postId) return;
     try {

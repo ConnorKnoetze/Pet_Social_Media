@@ -1,4 +1,3 @@
-// File: `pets/static/js/feed/comments.js`
 document.addEventListener('DOMContentLoaded', () => {
   const listEl = document.getElementById('commentsList');
   let currentPostId = null;
@@ -208,6 +207,16 @@ document.addEventListener('DOMContentLoaded', () => {
       listEl.insertAdjacentHTML('afterbegin', buildCommentHTML(c));
       textarea.value = '';
       setStatus('Posted', 'success');
+
+      // Update comments counter on the post card
+      const card = document.querySelector(`.short-card[data-id="${currentPostId}"]`);
+      if (card) {
+        const commentCounter = card.querySelector('.engagement-item:nth-child(2)');
+        if (commentCounter) {
+          let count = parseInt(commentCounter.textContent) || 0;
+          commentCounter.textContent = `💬 ${count + 1}`;
+        }
+      }
     } catch (err) {
       console.error(err);
       setStatus(err.message || 'Failed', 'error');

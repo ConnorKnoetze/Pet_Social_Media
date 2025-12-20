@@ -17,7 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{}'
-    }).catch(err => console.error('Like failed', err));
+    })
+    .then(res => res.json())
+    .then(data => {
+      const card = container.querySelector(`.short-card[data-id="${postId}"]`);
+      if (!card) return;
+
+      const likeSpan = card.querySelector('.engagement-item:first-child');
+      if (likeSpan && typeof data.likes_count === 'number') {
+        likeSpan.textContent = `❤️ ${data.likes_count}`;
+      }
+    })
+    .catch(err => console.error('Like failed', err));
   }
 
   (async function restoreLastPostOnLoad() {
@@ -90,21 +101,15 @@ document.addEventListener('DOMContentLoaded', () => {
     media.style.cursor = 'pointer';
     media.style.touchAction = 'manipulation';
     let lastTapTime = 0;
+    let likeInProgress = false;
 
     function likePost() {
+      if (likeInProgress) return;
+      likeInProgress = true;
       const pid = card.dataset.id;
       createHeartBurst(card);
       sendLike(pid);
-    }
-
-    function handleImageTap() {
-      const now = Date.now();
-      if (now - lastTapTime < DOUBLE_TAP_THRESHOLD) {
-        lastTapTime = 0;
-        likePost();
-      } else {
-        lastTapTime = now;
-      }
+      setTimeout(() => { likeInProgress = false; }, DOUBLE_TAP_THRESHOLD);
     }
 
     if (video) {
@@ -142,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hold) {
           video.playbackRate = NORMAL_RATE;
         } else {
-            handleTapVideo();
+          handleTapVideo();
         }
       }
 
@@ -159,40 +164,37 @@ document.addEventListener('DOMContentLoaded', () => {
       video.addEventListener('pointerleave', cancelHold);
       video.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
     } else if (img) {
-      img.addEventListener('pointerup', handleImageTap); // keep touch double-tap detection
-      // unified click/dblclick handling for mouse + fallback for touch
+      let isProcessing = false;
       let clickTimer = null;
-      const CLICK_DELAY = DOUBLE_TAP_THRESHOLD;
 
-      function navigateToPost() {
-        const target = img.dataset.href || `/post/${card.dataset.id}`;
-        try {
-          // store clicked post id in the current history entry so the feed can restore it on back
-          const newState = Object.assign({}, history.state, { lastPost: card.dataset.id });
-          history.replaceState(newState, document.title, window.location.href);
-        } catch (e) { /* ignore if blocked */ }
-        window.location.href = target;
+      function handleImageTap(e) {
+        if (isProcessing) return;
+
+        const now = Date.now();
+        const isDoubleTap = now - lastTapTime < DOUBLE_TAP_THRESHOLD;
+        lastTapTime = now;
+
+        if (isDoubleTap) {
+          isProcessing = true;
+          likePost();
+          setTimeout(() => { isProcessing = false; }, DOUBLE_TAP_THRESHOLD);
+          return;
+        }
       }
 
-      // mouse click path: single click navigates, dblclick likes
+      img.addEventListener('pointerup', handleImageTap);
+
       img.addEventListener('click', (e) => {
-        // ignore if pointerup already handled a touch double-tap
         if (clickTimer) {
           clearTimeout(clickTimer);
           clickTimer = null;
-          likePost();
           return;
         }
         clickTimer = setTimeout(() => {
           clickTimer = null;
-          navigateToPost();
-        }, CLICK_DELAY);
-      });
-
-      img.addEventListener('dblclick', (e) => {
-        e.preventDefault();
-        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
-        likePost();
+          const target = img.dataset.href || `/post/${card.dataset.id}`;
+          window.location.href = target;
+        }, DOUBLE_TAP_THRESHOLD);
       });
     }
 

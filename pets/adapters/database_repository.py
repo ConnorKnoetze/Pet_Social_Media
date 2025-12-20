@@ -329,17 +329,33 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             )
             return comments
 
-    def add_like(self, user: User, like: Like):
-        print(user)
+    def get_max_like_id(self) -> int:
+        with self._session_cm as scm:
+            max_id = scm.session.scalar(select(func.max(like_table.c.id)))
+            return 1 if max_id is None else int(max_id) + 1
+
+    def create_like(self, user: User, post: Post) -> Like:
+        from datetime import datetime
+        max_like_id = self.get_max_like_id()
+        return Like(
+            id=max_like_id + 1,
+            user_id=user.user_id,
+            post_id=post.id,
+            created_at=datetime.now(),
+        )
+
+    def add_like(self, user: User, post: Post):
+        like = self.create_like(user, post)
         with self._session_cm as scm:
             with scm.session.no_autoflush:
-                scm.session.merge(like)
+                scm.session.add(like)
             scm.commit()
 
-    def delete_like(self, post: Post, user: User):
+    def delete_like(self, user: User, post: Post):
+        print("deleting like for post", post.id, "by user", user.user_id)
         with self._session_cm as scm:
             try:
-                like = (
+                db_like = (
                     scm.session.query(Like)
                     .filter(
                         like_table.c.post_id == post.id,
@@ -348,10 +364,10 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                     .one()
                 )
                 with scm.session.no_autoflush:
-                    scm.session.delete(like)
+                    scm.session.delete(db_like)
                 scm.commit()
             except NoResultFound:
-                # nothing to delete
+                print(f"Like not found for post {post.id} by user {user.user_id}")
                 scm.rollback()
 
     def delete_comment(self, user: User, comment: Comment):
