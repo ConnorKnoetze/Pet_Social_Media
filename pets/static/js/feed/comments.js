@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const listEl = document.getElementById('commentsList');
   let currentPostId = null;
+  let currentUserId = null;
   let inflight = null;
   const form = document.getElementById('commentForm');
   const textarea = document.getElementById('commentText');
@@ -62,8 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const created = c.created_at || '';
     const profile = c.profile_picture_path || '';
     const likes = typeof c.likes === 'number' ? c.likes : 0;
-    // include data-comment-id if available
+    const canDelete = !!c.can_delete;
     const commentIdAttr = c.id ? `data-comment-id="${escapeHtml(String(c.id))}"` : '';
+
+    // Conditionally include delete button
+    const deleteBtn = canDelete
+      ? `<button class="comment-delete" type="button" aria-label="Delete comment"><img src="/static/images/assets/trash-can.png" alt="delete"></button>`
+      : '';
+
     return `<li class="comment-item" data-user-id="${escapeHtml(String(c.user_id||''))}" ${commentIdAttr}>
         ${avatarMarkup(author, profile)}
         <div class="comment-body">
@@ -73,11 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="comment-actions">
           <button class="comment-like" type="button" aria-label="Like comment">Like</button>
+          ${deleteBtn}
         </div>
       </li>`;
   }
 
-  function renderComments(comments) {
+  function renderComments(comments, currentUserId) {
     if (!comments.length) return renderEmpty();
     listEl.setAttribute('aria-busy','false');
     listEl.innerHTML = comments.map(buildCommentHTML).join('');
@@ -92,8 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
     inflight = fetch(`/api/comments/${pid}`)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
+        currentUserId = data.current_user_id || null;
         if (String(data.post_id) !== currentPostId) return; // stale
-        renderComments(data.comments || []);
+        renderComments(data.comments || [], currentUserId);
       })
       .catch(err => {
         console.error('Comments load failed', err);
@@ -164,6 +173,58 @@ document.addEventListener('DOMContentLoaded', () => {
       likesEl.textContent = `${originalCount}❤`;
       btn.disabled = originalDisabled;
       btn.textContent = originalText;
+    }
+  });
+
+  listEl.addEventListener('click', async e => {
+    const btn = e.target.closest('.comment-delete');
+    if (!btn) return;
+    const item = btn.closest('.comment-item');
+    if (!item) return;
+
+    const commentId = item.dataset && item.dataset.commentId;
+    const postId = currentPostId;
+    if (!postId || !commentId) {
+      console.error('Cannot delete comment: missing post or comment id');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      const res = await fetch(`/delete/post/${encodeURIComponent(postId)}/comment/${encodeURIComponent(commentId)}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(()=>null);
+        const msg = errBody && errBody.error ? errBody.error : `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+
+      // Remove comment from DOM
+      item.remove();
+
+      // If no comments left, show empty message
+      if (listEl.querySelectorAll('.comment-item').length === 0) {
+        renderEmpty();
+      }
+
+      // Update comments counter on the post card
+      const card = document.querySelector(`.short-card[data-id="${currentPostId}"]`);
+      if (card) {
+        const commentCounter = card.querySelector('.engagement-item:nth-child(2)');
+        if (commentCounter) {
+          let count = parseInt(commentCounter.textContent) || 0;
+          count = Math.max(0, count - 1);
+          commentCounter.textContent = `💬 ${count}`;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete comment', err);
+      alert(`Failed to delete comment: ${err.message || 'Unknown error'}`);
     }
   });
 

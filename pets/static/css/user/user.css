@@ -179,6 +179,7 @@ p{
   width: 14px;
   height: 14px;
   pointer-events: none;
+  filter: brightness(var(--brightness));
 }
 
 /* follow button */

@@ -81,6 +81,23 @@
 .comment-like:hover { background: var(--color-accent); color: #fff; }
 .comment-like:active { transform: scale(.94); }
 
+
+.comment-delete {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.45rem;
+    border-radius: 8px;
+    background: var(--btn-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    border: none;
+}
+.comment-delete img {
+    width: 12px;
+    height: 12px;
+    filter: brightness(var(--brightness));
+}
+
+
 .empty { opacity: .55; font-style: italic; grid-column: 1 / -1; text-align: center; padding: 0.75rem .5rem; background: none; border: none; }
 
 /* Skeleton loading */

@@ -367,7 +367,6 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                     scm.session.delete(db_like)
                 scm.commit()
             except NoResultFound:
-                print(f"Like not found for post {post.id} by user {user.user_id}")
                 scm.rollback()
 
     def delete_comment(self, user: User, comment: Comment):
