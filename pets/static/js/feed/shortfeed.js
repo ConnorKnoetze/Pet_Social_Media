@@ -9,87 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const PREFETCH_THRESHOLD = 3;
   let activePostId = null;
 
-  const DOUBLE_TAP_THRESHOLD = 300;
-
-  function sendLike(postId) {
-    if (!postId) return;
-    fetch(`/api/posts/${encodeURIComponent(postId)}/like`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{}'
-    })
-    .then(res => res.json())
-    .then(data => {
-      const card = container.querySelector(`.short-card[data-id="${postId}"]`);
-      if (!card) return;
-
-      const likeSpan = card.querySelector('.engagement-item:first-child');
-      if (likeSpan && typeof data.likes_count === 'number') {
-        likeSpan.textContent = `❤️ ${data.likes_count}`;
-      }
-    })
-    .catch(err => console.error('Like failed', err));
-  }
-
-  (async function restoreLastPostOnLoad() {
-    if (!(container && history.state && history.state.lastPost)) return;
-    const last = history.state.lastPost;
-    const MAX_ATTEMPTS = 12;
-    const PAUSE_MS = 120;
-    const delay = ms => new Promise(r => setTimeout(r, ms));
-
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const card = container.querySelector(`.short-card[data-id="${last}"]`);
-      if (card) {
-        if (window.setActivePostComments) window.setActivePostComments(last);
-        if (card.dataset.userId && window.setActivePostUser) window.setActivePostUser(card.dataset.userId);
-        card.scrollIntoView({ behavior: 'auto', block: 'center' });
-        break;
-      }
-
-      if (hasMore) {
-        try {
-          await loadBatch();
-        } catch (e) {
-          console.error('restoreLastPost loadBatch failed', e);
-          break;
-        }
-        await delay(PAUSE_MS);
-        continue;
-      }
-      break;
-    }
-
-    try {
-      const cleared = Object.assign({}, history.state, { lastPost: undefined });
-      history.replaceState(cleared, document.title, window.location.href);
-    } catch (e) { /* ignore */ }
-  })();
-
-  function createHeartBurst(card) {
-    const heart = document.createElement('div');
-    heart.textContent = '❤';
-    Object.assign(heart.style, {
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      transform: 'translate(-50%,-50%) scale(0.3)',
-      fontSize: '4rem',
-      color: 'rgba(255,80,120,0.95)',
-      pointerEvents: 'none',
-      transition: 'transform 420ms cubic-bezier(.2,.9,.3,1), opacity 420ms',
-      opacity: '1',
-      zIndex: 40,
-      textShadow: '0 6px 20px rgba(0,0,0,0.35)'
-    });
-    if (getComputedStyle(card).position === 'static') {
-      card.style.position = 'relative';
-    }
-    card.appendChild(heart);
-    requestAnimationFrame(() => { heart.style.transform = 'translate(-50%,-60%) scale(1)'; });
-    setTimeout(() => { heart.style.opacity = '0'; heart.style.transform = 'translate(-50%,-80%) scale(1.2)'; }, 420);
-    setTimeout(() => heart.remove(), 900);
-  }
+  const DOUBLE_TAP_THRESHOLD = 150;
+  const userPausedVideos = new WeakSet();
+  const FLASH_MS = 800;
 
   function initLikeForCard(card) {
     if (!card || card.dataset.likeInit) return;
@@ -113,6 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (video) {
+      const pauseBtn = card.querySelector('.video-pause-button');
+      let playBtn = card.querySelector('.video-play-button');
+      if (!playBtn) {
+        playBtn = document.createElement('span');
+        playBtn.className = 'video-play-button';
+        const icon = document.createElement('img');
+        icon.src = '/static/images/assets/play-buttton.png';
+        icon.alt = 'play-button';
+        playBtn.appendChild(icon);
+        (card.querySelector('.post-wrapper') || card).appendChild(playBtn);
+      }
+
+      function flashOverlay(btn) {
+        if (!btn) return;
+        btn.style.opacity = '1';
+        btn.style.visibility = 'visible';
+        btn.style.pointerEvents = 'none';
+        clearTimeout(btn.__hideTimer);
+        btn.__hideTimer = setTimeout(() => {
+          btn.style.opacity = '0';
+          btn.style.visibility = 'hidden';
+        }, FLASH_MS);
+      }
+
       const NORMAL_RATE = 1;
       const FAST_RATE = 2;
       const HOLD_THRESHOLD = 350;
@@ -131,15 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, HOLD_THRESHOLD);
       }
 
-      function handleTapVideo() {
+      async function handleTapVideo() {
         const now = Date.now();
         if (now - lastTapTime < DOUBLE_TAP_THRESHOLD) {
           lastTapTime = 0;
           likePost();
-        } else {
-          video.paused ? video.play() : video.pause();
-          lastTapTime = now;
+          return;
         }
+        try {
+          if (video.paused) await video.play(); else video.pause();
+        } catch (err) { console.error('Video toggle failed', err); }
+        lastTapTime = now;
       }
 
       function endPointer() {
@@ -156,35 +104,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hold) video.playbackRate = NORMAL_RATE;
       }
 
-      video.addEventListener('pause', () => video.classList.add('paused'));
-      video.addEventListener('play', () => video.classList.remove('paused'));
+      video.addEventListener('pause', () => {
+        video.classList.add('paused');
+        userPausedVideos.add(video);
+        flashOverlay(pauseBtn);
+      });
+      video.addEventListener('play', () => {
+        video.classList.remove('paused');
+        userPausedVideos.delete(video);
+        flashOverlay(playBtn);
+      });
       video.addEventListener('pointerdown', startHoldTimer);
       video.addEventListener('pointerup', endPointer);
       video.addEventListener('pointercancel', cancelHold);
       video.addEventListener('pointerleave', cancelHold);
-      video.addEventListener('dblclick', e => { e.preventDefault(); likePost(); });
     } else if (img) {
       let isProcessing = false;
       let clickTimer = null;
 
-      function handleImageTap(e) {
+      function handleImageTap() {
         if (isProcessing) return;
-
         const now = Date.now();
         const isDoubleTap = now - lastTapTime < DOUBLE_TAP_THRESHOLD;
         lastTapTime = now;
-
         if (isDoubleTap) {
           isProcessing = true;
           likePost();
           setTimeout(() => { isProcessing = false; }, DOUBLE_TAP_THRESHOLD);
-          return;
         }
       }
 
       img.addEventListener('pointerup', handleImageTap);
-
-      img.addEventListener('click', (e) => {
+      img.addEventListener('click', () => {
         if (clickTimer) {
           clearTimeout(clickTimer);
           clickTimer = null;
@@ -284,7 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const vid = e.target.querySelector('video');
       if (!vid) return;
       if (e.isIntersecting) {
-        if (vid.paused) vid.play().catch(()=>{});
+        if (!vid.paused && !vid.ended) return;
+        if (!userPausedVideos.has(vid)) {
+          vid.play().catch(() => {});
+        }
       } else if (!vid.paused) {
         vid.pause();
       }

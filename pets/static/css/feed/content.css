@@ -89,6 +89,103 @@ img {
   font-size: 0.85rem;
 }
 
+.video-fullscreen-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width:25px;
+    height:25px;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid transparent;
+    border-radius: 15px;
+    cursor: pointer;
+    z-index: 5;
+    padding: 0.30rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, visibility .15s;
+}
+
+.video-fullscreen-button:hover{
+    background: var(--color-accent);
+    border: 1px solid white;
+    transform: translateY(-2px) scale(1.03);
+    transition: border-color .15s ease, filter .15s ease, transform .15s ease;
+}
+
+.video-fullscreen-button img {
+    width:21px;
+    height:21px;
+    filter: invert(100%);
+}
+
+.post-wrapper:hover .video-fullscreen-button,
+.post-wrapper .video:hover + .video-fullscreen-button {
+    opacity: 1;
+    pointer-events: all;
+    visibility: visible;
+}
+
+.video-play-button {
+  display: flex;
+  position: absolute;
+  width:50px;
+  height:50px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  z-index: 99;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease, visibility .15s;
+}
+
+.video-play-button img {
+    width: 45px;
+    height: 45px;
+    border-radius: 0;
+    filter: invert(100%);
+}
+
+
+.video-pause-button {
+  display: flex;
+  position: absolute;
+  width:50px;
+  height:50px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  z-index: 99;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease, visibility .15s;
+}
+
+.video-pause-button img {
+    filter: invert(100%);
+}
+
 @media (max-width: 760px) {
   .video{
     min-width: 20rem;

@@ -176,6 +176,8 @@ def finalize_upload():
         else "video",
     )
 
+    print(post.media_type)
+
     _repo().add_post(user, post)
 
     resp = {

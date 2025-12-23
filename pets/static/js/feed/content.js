@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const cards = document.querySelectorAll('.short-card');
 
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Prevent iOS double-tap zoom (once)
+  // Prevent iOS double-tap zoom
   (function preventIOSZoom() {
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (e) => {
@@ -31,12 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   cards.forEach(card => {
     const video = card.querySelector('video');
-    const img = !video ? card.querySelector('img') : null;
-    const media = video || img;
-    if (!media) return;
+    if (video) return; // video behavior handled elsewhere
 
-    media.style.cursor = 'pointer';
-    media.style.touchAction = 'manipulation';
+    const img = card.querySelector('img');
+    if (!img) return;
+
+    img.style.cursor = 'pointer';
+    img.style.touchAction = 'manipulation';
     let lastTapTime = 0;
 
     function likePost() {
@@ -55,69 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (video) {
-      const NORMAL_RATE = 1;
-      const FAST_RATE = 2;
-      const HOLD_THRESHOLD = 350;
-      video.playbackRate = NORMAL_RATE;
-
-      let hold = false;
-      let holdTimer = null;
-
-      function startHoldTimer() {
-        hold = false;
-        clearTimeout(holdTimer);
-        holdTimer = setTimeout(() => {
-          hold = true;
-          if (video.paused) video.play();
-          video.playbackRate = FAST_RATE;
-        }, HOLD_THRESHOLD);
-      }
-
-      function handleTapVideo() {
-        const now = Date.now();
-        if (now - lastTapTime < DOUBLE_TAP_THRESHOLD) {
-          lastTapTime = 0;
-          likePost();
-        } else {
-          video.paused ? video.play() : video.pause();
-          lastTapTime = now;
-        }
-      }
-
-      function endPointer() {
-        clearTimeout(holdTimer);
-        if (hold) {
-          video.playbackRate = NORMAL_RATE;
-        } else {
-          handleTapVideo();
-        }
-      }
-
-      function cancelHold() {
-        clearTimeout(holdTimer);
-        if (hold) video.playbackRate = NORMAL_RATE;
-      }
-
-      video.addEventListener('pause', () => video.classList.add('paused'));
-      video.addEventListener('play', () => video.classList.remove('paused'));
-
-      video.addEventListener('pointerdown', startHoldTimer);
-      video.addEventListener('pointerup', endPointer);
-      video.addEventListener('pointercancel', cancelHold);
-      video.addEventListener('pointerleave', cancelHold);
-
-      video.addEventListener('dblclick', e => {
-        e.preventDefault();
-        likePost();
-      });
-    } else if (img) {
-      // Image: only double-tap / dblclick like
-      img.addEventListener('pointerup', () => handleTapForImage());
-      img.addEventListener('dblclick', e => {
-        e.preventDefault();
-        likePost();
-      });
-    }
+    img.addEventListener('pointerup', handleTapForImage);
+    img.addEventListener('dblclick', e => {
+      e.preventDefault();
+      likePost();
+    });
   });
 });
