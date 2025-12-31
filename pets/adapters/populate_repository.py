@@ -20,7 +20,9 @@ def populate(repo: AbstractRepository, database_mode: bool = False):
         repo.add_multiple_likes(data_reader.likes)
         print("done populating likes")
         print("populating followers...")
-        repo.add_multiple_followers([(u.user_id, u.follower_ids) for u in data_reader.users])
+        repo.add_multiple_followers(
+            [(u.user_id, u.follower_ids) for u in data_reader.users]
+        )
         print("done populating followers")
     else:
         # Memory mode: simple population

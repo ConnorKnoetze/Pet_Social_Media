@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
       || document.getElementById('userFollowersCount')
       || document.querySelector('[data-user-followers]');
     let currentUserId = null;
+    let session_user_id = null;
     let inflight = null;
     let currentUserData = null;
 

@@ -1,4 +1,5 @@
 """App entry point."""
+
 import os
 
 from pets import create_app
@@ -9,7 +10,9 @@ app = create_app()
 
 if __name__ == "__main__":
     load_dotenv()
-    if not os.path.exists("pets/static/images/backgrounds/dark") or not os.path.exists("pets/static/images/backgrounds/light"):
+    if not os.path.exists("pets/static/images/backgrounds/dark") or not os.path.exists(
+        "pets/static/images/backgrounds/light"
+    ):
         print("Creating background images...")
         create_backgrounds()
     else:

@@ -51,7 +51,7 @@ class Post:
         self.__media_type = media_type
 
     def __str__(self):
-        return f"Post {self.id} by User {self.user_id}: '{self.caption}' with {len(self.likes)} likes and {len(self.comments)} comments."
+        return f"Post {self.id} by User {self.user_id}: '{self.caption}' with {len(self.likes)} likes and {len(self.comments)} comments and media type {self.media_type}."
 
     def __eq__(self, other):
         if not isinstance(other, Post):

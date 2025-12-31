@@ -17,6 +17,7 @@ upload_bp = Blueprint("upload", __name__)
 TEMP_UPLOAD_FOLDER = "pets/static/images/uploads/temp_uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp4", "mov", "avi"}
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -121,7 +122,9 @@ def finalize_upload():
         return jsonify({"error": "Invalid or unauthorized url"}), 400
 
     filename = url.rsplit("/", 1)[-1]
-    temp_path = os.path.join("pets", "static", "images", "uploads", "temp_uploads", user_name, filename)
+    temp_path = os.path.join(
+        "pets", "static", "images", "uploads", "temp_uploads", user_name, filename
+    )
 
     if not os.path.exists(temp_path):
         return jsonify({"error": "File not found"}), 404
@@ -138,14 +141,20 @@ def finalize_upload():
         return jsonify({"error": "Could not move file", "details": str(e)}), 500
 
     # Remove the user's temp uploads directory
-    temp_user_dir = os.path.join("pets", "static", "images", "uploads", "temp_uploads", user_name)
+    temp_user_dir = os.path.join(
+        "pets", "static", "images", "uploads", "temp_uploads", user_name
+    )
     temp_removed = False
     temp_remove_error = None
     try:
         # Safety check to avoid accidental deletes
         expected_prefix = os.path.join("pets", "static", "images", "uploads")
         expected_suffix = os.path.join("temp_uploads", user_name)
-        if temp_user_dir.startswith(expected_prefix) and temp_user_dir.endswith(expected_suffix) and os.path.isdir(temp_user_dir):
+        if (
+            temp_user_dir.startswith(expected_prefix)
+            and temp_user_dir.endswith(expected_suffix)
+            and os.path.isdir(temp_user_dir)
+        ):
             shutil.rmtree(temp_user_dir)
             temp_removed = True
     except Exception as e:
@@ -162,8 +171,12 @@ def finalize_upload():
         caption=caption,
         tags=[tag.strip() for tag in tags.split(",") if tag.strip()],
         media_path=media_path,
-        media_type="photo" if filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"} else "video",
+        media_type="photo"
+        if filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+        else "video",
     )
+
+    print(post.media_type)
 
     _repo().add_post(user, post)
 

@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -6,6 +7,7 @@ from pets.adapters.repository import AbstractRepository
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from pets.domainmodel.PetUser import PetUser
+from pets.domainmodel.TempUser import TempUser
 from pets.domainmodel.User import User
 
 
@@ -33,7 +35,9 @@ def add_user(user_name: str, email: str, password: str):
         raise ValueError("username is required")
 
     username_clean = user_name.strip()
-    existing = repo.get_pet_user_by_name(username_clean)
+    existing = repo.get_pet_user_by_name(username_clean) or repo.get_human_user_by_name(
+        username_clean
+    )
 
     if existing is not None:
         raise NameNotUniqueException
@@ -43,39 +47,60 @@ def add_user(user_name: str, email: str, password: str):
 
     password_hash = generate_password_hash(password)
 
-    new_user = PetUser(
-        username=username_clean,
-        email=email,
-        password_hash=password_hash,
-        profile_picture_path=None,
-        created_at=datetime.now(),
-    )
+    testing = True
 
-    repo.add_pet_user(new_user)
+    if testing:
+        new_user = TempUser(
+            user_id=repo.get_temp_user_max_id() + 1,
+            username=username_clean,
+            email=email,
+            password_hash=password_hash,
+            bio="No Bio",
+            created_at=datetime.now(),
+        )
+        repo.add_temp_user(new_user)
+    else:
+        new_user = PetUser(
+            username=username_clean,
+            email=email,
+            password_hash=password_hash,
+            profile_picture_path=None,
+            created_at=datetime.now(),
+        )
+        repo.add_pet_user(new_user)
+
     return new_user
 
 
 def get_user(user_name: str, repo: AbstractRepository):
-    user = repo.get_pet_user_by_name(user_name)
+    user = (
+        repo.get_pet_user_by_name(user_name)
+        or repo.get_human_user_by_name(user_name)
+        or repo.get_temp_user_by_name(user_name)
+    )
 
     if user is None:
         print(
             f"DEBUG: get_user - no user for '{user_name}' (repo: {repo.__class__.__name__})"
         )
         raise UnknownUserException
-    return user_to_dict(user)
+    return user_to_dict(user), True if isinstance(user, TempUser) else False
 
 
 def authenticate_user(user_name: str, password: str, repo: AbstractRepository):
     authenticated = False
-    user = repo.get_pet_user_by_name(user_name)
+    user = (
+        repo.get_pet_user_by_name(user_name)
+        or repo.get_human_user_by_name(user_name)
+        or repo.get_temp_user_by_name(user_name)
+    )
     if user is None:
         print(
             f"DEBUG: authenticate_user - no user for '{user_name}' (repo: {repo.__class__.__name__})"
         )
     else:
         print(
-            f"DEBUG: authenticate_user - found user id={getattr(user, 'id', None)} username={getattr(user, 'username', None)}"
+            f"DEBUG: authenticate_user - found user id={getattr(user, 'user_id', None)} username={getattr(user, 'username', None)}"
         )
         authenticated = check_password_hash(user.password_hash, password)
     if not authenticated:
@@ -83,7 +108,11 @@ def authenticate_user(user_name: str, password: str, repo: AbstractRepository):
 
 
 def get_user_by_id(user_id, repo: AbstractRepository):
-    user = repo.get_pet_user_by_id(user_id)
+    user = (
+        repo.get_pet_user_by_id(user_id)
+        or repo.get_human_user_by_id(user_id)
+        or repo.get_temp_user_by_id(user_id)
+    )
     if user is None:
         raise UnknownUserException
     return user_to_dict(user)

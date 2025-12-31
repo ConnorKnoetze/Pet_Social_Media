@@ -6,17 +6,18 @@ from werkzeug.utils import secure_filename
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 PFP_FOLDER = PROJECT_ROOT / "static" / "images" / "uploads" / "profile_pictures"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 if not os.path.exists(PFP_FOLDER):
     os.makedirs(PFP_FOLDER, exist_ok=True)
 
+
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def save_file(file, user):
     """Save an uploaded file to the appropriate user directory and return its URL path."""
     if file and allowed_file(file.filename):
-
         ## Remove existing profile pictures for the user
         if not os.path.exists(PFP_FOLDER / user.username):
             os.makedirs(PFP_FOLDER / user.username, exist_ok=True)
@@ -36,3 +37,18 @@ def save_file(file, user):
             user.profile_picture_path = url_for(
                 "static", filename=str(rel_path).replace("\\", "/")
             )
+
+
+UPLOADS_FOLDER_DIR = PROJECT_ROOT / "static" / "images" / "uploads"
+
+
+def clean_up(username: str):
+    """Clean Up user video Thumbnails folder."""
+    if not username:
+        return
+    user_thumbnail_folder = UPLOADS_FOLDER_DIR / username / "thumbnails"
+    if os.path.exists(user_thumbnail_folder):
+        for f in os.listdir(user_thumbnail_folder):
+            file_path = user_thumbnail_folder / f
+            if os.path.isfile(file_path):
+                os.remove(file_path)

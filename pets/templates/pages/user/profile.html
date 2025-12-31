@@ -32,7 +32,7 @@
             </div>
             <script>
             document.addEventListener('DOMContentLoaded', () => {
-              const userId = {{ user.id | tojson }};
+              const userId = {{ user.user_id | tojson }};
               function callWhenReady() {
                 if (typeof window.setActivePostUser === 'function') {
                   try { window.setActivePostUser(userId); } catch (e) { console.error('setActivePostUser call failed', e); }
@@ -46,12 +46,23 @@
             <div class="posts-grid">
               {% for post_path_tuple in post_path_tuples %}
               <div class="post-item">
+                  {%if user.username == session.get('user_name')%}
+                      <div class="delete-post-btn">
+                          <a href="/post/{{ post_path_tuple[0].id }}/delete" aria-label="Delete post" title="Delete post">
+                            <img src="/static/images/assets/trash-can.png" alt="trash-can">
+                          </a>
+                      </div>
+                  {% endif %}
                   <a href="/post/{{post_path_tuple[0].id}}">
                     <img src="{{post_path_tuple[1]}}" alt="post image" loading="lazy">
                   </a>
               </div>
               {% else %}
-              <p>No posts yet.</p>
+              {% if session.get("is_temp") and session.get("user_name") == user.username %}
+                <p>Finish setting up your account</p>
+              {% elif user.__class__.__name__ == "PetUser" %}
+                <p>No posts yet.</p>
+              {% endif %}
               {% endfor %}
             </div>
         </section>

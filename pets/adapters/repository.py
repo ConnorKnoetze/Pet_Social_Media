@@ -115,7 +115,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_like(self, user: User, like: Like):
+    def add_like(self, user: User, post: Post):
         # Adds a Like to the repository.
         raise NotImplementedError
 
@@ -177,4 +177,19 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def get_followers(self, user: User) -> List[User]:
         # Retrieves the followers of a given user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_video_thumbnail(self, post: Post, user: User) -> Post:
+        # Retrieves the thumbnail for a video post.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def delete_post(self, user: User, post: Post):
+        # Deletes a Post from the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_all_posts(self) -> List[type[Post]]:
+        # Retrieves all Posts in the repository.
         raise NotImplementedError

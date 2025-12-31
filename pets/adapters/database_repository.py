@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from pets.adapters.repository import AbstractRepository
 from pets.domainmodel.User import User
 from pets.domainmodel.PetUser import PetUser
+from pets.domainmodel.HumanUser import HumanUser
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
 from pets.domainmodel.Like import Like
@@ -58,11 +59,13 @@ class SessionContextManager:
 
 
 class SqlAlchemyRepository(AbstractRepository, ABC):
+    _temp_users: List[User]
+
     def __init__(self, session_factory, database_uri: str):
         self._session_cm = SessionContextManager(session_factory)
         self._engine = create_engine(database_uri, future=True)
         self._session_factory = sessionmaker(bind=self._engine, expire_on_commit=False)
-
+        self._temp_users = []
 
     def add_multiple_pet_users(self, users: List[PetUser]):
         with self._session_cm as scm:
@@ -140,7 +143,14 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             except NoResultFound:
                 return None
 
-    def create_post(self, user: PetUser, caption:str, tags:List[str], media_path:Path, media_type:str) -> Post:
+    def create_post(
+        self,
+        user: PetUser,
+        caption: str,
+        tags: List[str],
+        media_path: Path,
+        media_type: str,
+    ) -> Post:
         from datetime import datetime, UTC
 
         with self._session_cm as scm:
@@ -319,17 +329,33 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
             )
             return comments
 
-    def add_like(self, user: User, like: Like):
-        print(user)
+    def get_max_like_id(self) -> int:
+        with self._session_cm as scm:
+            max_id = scm.session.scalar(select(func.max(like_table.c.id)))
+            return 1 if max_id is None else int(max_id) + 1
+
+    def create_like(self, user: User, post: Post) -> Like:
+        from datetime import datetime
+        max_like_id = self.get_max_like_id()
+        return Like(
+            id=max_like_id + 1,
+            user_id=user.user_id,
+            post_id=post.id,
+            created_at=datetime.now(),
+        )
+
+    def add_like(self, user: User, post: Post):
+        like = self.create_like(user, post)
         with self._session_cm as scm:
             with scm.session.no_autoflush:
-                scm.session.merge(like)
+                scm.session.add(like)
             scm.commit()
 
-    def delete_like(self, post: Post, user: User):
+    def delete_like(self, user: User, post: Post):
+        print("deleting like for post", post.id, "by user", user.user_id)
         with self._session_cm as scm:
             try:
-                like = (
+                db_like = (
                     scm.session.query(Like)
                     .filter(
                         like_table.c.post_id == post.id,
@@ -338,10 +364,9 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                     .one()
                 )
                 with scm.session.no_autoflush:
-                    scm.session.delete(like)
+                    scm.session.delete(db_like)
                 scm.commit()
             except NoResultFound:
-                # nothing to delete
                 scm.rollback()
 
     def delete_comment(self, user: User, comment: Comment):
@@ -363,26 +388,36 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 scm.rollback()
 
     def get_posts_thumbnails(self, user_id: int) -> List[dict]:
+        user = self.get_pet_user_by_id(user_id)
         with self._session_cm as scm:
             posts = (
                 scm.session.query(Post)
                 .filter(
                     posts_table.c.user_id == user_id,
-                    posts_table.c.media_type == "photo",
                 )
                 .all()
             )
             posts.sort(key=lambda p: p.created_at, reverse=True)
-            return [
-                {
-                    "id": post.id,
-                    "media_path": str(post.media_path)
-                    if hasattr(post, "media_path")
-                    else None,
-                    "media_type": getattr(post, "media_type", None),
-                }
-                for post in posts
-            ]
+            return_posts = []
+            for post in posts:
+                if post.media_type == "photo":
+                    return_posts.append(
+                        {
+                            "id": post.id,
+                            "media_path": str(post.media_path),
+                            "media_type": post.media_type,
+                        }
+                    )
+                else:
+                    video_post_thumbnail = self.get_video_thumbnail(post, user)
+                    return_posts.append(
+                        {
+                            "id": post.id,
+                            "media_path": str(video_post_thumbnail.media_path),
+                            "media_type": video_post_thumbnail.media_type,
+                        }
+                    )
+            return return_posts
 
     def next_comment_id(self) -> int:
         with self._session_cm as scm:
@@ -493,7 +528,7 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
                 .join(
                     user_following_table,
                     users_table.c.id == user_following_table.c.follower_id,
-                    )
+                )
                 .filter(user_following_table.c.followee_id == target_id)
                 .all()
             )
@@ -503,9 +538,201 @@ class SqlAlchemyRepository(AbstractRepository, ABC):
         with self._session_cm as scm:
             for followee_id, follower_ids in follower_id_lists:
                 for follower_id in follower_ids:
-                    follower = self.get_pet_user_by_id(follower_id) or self.get_human_user_by_id(follower_id)
+                    follower = self.get_pet_user_by_id(
+                        follower_id
+                    ) or self.get_human_user_by_id(follower_id)
                     followee = self.get_pet_user_by_id(followee_id)
                     if follower is None or followee is None:
                         continue
                     self.follow_user(follower, followee)
             scm.commit()
+
+    def get_video_thumbnail(self, post: Post, user: User) -> Post:
+        import os
+        from pathlib import Path
+        from uuid import uuid4
+        from PIL import Image
+        import cv2
+
+        video_path = Path(post.media_path)
+        final_path = video_path
+        video_path = os.path.join("pets", video_path)
+
+        if not os.path.exists(video_path):
+            print("Path does not exist for video post", post.id)
+            return post
+
+        video_path = Path(video_path)
+        thumb_name = f"{video_path.stem}_thumb_{uuid4().hex}.jpg"
+        final_thumb_path = final_path.parent / "thumbnails" / thumb_name
+        thumb_path = video_path.parent / "thumbnails" / thumb_name
+
+        thumbnails_dir = thumb_path.parent
+        if thumbnails_dir.exists():
+            for existing_file in thumbnails_dir.iterdir():
+                if video_path.stem in existing_file.name:
+                    print("Thumbnail already exists at", existing_file)
+
+                    return Post(
+                        post.id,
+                        user.user_id,
+                        post.caption,
+                        0,
+                        post.created_at,
+                        (0, 0),
+                        post.tags,
+                        [],
+                        Path(*existing_file.parts[1:]),
+                        "photo",
+                    )
+
+        thumb_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            # open video with opencv
+            cap = cv2.VideoCapture(str(video_path))
+
+            if not cap.isOpened():
+                print(f"Failed to open video file for post {post.id}")
+                return post
+
+            # seek to 1 second (fps * 1)
+            fps = cap.get(cv2.CAP_PROP_FPS) or 30
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(fps))
+
+            ret, frame = cap.read()
+            cap.release()
+
+            if not ret or frame is None:
+                print(f"Failed to read frame from video for post {post.id}")
+                return post
+
+            # convert BGR to RGB and save
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame_rgb)
+
+            # downscale to fit within UHD
+            max_w, max_h = 1920, 1080
+            w, h = image.size
+            scale = min(max_w / w, max_h / h, 1.0)
+            if scale < 1.0:
+                new_size = (int(w * scale), int(h * scale))
+                image = image.resize(new_size, Image.LANCZOS)
+
+            image.save(thumb_path, format="JPEG", quality=85, optimize=True)
+
+        except Exception as e:
+            print(f"Failed to generate thumbnail for video post {post.id}: {e}")
+            return post
+
+        print("Success generating thumbnail at", thumb_path)
+        return Post(
+            post.id,
+            user.user_id,
+            post.caption,
+            0,
+            post.created_at,
+            (0, 0),
+            post.tags,
+            [],
+            final_thumb_path,
+            "photo",
+        )
+
+    def get_all_posts(self) -> List[type[Post]]:
+        with self._session_cm as scm:
+            posts = scm.session.query(Post).all()
+            return posts
+
+    def add_temp_user(self, user: User):
+        self._temp_users.append(user)
+
+    def get_temp_user_by_name(self, username: str) -> User | None:
+        for user in self._temp_users:
+            if user.username == username:
+                return user
+        return None
+
+    def get_temp_user_by_id(self, user_id: int) -> User | None:
+        for user in self._temp_users:
+            if user.user_id == user_id:
+                return user
+        return None
+
+    def get_temp_user_max_id(self) -> int:
+        with self._session_cm as scm:
+            max_id = scm.session.scalar(select(func.max(users_table.c.id)))
+            next_id = 1 if max_id is None else int(max_id) + 1
+            return next_id
+
+    def convert_temp_user_to_permanent(self, temp_user: User, type: str):
+        with self._session_cm as scm:
+            if type == "Human":
+                new_user = HumanUser(
+                    user_id=temp_user.user_id,
+                    username=temp_user.username,
+                    email=temp_user.email,
+                    password_hash=temp_user.password_hash,
+                    profile_picture_path=temp_user.profile_picture_path,
+                    bio=temp_user.bio,
+                    created_at=temp_user.created_at,
+                    following=[],
+                )
+            elif type == "Pet":
+                new_user = PetUser(
+                    user_id=temp_user.user_id,
+                    username=temp_user.username,
+                    profile_picture_path=temp_user.profile_picture_path,
+                    bio=temp_user.bio,
+                    posts=[],
+                    following=[],
+                )
+            else:
+                raise ValueError("Invalid user type specified.")
+
+            with scm.session.no_autoflush:
+                scm.session.add(new_user)
+            scm.commit()
+            # Remove from temp users list
+            self._temp_users = [
+                user for user in self._temp_users if user.user_id != temp_user.user_id
+            ]
+            return new_user
+
+    def convert_human_to_pet(self, human_user: User) -> PetUser:
+        with self._session_cm as scm:
+            new_user = PetUser(
+                user_id=human_user.user_id,
+                username=human_user.username,
+                email=human_user.email,
+                password_hash=human_user.password_hash,
+                profile_picture_path=human_user.profile_picture_path,
+                bio=human_user.bio,
+                posts=[],
+                following=human_user.following,
+            )
+            with scm.session.no_autoflush:
+                scm.session.delete(human_user)
+                scm.session.flush()
+                scm.session.add(new_user)
+            scm.commit()
+            return new_user
+
+    def convert_pet_to_human(self, pet_user: User) -> HumanUser:
+        with self._session_cm as scm:
+            new_user = HumanUser(
+                user_id=pet_user.user_id,
+                username=pet_user.username,
+                email=pet_user.email,
+                password_hash=pet_user.password_hash,
+                profile_picture_path=pet_user.profile_picture_path,
+                bio=pet_user.bio,
+                created_at=pet_user.created_at,
+                following=pet_user.following,
+            )
+            with scm.session.no_autoflush:
+                scm.session.delete(pet_user)
+                scm.session.flush()
+                scm.session.add(new_user)
+            scm.commit()
+            return new_user
