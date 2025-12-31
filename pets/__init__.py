@@ -40,13 +40,22 @@ def create_app():
         database_uri = app.config["SQLALCHEMY_DATABASE_URI"]
 
         database_echo = app.config["SQLALCHEMY_ECHO"]
+        if database_uri.startswith("sqlite"):
+            database_engine = create_engine(
+                database_uri,
+                connect_args={"check_same_thread": False},
+                poolclass=NullPool,
+                echo=database_echo,
+            )
+        else:
+            database_engine = create_engine(
+                database_uri,
+                pool_size=5,
+                max_overflow=10,
+                pool_pre_ping=True,
+                echo=database_echo,
+            )
 
-        database_engine = create_engine(
-            database_uri,
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-            echo=database_echo,
-        )
 
         session_factory = sessionmaker(
             autocommit=False, autoflush=True, bind=database_engine
