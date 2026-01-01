@@ -46,6 +46,8 @@ pip install -r requirements.txt
 
 3. Configure environment variables:
 
+- In `.env` file in project root
+
 ```
 
 # Flask variables
