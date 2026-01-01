@@ -69,7 +69,7 @@ SQLALCHEMY_ECHO=False
 
 # Repository selection variable
 # ----------------
-#REPOSITORY='memory'
+#REPOSITORY='memory'                                      # Comment/Uncomment either variable for Repo Mode
 REPOSITORY='database'
 
 ```
