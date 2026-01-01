@@ -6,7 +6,7 @@ def test_posts_initialization(test_pet_user, test_post):
     assert isinstance(test_pet_user.posts, list)
     assert len(test_pet_user.posts) == 1
     assert test_post in test_pet_user.posts
-    assert test_post.user_id == test_pet_user.id
+    assert test_post.user_id == test_pet_user.user_id
 
 
 def test_post_likes(test_pet_user, test_post, test_like):
@@ -61,10 +61,10 @@ def test_post_description(test_pet_user, test_post):
 
 def test_post_user_association(test_pet_user, test_post):
     test_pet_user.add_post(test_post)
-    assert test_post.user_id == test_pet_user.id
+    assert test_post.user_id == test_pet_user.user_id
     another_user = test_pet_user  # In real tests, create a different user
-    test_post._Post__user_id = another_user.id
-    assert test_post.user_id == another_user.id
+    test_post._Post__user_id = another_user.user_id
+    assert test_post.user_id == another_user.user_id
 
 
 def test_post_id(test_pet_user, test_post):

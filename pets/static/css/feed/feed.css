@@ -154,6 +154,7 @@ html, body {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  padding : 0.7rem;
 }
 
 .short-card video,
@@ -173,9 +174,7 @@ html, body {
 }
 
 #userPanel img:not(.user-avatar):not(.thumb img),
-#userPanel video:not(.thumb video),
-#commentsPanel img,
-#commentsPanel video {
+#userPanel video:not(.thumb video){
   max-width: 100%;
   height: auto;
   max-height: 80vh;
@@ -291,6 +290,9 @@ html, body {
   #commentsPanel,
   #userPanel {
     min-height: 0;
+  }
+  .short-card{
+    padding : 0;
   }
 }
 

@@ -1,9 +1,11 @@
+from overrides import overrides
+
 from pets.domainmodel.User import User
 from pets.domainmodel.Post import Post
 from pets.domainmodel.Comment import Comment
 from pets.domainmodel.AnimalType import AnimalType
 
-from typing import List
+from typing import List, Optional
 from pathlib import Path
 from datetime import datetime
 
@@ -11,27 +13,30 @@ from datetime import datetime
 class PetUser(User):
     __posts: List[Post]
     __animal_type: AnimalType
-    __followers: List[User]
+    __follower_ids: List[int]
 
     def __init__(
         self,
-        id: int,
-        username: str,
-        email: str,
-        password_hash: str,
-        profile_picture_path: Path,
-        created_at: datetime,
+        user_id: int = None,
+        username: str = "",
+        email: str = "",
+        password_hash: str = "",
+        profile_picture_path: Path | None = None,
+        created_at: datetime | None = None,
         liked_posts: List[Post] = None,
         following: List[User] = None,
         comments: List[Comment] = None,
         bio: str = "",
         posts: List[Post] = None,
         animal_type: AnimalType = None,
-        followers: List[User] = None,
         follower_ids: List[int] = None,
     ):
+        # allow created_at to default to now if not provided
+        if created_at is None:
+            created_at = datetime.now()
+
         super().__init__(
-            id,
+            user_id,
             username,
             email,
             password_hash,
@@ -44,8 +49,13 @@ class PetUser(User):
         )
         self.__posts: List[Post] = posts if posts is not None else []
         self.__animal_type: AnimalType = animal_type
-        self.__followers: List[User] = followers if followers is not None else []
-        self.__follower_ids = follower_ids if follower_ids is not None else []
+        self.__follower_ids: List[int] = (
+            follower_ids if follower_ids is not None else []
+        )
+
+    @overrides
+    def __str__(self):
+        return f"PetUser({self.user_id}, {self.username}, {self.email}, {self.animal_type}, Posts: {len(self.posts)}, Followers: {len(self.follower_ids)})"
 
     @property
     def posts(self) -> List[Post]:
@@ -54,10 +64,6 @@ class PetUser(User):
     @property
     def animal_type(self) -> AnimalType:
         return self.__animal_type
-
-    @property
-    def followers(self) -> List[User]:
-        return self.__followers
 
     @property
     def follower_ids(self) -> List[int]:
@@ -71,12 +77,10 @@ class PetUser(User):
         if post in self.__posts and isinstance(post, Post):
             self.__posts.remove(post)
 
-    def add_follower(self, user: User):
-        if user not in self.__followers and isinstance(user, User):
-            self.__follower_ids.append(user.id)
-            self.__followers.append(user)
+    def add_follower(self, user_id: int):
+        if isinstance(user_id, int) and user_id not in self.__follower_ids:
+            self.__follower_ids.append(user_id)
 
-    def remove_follower(self, user: User):
-        if user in self.__followers and isinstance(user, User):
-            self.__follower_ids.remove(user.id)
-            self.__followers.remove(user)
+    def remove_follower(self, user_id: int):
+        if user_id in self.__follower_ids:
+            self.__follower_ids.remove(user_id)

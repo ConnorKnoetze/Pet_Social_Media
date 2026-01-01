@@ -1,18 +1,13 @@
+import os
+
 from flask import (
     Blueprint,
     render_template,
 )
-from pets.adapters import repository
 from pets.blueprints.authentication.authentication import login_required
+from pets.blueprints.services import _repo
 
 post_bp = Blueprint("post", __name__)
-
-
-def _repo():
-    r = repository.repo_instance
-    if r is None:
-        raise RuntimeError("Repository not initialized")
-    return r
 
 
 @post_bp.route("/post/<int:id>")
@@ -23,5 +18,13 @@ def view_post(id: int):
     user = repo.get_pet_user_by_id(post.user_id)
     if not post:
         return "User not found", 404
+
+    post_path = (
+        os.path.join("../", post.media_path)
+        if user.username in str(post.media_path)
+        else post.media_path
+    )
     # Adjusted template path to match actual location under pages/
-    return render_template("pages/post/post.html", post=post, user=user)
+    return render_template(
+        "pages/post/post.html", post=post, user=user, post_path=post_path
+    )

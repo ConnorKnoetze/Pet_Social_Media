@@ -14,7 +14,7 @@ class HumanUser(User):
 
     def __init__(
         self,
-        id: int,
+        user_id: int,
         username: str,
         email: str,
         password_hash: str,
@@ -28,7 +28,7 @@ class HumanUser(User):
         friends: List[User] = None,
     ):
         super().__init__(
-            id,
+            user_id,
             username,
             email,
             password_hash,

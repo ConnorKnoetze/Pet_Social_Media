@@ -1,4 +1,7 @@
 (function() {
+  if (!document.querySelector('.feed-grid') && !document.getElementById('contentPanel')) {
+    return;
+  }
   const MOBILE_QUERY = '(max-width:520px)';
   const OVERLAY_QUERY = '(max-width:1300px)'; // panels overlay at this width in CSS
   let mobileCloseBtn = null;
@@ -156,10 +159,6 @@
   function init() {
     apply(loadPref());
   }
-
-  mq.addEventListener('change', () => {
-    if (loadPref() === 'system') apply('system');
-  });
 
   init();
 })();

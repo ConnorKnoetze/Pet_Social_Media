@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}User | {{user.username}}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user/settings.css') }}">
+<script defer src="{{ url_for('static', filename='js/user/settings.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="settings-container">
+    <div class="settings-card">
+        <div class="settings-wrapper">
+            <h2>Profile Settings For {{username}}</h2>
+            <form id="settingsForm" method="POST" action="/{{user.user_id}}/settings" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="profilePicture">Profile Picture:</label>
+                    <input type="file" id="profilePicture" name="profile_picture" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio:</label>
+                    <textarea id="bio" name="bio" rows="4" cols="50">{{ user.bio }}</textarea>
+                    <p id="char-count"></p>
+                </div>
+                <p>{{'Select User Type: (WARNING : Converting to Human will delete all posts)' if type == "PetUser" else 'Select User Type:'}}</p>
+                <div class="user-type-checkboxes">
+                  <label>
+                    {% if type == "HumanUser" %}
+                    <input type="radio" name="user_type" value="Human" required checked>
+                    {% else %}
+                    <input type="radio" name="user_type" value="Human" required>
+                    {% endif %}
+                    Human
+                  </label>
+                  <label>
+                    {% if type == "PetUser" %}
+                    <input type="radio" name="user_type" value="Pet" required checked>
+                    {% else %}
+                    <input type="radio" name="user_type" value="Pet" required>
+                    {% endif %}
+                    Pet
+                  </label>
+                </div>
+                <button type="submit" class="save-button">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

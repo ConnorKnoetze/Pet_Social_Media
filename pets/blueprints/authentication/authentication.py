@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
@@ -7,7 +7,8 @@ import pets.blueprints.authentication.services as services
 from password_validator import PasswordValidator
 from functools import wraps
 
-
+from pets.blueprints.user.services import clean_up
+from pets.domainmodel.TempUser import TempUser
 from pets.utilities.auth import is_logged_in
 
 
@@ -17,9 +18,20 @@ authentication_blueprint = Blueprint("authentication_bp", __name__, url_prefix="
 @authentication_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()
-    user_name_not_unique = None
+    user_name_error_message = None
 
     if form.validate_on_submit():
+        if len(form.user_name.data) > 20:
+            user_name_error_message = (
+                "Your user name is too long - please limit to 20 characters"
+            )
+            return render_template(
+                "pages/register.html",
+                title="Register",
+                form=form,
+                user_name_error_message=user_name_error_message,
+                handler_url=url_for("authentication_bp.register"),
+            )
         try:
             services.add_user(
                 form.user_name.data,
@@ -30,22 +42,20 @@ def register():
             return redirect(url_for("authentication_bp.login"))
 
         except services.NameNotUniqueException:
-            user_name_not_unique = (
+            user_name_error_message = (
                 "Your user name is already taken - please supply another"
             )
     return render_template(
         "pages/register.html",
         title="Register",
         form=form,
-        user_name_error_message=user_name_not_unique,
+        user_name_error_message=user_name_error_message,
         handler_url=url_for("authentication_bp.register"),
     )
 
 
 @authentication_blueprint.route("/login", methods=["GET", "POST"])
 def login():
-    from pets.blueprints.feed.feed import feed, feed_bp
-
     repo = repository.repo_instance
     form = LoginForm()
     user_name_not_recognised = None
@@ -53,13 +63,17 @@ def login():
 
     if form.validate_on_submit():
         try:
-            user = services.get_user(form.user_name.data, repo)
+            user, temp = services.get_user(form.user_name.data, repo)
 
             # Authenticate user
             services.authenticate_user(user["user_name"], form.password.data, repo)
 
             # Initialise session and redirect the user to the home page
             session.clear()
+            if temp:
+                session["is_temp"] = True
+            else:
+                session["is_temp"] = False
             session["user_name"] = user["user_name"]
             return redirect(url_for("feed.feed"))
 
@@ -81,12 +95,12 @@ def login():
     )
 
 
-@authentication_blueprint.route("/logout")
+@authentication_blueprint.route("/logout", methods=["GET", "POST"])
 def logout():
-    from pets.blueprints.feed.feed import feed, feed_bp
-
+    print("cleaning up thumbnails for user:", session.get("user_name"))
+    clean_up(session.get("user_name"))
     session.clear()
-    return redirect(url_for("feed.feed"))
+    return redirect(url_for("authentication_bp.login"))
 
 
 def login_required(view):

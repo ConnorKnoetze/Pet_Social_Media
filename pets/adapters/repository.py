@@ -80,7 +80,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_posts(self, user: User, posts: List[Post]):
+    def add_multiple_posts(self, users: User, posts: List[Post]):
         # Adds multiple Posts to the repository.
         raise NotImplementedError
 
@@ -110,12 +110,12 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_comments(self, user: User, comments: List[Comment]):
+    def add_multiple_comments(self, users: User, comments: List[Comment]):
         # Adds multiple Comments to the repository.
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_like(self, user: User, like: Like):
+    def add_like(self, user: User, post: Post):
         # Adds a Like to the repository.
         raise NotImplementedError
 
@@ -125,7 +125,7 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_multiple_likes(self, posts: List[Post], users: List[User]):
+    def add_multiple_likes(self, likes: List[Like]):
         # Adds multiple Likes to the repository.
         raise NotImplementedError
 
@@ -147,4 +147,49 @@ class AbstractRepository(abc.ABC):
     @abc.abstractmethod
     def create_comment(self, user: User, post: Post, text: str) -> Comment:
         # Creates and adds a Comment to the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_total_user_size(self):
+        # Retrieves the total number of users in the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def follow_user(self, follower: User, followee: User):
+        # Follows a user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def unfollow_user(self, follower: User, followee: User):
+        # Unfollows a user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update_user(self, user: User):
+        # Updates user information in the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def is_following(self, follower_id: int, followee_id: int) -> bool:
+        # Checks if a user is following another user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_followers(self, user: User) -> List[User]:
+        # Retrieves the followers of a given user.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_video_thumbnail(self, post: Post, user: User) -> Post:
+        # Retrieves the thumbnail for a video post.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def delete_post(self, user: User, post: Post):
+        # Deletes a Post from the repository.
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_all_posts(self) -> List[type[Post]]:
+        # Retrieves all Posts in the repository.
         raise NotImplementedError

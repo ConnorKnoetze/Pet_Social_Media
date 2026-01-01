@@ -25,7 +25,7 @@ class DataReader:
         posts_reader.assign_comments(comments_reader.comments)
         pet_user_reader.assign_posts(posts_reader.posts)
 
-        self.__users = pet_user_reader.users
+        self.__pet_users = pet_user_reader.users
         self.__posts = posts_reader.posts
         self.__likes = likes_reader.likes
         self.__comments = comments_reader.comments
@@ -33,7 +33,7 @@ class DataReader:
 
     @property
     def users(self) -> List[PetUser]:
-        return self.__users
+        return self.__pet_users
 
     @property
     def posts(self) -> List[Post]:

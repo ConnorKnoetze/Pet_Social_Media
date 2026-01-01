@@ -8,10 +8,18 @@
           {% if post.media_type == 'photo' %}
             <img src="{{ post.media_path }}" alt="Post image">
           {% elif post.media_type == 'video' %}
-            <video autoplay loop muted playsinline controlslist="nodownload nofullscreen noplaybackrate" disablepictureinpicture>
+            <video class="video" autoplay loop muted playsinline controlslist="nodownload nofullscreen noplaybackrate" disablepictureinpicture>
               <source src="{{ post.media_path }}" type="video/mp4">
             </video>
+
+          <span class="video-play-button"><img src="/static/images/assets/play-buttton.png" alt="play-button"></span>
+          <span class="video-pause-button"><img src="/static/images/assets/pause.png" alt="pause-button"></span>
+          <span class="video-fullscreen-button"><a href="/post/{{post.id}}"><img src="/static/images/assets/maximize.png" alt="maximize-button"></a></span>
           {% endif %}
+          <div class="engagement-metrics">
+            <span class="engagement-item">❤️ {{ likes_count[post.id] }}</span>
+            <span class="engagement-item">💬 {{ comments_count[post.id] }}</span>
+          </div>
           <div class="post-info">
             <p class="bio">{{ post.caption }}</p>
             <small class="created-at">Posted: {{ post.created_at | timeago }}</small>

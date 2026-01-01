@@ -1,7 +1,7 @@
 :root{
   --splash-bg: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-  --card-bg: rgba(255,255,255,0.06);
-  --accent: rgba(255,255,255,0.9);
+  --card-bg: var(--color-panel-bg-glass);
+  --accent: var(--color-text);
 }
 
 /* Fullscreen overlay */
@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, rgba(0,0,0,0.35), rgba(0,0,0,0.55));
+  background: radial-gradient(circle at center, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
   backdrop-filter: blur(8px) saturate(120%);
   -webkit-backdrop-filter: blur(8px) saturate(120%);
   z-index: 9999;
@@ -26,10 +26,10 @@
   padding: 28px;
   border-radius: 22px;
   background: var(--card-bg);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--color-panel-border);
   box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px rgba(255,255,255,0.03);
   text-align: center;
-  color: var(--accent);
+  color: var(--color-text);
   transform-origin: center;
   transform: translateY(6px) scale(.98);
   animation: cardIn 720ms cubic-bezier(.2,.9,.2,1) 1;
@@ -70,7 +70,7 @@ h1 {
 p {
   margin: 6px 0 18px;
   font-size: 13px;
-  color: rgba(255,255,255,0.85);
+  color: var(--color-muted);
 }
 
 .progress {
