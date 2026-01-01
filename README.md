@@ -46,7 +46,7 @@ pip install -r requirements.txt
 
 3. Configure environment variables:
 
-- In `.env` file in project root
+- Create a `.env` file in project root if not done already.
 
 ```
 
@@ -73,8 +73,6 @@ SQLALCHEMY_ECHO=False
 REPOSITORY='database'
 
 ```
-
-Create a `.env` or set variables in your shell before running.
 
 ## Running locally 
 
