@@ -46,9 +46,31 @@ pip install -r requirements.txt
 
 3. Configure environment variables:
 
-- `FLASK_APP` or your chosen entry point
-- `DATABASE_URL` (or use the provided `pets.db` for local development)
-- `SECRET_KEY`
+```
+
+# Flask variables
+# ---------------
+FLASK_APP = 'wsgi.py'                                     # this is our entry point so when we run flask run in the terminal wsgi.py is called
+FLASK_ENV = 'development'                                 # means its in debugging mode (useful for developing our app)
+SECRET_KEY = 'thisisourverysecretkeythatnoonewilleverknow'           # Used to encrypt session data. signing cookies or csrf tokens
+TESTING = False                                           # True or False. false means normal mode, true means run test cases
+
+# WTForm variables
+# ----------------
+WTF_CSRF_SECRET_KEY='theothersecret'  # Needed by Flask WTForms to combat cross-site request forgery (csrf attacks).
+
+# Database/ORM Variables
+# ---------------
+#SQLALCHEMY_DATABASE_URI='sqlite:///pets.db'            #Uncomment for sqlite dev DB
+SQLALCHEMY_DATABASE_URI='[Other database URI]'
+SQLALCHEMY_ECHO=False
+
+# Repository selection variable
+# ----------------
+#REPOSITORY='memory'
+REPOSITORY='database'
+
+```
 
 Create a `.env` or set variables in your shell before running.
 
